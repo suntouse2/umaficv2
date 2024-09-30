@@ -1,0 +1,10 @@
+html {
+  max-width: 100dvw;
+}
+body {
+  max-width: 100dvw;
+  overflow-x: hidden;
+}
+body * {
+  font-family: 'Mulish', 'Roboto', sans-serif;
+}
