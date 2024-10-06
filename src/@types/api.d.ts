@@ -2,7 +2,7 @@ type TCampaign = {
   id: number;
   name: string;
   type: 'search' | 'watch' | 'direct';
-  is_active: boolean;
+  state: 'pending' | 'preparing' | 'active' | 'inactive';
   last_active_at: string;
   last_stop_at: string;
   created_at: string;
@@ -164,9 +164,9 @@ type TChatMessage = {
   id: number;
   content: TMessageContent;
   date: string;
-  is_self: true;
-  is_read: true;
-  is_auto_reply: true;
+  is_self: boolean;
+  is_read: boolean;
+  is_auto_reply: boolean;
   forwarded_message: {
     id: number;
     content: TMessageContent;

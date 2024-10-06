@@ -16,6 +16,7 @@
     "@tanstack/react-query": "^5.56.2",
     "@types/react-router-dom": "^5.3.3",
     "@types/react-toastify": "^4.1.0",
+    "@types/react-window": "^1.8.8",
     "@typescript-eslint/eslint-plugin": "^8.7.0",
     "@typescript-eslint/parser": "^8.7.0",
     "axios": "^1.7.7",
@@ -30,6 +31,7 @@
     "react-intersection-observer": "^9.13.1",
     "react-router-dom": "^6.26.2",
     "react-toastify": "^10.0.5",
+    "react-window": "^1.8.10",
     "tsoa": "^6.4.0",
     "uniqolor": "^1.1.1",
     "vite-plugin-svgr": "^4.2.0"

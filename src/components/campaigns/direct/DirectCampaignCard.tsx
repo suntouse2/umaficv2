@@ -2,7 +2,7 @@ import { useToggleDirectCampaign } from '@api/queries';
 import Bubble from '@components/common/Bubble';
 import formatBalance from '@helpers/formatBalance';
 import { SettingsOutlined, TextsmsOutlined } from '@mui/icons-material';
-import { IconButton, Switch } from '@mui/material';
+import { Badge, IconButton, Switch } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 type DirectCampaignCardProps = {
@@ -15,7 +15,7 @@ export default function DirectCampaignCard({ campaign }: DirectCampaignCardProps
 
   const handleToggleCampaign = () => {
     if (isPending) return;
-    toggleCampaign({ id: campaign.id, campaignState: campaign.is_active });
+    toggleCampaign({ id: campaign.id, campaignState: campaign.state });
   };
 
   return (
@@ -27,15 +27,22 @@ export default function DirectCampaignCard({ campaign }: DirectCampaignCardProps
             <SettingsOutlined />
           </IconButton>
           <IconButton onClick={() => navigate('/chat', { state: { id: campaign.id } })} color='success'>
-            <TextsmsOutlined />
+            <Badge badgeContent={campaign.numeric_statistics.incoming_messages_unread} color='secondary'>
+              <TextsmsOutlined />
+            </Badge>
           </IconButton>
         </div>
       </div>
       <hr className='my-2 h-[1px] border-none bg-softgray' />
       {campaign.is_moderated ? (
         <div className='flex items-center justify-between'>
-          <span className='text-sm'>{campaign.is_active ? 'Запущена' : 'Не запущена'}</span>
-          <Switch size='small' checked={campaign.is_active} onChange={handleToggleCampaign} />
+          <span className='text-md'>
+            {campaign.state == 'inactive' && 'Не запущен'}
+            {campaign.state == 'pending' && 'Ожидание...'}
+            {campaign.state == 'preparing' && 'Подготовка..'}
+            {campaign.state == 'active' && 'Запущен'}
+          </span>
+          {<Switch disabled={campaign.state == 'pending' || campaign.state == 'preparing'} size='small' checked={campaign.state == 'active'} onChange={handleToggleCampaign} />}
         </div>
       ) : (
         <div className='flex items-center justify-between'>
@@ -63,10 +70,6 @@ export default function DirectCampaignCard({ campaign }: DirectCampaignCardProps
           <span className='text-sm'>{campaign.numeric_statistics.incoming_messages_by_day}</span>
         </div>
         <div className='flex items-center justify-between'>
-          <span className='text-sm'>Входящих сообщений за месяц</span>
-          <span className='text-sm'>{campaign.numeric_statistics.directs_by_day * 30 /* примерное значение, может зависеть от других данных */}</span>
-        </div>
-        <div className='flex items-center justify-between'>
           <span className='text-sm'>Непрочитанных входящих сообщений</span>
           <span className='text-sm'>{campaign.numeric_statistics.incoming_messages_unread}</span>
         </div>
@@ -83,10 +86,6 @@ export default function DirectCampaignCard({ campaign }: DirectCampaignCardProps
           <span className='text-sm'>{formatBalance(campaign.numeric_statistics.spending_by_day)}</span>
         </div>
         <div className='flex items-center justify-between'>
-          <span className='text-sm'>Расход за последний месяц</span>
-          <span className='text-sm'>{formatBalance(parseFloat(campaign.numeric_statistics.spending_by_day) * 30)}</span>
-        </div>
-        <div className='flex items-center justify-between'>
           <span className='text-sm'>Общий возврат средств</span>
           <span className='text-sm'>{formatBalance(campaign.numeric_statistics.repayment)}</span>
         </div>
@@ -95,24 +94,12 @@ export default function DirectCampaignCard({ campaign }: DirectCampaignCardProps
           <span className='text-sm'>{formatBalance(campaign.numeric_statistics.repayment_by_day)}</span>
         </div>
         <div className='flex items-center justify-between'>
-          <span className='text-sm'>Возврат средств за последний месяц</span>
-          <span className='text-sm'>{formatBalance(parseFloat(campaign.numeric_statistics.repayment_by_day) * 30)}</span>
+          <span className='text-sm'>Средняя цена одного избранного/лида</span>
+          <span className='text-sm'>{formatBalance((parseFloat(campaign.numeric_statistics.spending) / (campaign.numeric_statistics.directs_favorite || 1)).toFixed(0))}</span>
         </div>
         <div className='flex items-center justify-between'>
-          <span className='text-sm'>Средняя цена одного избранного/лида за сутки</span>
-          <span className='text-sm'>{formatBalance(parseFloat(campaign.numeric_statistics.spending_by_day) / (campaign.numeric_statistics.directs_favorite || 1))}</span>
-        </div>
-        <div className='flex items-center justify-between'>
-          <span className='text-sm'>Средняя цена одного избранного/лида за месяц</span>
-          <span className='text-sm'>{formatBalance((parseFloat(campaign.numeric_statistics.spending_by_day) * 30) / (campaign.numeric_statistics.directs_favorite || 1))}</span>
-        </div>
-        <div className='flex items-center justify-between'>
-          <span className='text-sm'>Средняя цена одного диалога за сутки</span>
-          <span className='text-sm'>{formatBalance(parseFloat(campaign.numeric_statistics.spending_by_day) / (campaign.numeric_statistics.directs || 1))}</span>
-        </div>
-        <div className='flex items-center justify-between'>
-          <span className='text-sm'>Средняя цена одного диалога за месяц</span>
-          <span className='text-sm'>{formatBalance((parseFloat(campaign.numeric_statistics.spending_by_day) * 30) / (campaign.numeric_statistics.directs || 1))}</span>
+          <span className='text-sm'>Средняя цена одного диалога</span>
+          <span className='text-sm'>{formatBalance((parseFloat(campaign.numeric_statistics.spending) / (campaign.numeric_statistics.directs || 1)).toFixed(0))}</span>
         </div>
       </div>
     </Bubble>

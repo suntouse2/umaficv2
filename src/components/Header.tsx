@@ -11,18 +11,20 @@ type HeaderProps = {
 
 export default function Header({ asideToggleCallback }: HeaderProps) {
   const { user } = useAuth();
-  const [dialogState, setDialogState] = useState<boolean>(false);
+  const [paymentDialogState, setPaymentDialogState] = useState<boolean>(false);
+
   return (
     <>
-      <Dialog open={dialogState} onClose={() => setDialogState(false)}>
+      <Dialog open={paymentDialogState} onClose={() => setPaymentDialogState(false)}>
         <PaymentWindow />
       </Dialog>
+
       <header className='flex py-2 px-3 items-center justify-between'>
         <IconButton onClick={asideToggleCallback}>
           <Menu />
         </IconButton>
         <article className='flex justify-between gap-2 items-center'>
-          <Button onClick={() => setDialogState(true)} variant='outlined'>
+          <Button onClick={() => setPaymentDialogState(true)} variant='outlined'>
             Пополнить
           </Button>
           <Avatar sx={{ width: 35, height: 35 }} className='!bg-secondary'>

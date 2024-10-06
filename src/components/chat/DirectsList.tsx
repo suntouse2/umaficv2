@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useFetchChatDirects, useSetLastMessageRead, useUpdateDirect } from '@api/queries';
+import { useDeleteDirect, useFetchChatDirects, useUpdateDirect } from '@api/queries';
 import { useChat } from '@context/ChatContext';
 import uniqolor from 'uniqolor';
 import { Avatar, LinearProgress, Menu, MenuItem, ToggleButton, ToggleButtonGroup } from '@mui/material';
@@ -10,7 +10,7 @@ import mediaToText from '@helpers/mediaToText';
 export default function DirectsList() {
   const { campaignId, currentDirect, setCurrentDirect } = useChat();
   const { mutate: updateDirect } = useUpdateDirect();
-  const { mutate: readLastMessage } = useSetLastMessageRead();
+  const { mutate: deleteDirect } = useDeleteDirect();
   const [filter, setFilter] = useState<{ is_open?: boolean; is_favorite?: boolean }>({});
   const { data, isFetching } = useFetchChatDirects(campaignId, filter);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -18,7 +18,7 @@ export default function DirectsList() {
   const [touchTimer, setTouchTimer] = useState<NodeJS.Timeout | null>(null); // For long press
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement> | React.TouchEvent<HTMLElement>, direct: TChatDirect) => {
-    event.preventDefault(); // Prevent default context menu
+    event.preventDefault();
     setAnchorEl(event.currentTarget);
     setCurrentMenuDirect(direct);
   };
@@ -29,7 +29,7 @@ export default function DirectsList() {
   };
 
   const handleTouchStart = (event: React.TouchEvent<HTMLElement>, direct: TChatDirect) => {
-    const timer = setTimeout(() => handleMenuOpen(event, direct), 500); // Trigger after 500ms
+    const timer = setTimeout(() => handleMenuOpen(event, direct), 500);
     setTouchTimer(timer);
   };
 
@@ -57,17 +57,22 @@ export default function DirectsList() {
     setCurrentMenuDirect(null);
   };
 
-  const handleDirectClick = ({ is_open, id, last_message }: TChatDirect) => {
+  const handleDirectClick = ({ is_open, id }: TChatDirect) => {
     if (!is_open) updateDirect({ campaign_id: campaignId, direct_id: id, data: { is_open: true } });
-    readLastMessage({ campaign_id: campaignId, direct_id: id, message_id: last_message.id });
     setCurrentDirect(id);
   };
 
+  const handleDeleteDirect = () => {
+    const direct = currentMenuDirect;
+    if (!direct) return;
+    deleteDirect({ direct_id: direct.id });
+  };
+
   return (
-    <div className='p-2 mt-2 border-r-[1px] h-full border-softgray w-max min-w-[300px]'>
+    <div className='p-2 mt-2 border-r-[1px] h-full border-softgray w-full min-w-[300px]'>
       <ToggleButtonGroup
         color='secondary'
-        className='mb-2'
+        className='mb-2 !w-full'
         value={filter['is_favorite'] ? 'favorite' : 'all'}
         exclusive
         onChange={(_v, v) =>
@@ -77,8 +82,12 @@ export default function DirectsList() {
           }))
         }
         aria-label='Platform'>
-        <ToggleButton value='all'>Все</ToggleButton>
-        <ToggleButton value='favorite'>Избранное</ToggleButton>
+        <ToggleButton className='w-full' value='all'>
+          Все
+        </ToggleButton>
+        <ToggleButton className='w-full' value='favorite'>
+          Избранное
+        </ToggleButton>
       </ToggleButtonGroup>
       <ul className='flex flex-col h-full w-full'>
         {!data && isFetching && <LinearProgress color='secondary' />}
@@ -86,30 +95,27 @@ export default function DirectsList() {
           data.pages.length > 0 &&
           data.pages.map((directs) =>
             directs.data.map((direct) => (
-              <li
-                title='Нажмите правой кнопкой'
-                onClick={() => handleDirectClick(direct)}
-                onContextMenu={(e) => handleMenuOpen(e, direct)} // Open menu on right-click
-                onTouchStart={(e) => handleTouchStart(e, direct)} // Handle long press
-                onTouchEnd={handleTouchEnd} // Clear timer on touch end
-                key={direct.id}
-                className={`flex gap-3 p-2 w-full transition-colors hover:bg-softgray cursor-pointer ${currentDirect === direct.id && '!bg-softgray'}`}>
+              <li title='Нажмите правой кнопкой' onClick={() => handleDirectClick(direct)} onContextMenu={(e) => handleMenuOpen(e, direct)} onTouchStart={(e) => handleTouchStart(e, direct)} onTouchEnd={handleTouchEnd} key={direct.id} className={`flex gap-3 p-2 w-full transition-colors hover:bg-softgray cursor-pointer ${currentDirect === direct.id && '!bg-softgray'}`}>
                 <Avatar {...stringAvatar(direct.user.first_name)} />
                 <div className='w-full'>
                   <p className='flex justify-between gap-5'>
-                    <b>{direct.user.first_name + (direct.user.last_name ?? '')}</b> {direct.last_message && <span className='text-sm text-softgray4'>{dateToString(new Date(direct.last_message.date))}</span>}
+                    <b>{direct.user.first_name + ' ' + (direct.user.last_name ?? '')}</b> {direct.last_message && <span className='text-sm text-softgray4'>{dateToString(new Date(direct.last_message.date))}</span>}
                   </p>
-                  <p>{shortText(direct.last_message.content.message, 50)}</p>
+                  <p>{direct.last_message.content.message && shortText(direct.last_message.content.message, 50)}</p>
                   <p>{direct.last_message.content.media && mediaToText(direct.last_message.content.media.type)}</p>
                 </div>
+                {direct.unread_count > 0 && (
+                  <div className='flex h-full items-center'>
+                    <div className='bg-secondary  w-6 h-6 text-sm rounded-full flex justify-center items-center text-white '>{direct.unread_count}</div>
+                  </div>
+                )}
               </li>
             ))
           )}
 
-        {/* Menu component */}
         <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
           <MenuItem onClick={handleFavoriteChange}>{currentMenuDirect?.is_favorite ? 'Удалить из избранных' : 'Добавить в избранное'}</MenuItem>
-          <MenuItem onClick={handleFavoriteChange}>Удалить диалог</MenuItem>
+          <MenuItem onClick={handleDeleteDirect}>Удалить диалог</MenuItem>
         </Menu>
       </ul>
     </div>

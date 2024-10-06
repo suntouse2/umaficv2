@@ -10,13 +10,19 @@ export function useFetchDirectCampaigns() {
   return useInfiniteQuery({
     queryKey: ['get-direct-campaigns'],
     queryFn: ({ pageParam }) => DirectCampaignService.getDirectCampaigns(pageParam),
-    staleTime: 60 * 1000 * 2,
+    gcTime: 0,
     initialPageParam: 1,
     getNextPageParam: (lastPage, _allPages, lastPageParam) => {
       if (lastPage.data.length == 0) {
         return undefined;
       }
       return lastPageParam + 1;
+    },
+    refetchInterval: (data) => {
+      if (!data) return false;
+      if (!data.state.data) return false;
+      const hasPendingCampaigns = data.state.data.pages.some((page) => page.data.some((campaign) => ['preparing', 'pending'].includes(campaign.state)));
+      return hasPendingCampaigns ? 2000 : 60 * 1000 * 1;
     },
   });
 }
@@ -25,13 +31,13 @@ export function useToggleDirectCampaign() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: ['toggle-campaign'],
-    mutationFn: ({ id, campaignState }: { id: number; campaignState: boolean }) => (campaignState ? DirectCampaignService.stopCampaign(id) : DirectCampaignService.startCampaign(id)),
-    onMutate: ({ id, campaignState }) => {
+    mutationFn: ({ id, campaignState }: { id: number; campaignState: TDirectCampaign['state'] }) => (campaignState == 'active' ? DirectCampaignService.stopCampaign(id) : DirectCampaignService.startCampaign(id)),
+    onMutate: ({ id }) => {
       queryClient.setQueryData(['get-direct-campaigns'], (data: InfiniteData<AxiosResponse<TDirectCampaignResponse[]>>) => ({
         ...data,
         pages: [
           ...data.pages.map((item) => {
-            return { ...item, data: item.data.map((item) => (item.id == id ? { ...item, is_active: !campaignState } : item)) };
+            return { ...item, data: item.data.map((item) => (item.id == id ? { ...item, state: 'pending' } : item)) };
           }),
         ],
       }));
@@ -225,7 +231,6 @@ export function useSetLastMessageRead() {
 }
 
 export function useSendMessage() {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: ['sendMessage'],
     mutationFn: ({ direct_id, msg }: { direct_id: number; msg: TChatSendMessage; campaign_id: number }) => DirectService.sendMessage(direct_id, msg),
@@ -236,47 +241,12 @@ export function useSendMessage() {
         }
       }
     },
-    onSuccess: (_data, { direct_id, msg }) => {
-      // queryClient.setQueryData(['directs', campaign_id], (data: InfiniteData<AxiosResponse<TChatDirectsResponse>>) => {
-      //   const newPages = data.pages.map((page) => ({
-      //     ...page,
-      //     data: [...page.data],
-      //   }));
-      //   const index = newPages.findIndex((page) => page.data.some((direct) => direct.id == direct_id));
-      //   if (index !== -1) {
-      //     newPages[index].data.map((direct) =>
-      //       direct.id == direct_id
-      //         ? {
-      //             ...direct,
-      //             last_message: {
-      //               ...direct.last_message,
-      //               id: direct.last_message.id + 999,
-      //               content: msg,
-      //               is_self: true,
-      //               catch_slug: _data.data.catch_slug,
-      //             },
-      //           }
-      //         : direct
-      //     );
-      //   }
-      // });
-      queryClient.setQueryData(['direct-messages', direct_id], (data: InfiniteData<AxiosResponse<TChatDirectMessagesResponse>>) => {
-        const newPages = data.pages.map((page) => ({
-          ...page,
-          data: [...page.data],
-        }));
-        newPages[0].data.unshift({
-          ...newPages[0].data[0],
-          id: newPages[0].data[0].id + 999,
-          content: msg['content'],
-          is_self: true,
-          catch_slug: _data.data.catch_slug,
-        });
-        return {
-          ...data,
-          pages: newPages,
-        };
-      });
-    },
+  });
+}
+
+export function useDeleteDirect() {
+  return useMutation({
+    mutationKey: ['delete-direct'],
+    mutationFn: ({ direct_id }: { direct_id: number }) => DirectService.removeDirect(direct_id),
   });
 }

@@ -1,6 +1,6 @@
 import { useState, useRef, ChangeEvent } from 'react';
 import { Button, IconButton, Menu, MenuItem } from '@mui/material';
-import { AttachFile, Description, GraphicEq, SlowMotionVideo } from '@mui/icons-material';
+import { AttachFile, Delete, Description, GraphicEq, SlowMotionVideo } from '@mui/icons-material';
 import PhotoIcon from '@mui/icons-material/Photo';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import { toast } from 'react-toastify';
@@ -100,7 +100,16 @@ export default function CampaignMessageCreator({ data: { order, keywords, messag
 
       <textarea value={newMessage} onChange={(e) => setNewMessage(e.target.value)} className='text-sm p-2 outline-none w-full min-h-[100px] !bg-softgray' placeholder='Сообщение' />
 
-      <MediaRenderer media={newMedia} />
+      <div className='relative group'>
+        {newMedia && (
+          <div className='absolute top-0 right-0'>
+            <IconButton onClick={() => setNewMedia(null)}>
+              <Delete className='hover:text-negative cursor-pointer' />
+            </IconButton>
+          </div>
+        )}
+        <MediaRenderer media={newMedia} />
+      </div>
 
       <div className='flex mt-2 justify-end'>
         <IconButton onClick={handleMenuClick}>

@@ -1,13 +1,18 @@
 import MediaService from '@api/http/services/MediaService';
 import { useCallback } from 'react';
 import { useIndexedDB } from 'react-indexed-db-hook';
+import { toast } from 'react-toastify';
 
 export default function useMediaService() {
   const { add, getByID } = useIndexedDB('files');
 
   const uploadFile = useCallback(async (file: File): Promise<string> => {
     try {
-      const response = await MediaService.uploadFile(file);
+      const response = await toast.promise(MediaService.uploadFile(file), {
+        error: 'Ошибка загрузки',
+        pending: 'Загрузка файла...',
+        success: 'Файл загружен',
+      });
       const filepath = response.data.filename;
       return filepath;
     } catch {

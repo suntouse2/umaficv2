@@ -24,7 +24,7 @@ type UpsertFormType = TDirectCampaignSettings & {
 };
 
 export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType; id?: number }) {
-  const { control, watch, setValue, getValues } = useForm<UpsertFormType>({
+  const { control, watch, setValue, getValues, formState } = useForm<UpsertFormType>({
     defaultValues: data,
   });
 
@@ -75,13 +75,19 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
 
   const byType = !watch('settings.auto_reply.funnel.funnel_type') || watch('settings.auto_reply.funnel.funnel_type') == 'keyword' ? first : order;
 
+  const [dirty, setDirty] = useState<boolean>(false);
+
+  useEffect(() => {
+    setDirty(formState.isDirty);
+  }, [formState.isDirty, setDirty]);
+
   const [currentStep, setCurrentStep] = useState<number>(0);
 
   const blocker = useBlocker(({ currentLocation, nextLocation }) => {
     if (isSubmitting) {
       return false;
     }
-    return data !== undefined && currentLocation.pathname !== nextLocation.pathname;
+    return data !== undefined && dirty && currentLocation.pathname !== nextLocation.pathname;
   });
 
   useEffect(() => {
@@ -152,8 +158,10 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
                 className='w-full'
                 variant='outlined'
                 onClick={() => {
-                  blocker.proceed();
-                  blocker.reset();
+                  if (blocker.state === 'blocked') {
+                    blocker.proceed();
+                    blocker.reset();
+                  }
                 }}>
                 Выйти
               </Button>
@@ -166,6 +174,7 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
       ) : null}
       <form onSubmit={handleSubmit} className='mx-auto w-full h-full max-w-[600px] '>
         <h1 className='text-2xl font-bold'>Поиск клиентов</h1>
+
         <div>
           <Tabs textColor='secondary' indicatorColor='secondary' value={currentStep} onChange={(_e, v) => setCurrentStep(v)} variant='scrollable' scrollButtons='auto' allowScrollButtonsMobile>
             {tabs.map((tab, i) => (
@@ -202,7 +211,7 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
             <Bubble className='relative mt-4'>
               <TipBox content={locationTipMemo} />
               <h2 className='text-lg font-bold'>География</h2>
-              <p className='text-sm mt-2'>Выберите нужные регионы и увеличьте эффективность вашей рекламы! Настройте точечную рекламу и достигните своей целевой аудитории прямо сейчас.</p>
+              <p className='text-sm mt-2 mb-2'>Выберите нужные регионы и увеличьте эффективность вашей рекламы! Настройте точечную рекламу и достигните своей целевой аудитории прямо сейчас.</p>
               <Controller defaultValue={[]} control={control} name='settings.target.geo.language' render={({ field: { value, onChange } }) => <CampaignLocationManager value={new Set(value)} onChange={(v) => onChange(Array.from(v))} placeholder='введите язык' label='Добавить язык' options={new Map(Object.entries(languagesData ?? []))} />} />
               <Controller defaultValue={[]} control={control} name='settings.target.geo.country' render={({ field: { value, onChange } }) => <CampaignLocationManager value={new Set(value)} onChange={(v) => onChange(Array.from(v))} placeholder='введите страну' label='Добавить страну' options={new Map(Object.entries(countriesData ?? []))} />} />
               <Controller defaultValue={[]} control={control} name='settings.target.geo.region' render={({ field: { value, onChange } }) => <CampaignLocationManager value={new Set(value)} onChange={(v) => onChange(Array.from(v))} placeholder='введите регион' label='Добавить регион' options={new Map(Object.entries(regionsData ?? []))} />} />

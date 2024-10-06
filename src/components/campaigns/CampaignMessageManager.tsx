@@ -41,11 +41,9 @@ export default function CampaignMessageManager({ value, onChange, filter_type }:
 
     const updatedValue = [...value];
 
-    // Удаляем старое сообщение, если мы его редактируем
     if (filterIndex !== -1 && currentMessage.index !== -1) {
       updatedValue[filterIndex].messages.splice(currentMessage.index, 1);
 
-      // Удалить контейнер, если он пустой после удаления сообщения
       if (updatedValue[filterIndex].messages.length === 0) {
         updatedValue.splice(filterIndex, 1);
       }
@@ -121,7 +119,7 @@ export default function CampaignMessageManager({ value, onChange, filter_type }:
                     className='hover:text-negative'
                   />
                 </div>
-                <p className='break-words max-w-full mb-2'>{m.message}</p>
+                <p className='break-words max-w-full mb-4'>{m.message}</p>
                 {m.media !== null && <MediaRenderer media={m.media} />}
                 {v.order && (
                   <span className='text-sm'>

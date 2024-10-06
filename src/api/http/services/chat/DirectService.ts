@@ -17,6 +17,9 @@ class DirectService {
   async updateDirect(direct_id: number, data: TChatDirectStatusUpdate): Promise<AxiosResponse> {
     return $api.patch(`/directs/${direct_id}`, { ...data });
   }
+  async removeDirect(direct_id: number): Promise<AxiosResponse> {
+    return $api.delete(`/directs/${direct_id}`);
+  }
   async getDirectMessages(direct_id: number, page: number = 1): Promise<AxiosResponse<TChatDirectMessagesResponse>> {
     return $api.get(`/directs/${direct_id}/messages`, {
       params: {

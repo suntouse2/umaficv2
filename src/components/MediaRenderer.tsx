@@ -31,6 +31,7 @@ export default memo(function MediaRenderer({ media }: { media: TFunnelMessage['m
   if (!media) return <></>;
   return (
     <>
+      {loading && 'Загрузка'}
       {loading && <CircularProgress className='mt-10' color='primary' />}
       {!loading && <FileViewer file={file} mediaType={media.type} />}
     </>
