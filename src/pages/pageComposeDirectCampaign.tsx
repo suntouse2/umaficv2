@@ -1,8 +1,6 @@
 import DirectCampaignService from '@api/http/services/campaigns/DirectCampaignService';
 import DirectCampaignUpsertForm from '@components/campaigns/direct/DirectCampaignUpsertForm';
-import AuthWrapper from '@components/wrappers/AuthWrapper';
 import Container from '@components/wrappers/layouts/Container';
-import MainLayout from '@components/wrappers/layouts/MainLayout';
 import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -47,13 +45,9 @@ export default function ComposeDirectCampaign() {
   }, [fetchCampaign, id, navigate, path]);
 
   return (
-    <AuthWrapper>
-      <MainLayout>
-        <Container>
-          {path.split('/')[3] === 'edit' && data && <DirectCampaignUpsertForm id={id} data={data} />}
-          {path.split('/')[3] === 'create' && <DirectCampaignUpsertForm />}
-        </Container>
-      </MainLayout>
-    </AuthWrapper>
+    <Container>
+      {path.split('/')[3] === 'edit' && data && <DirectCampaignUpsertForm id={id} data={data} />}
+      {path.split('/')[3] === 'create' && <DirectCampaignUpsertForm />}
+    </Container>
   );
 }

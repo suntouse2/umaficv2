@@ -12,6 +12,7 @@ import MediaRenderer from '@components/MediaRenderer';
 
 import InputAcceptByMediaType from '@helpers/setInputAttributeByFileType';
 import useMediaService from '../../hooks/useMediaService';
+import { addTag, addTagList } from '@helpers/tagHelper';
 
 type CampaignMessageCreatorProps = {
   data: {
@@ -26,7 +27,7 @@ type CampaignMessageCreatorProps = {
 
 export default function CampaignMessageCreator({ data: { order, keywords, message }, updateMessage, onClose, filter_type }: CampaignMessageCreatorProps) {
   const [newOrder, setNewOrder] = useState<number | undefined>(filter_type === 'order' ? order : undefined);
-  const [newKeyword, setNewKeyword] = useState<string[]>(filter_type === 'keyword' ? keywords || [] : []);
+  const [newKeyword, setNewKeyword] = useState<Set<string>>(filter_type === 'keyword' ? new Set([...(keywords || [])]) : new Set());
   const [newMedia, setNewMedia] = useState<TFunnelMessage['media']>(message.media);
   const [newMessage, setNewMessage] = useState<string>(message.message);
   const [lastType, setLastType] = useState<TMediaTypes>('auto');
@@ -62,7 +63,7 @@ export default function CampaignMessageCreator({ data: { order, keywords, messag
       toast.error('Сообщение должно содержать текст или медиа.');
       return;
     }
-    if (filter_type === 'keyword' && newKeyword.length === 0) {
+    if (filter_type === 'keyword' && newKeyword.size === 0) {
       toast.error('Ключевые слова не должны быть пустыми.');
       return;
     }
@@ -73,7 +74,7 @@ export default function CampaignMessageCreator({ data: { order, keywords, messag
         media: newMedia,
       },
       ...(filter_type === 'order' && { order: newOrder }),
-      ...(filter_type === 'keyword' && { keywords: newKeyword }),
+      ...(filter_type === 'keyword' && { keywords: Array.from(newKeyword) }),
     };
 
     updateMessage(messageData);
@@ -88,11 +89,21 @@ export default function CampaignMessageCreator({ data: { order, keywords, messag
 
       {filter_type === 'keyword' && (
         <>
-          <TagInput className='!w-full shadow-none !bg-softgray' onAdd={(key) => setNewKeyword((prev) => [...prev, key])} />
-          {newKeyword.length > 0 && (
+          <TagInput
+            className='!w-full shadow-none !bg-softgray'
+            onAdd={(key, list) => {
+              if (list == 'single') {
+                setNewKeyword((p) => addTag(p, key));
+              }
+              if (list == 'list') {
+                setNewKeyword((p) => addTagList(p, key));
+              }
+            }}
+          />
+          {newKeyword.size > 0 && (
             <div>
               <p className='text-sm'>Ключевые слова:</p>
-              <TagList tagClassName='!bg-softgray' className='mt-0' editable value={new Set(newKeyword)} onChange={(tags) => setNewKeyword(Array.from(tags))} />
+              <TagList tagClassName='!bg-softgray' className='mt-0' editable value={new Set(newKeyword)} onChange={(tags) => setNewKeyword(tags)} />
             </div>
           )}
         </>

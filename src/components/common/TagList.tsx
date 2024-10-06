@@ -44,6 +44,7 @@ export default function TagList(props: TagListProps) {
 
   const handleInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.code === 'Enter') {
+      e.preventDefault();
       handleChangeTag();
     }
   };

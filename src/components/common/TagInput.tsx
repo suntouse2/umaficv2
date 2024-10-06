@@ -12,8 +12,6 @@ export default memo(function TagInput({ onAdd, onClose, className }: TagInputPro
   const [tag, setTag] = useState<string>('');
   const [isList, setIsList] = useState<boolean>(false);
 
-  console.log('rendered');
-
   const handleAddTag = () => {
     onAdd(tag, 'single');
     setTag('');
@@ -31,8 +29,10 @@ export default memo(function TagInput({ onAdd, onClose, className }: TagInputPro
   };
 
   const handleInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.code === 'Enter') handleAddTag();
-    else if (e.code === 'Escape' && onClose) {
+    if (e.code === 'Enter') {
+      e.preventDefault();
+      handleAddTag();
+    } else if (e.code === 'Escape' && onClose) {
       onClose();
     }
   };
