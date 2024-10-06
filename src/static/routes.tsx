@@ -1,10 +1,11 @@
 import PageWrapper from '@components/wrappers/PageWrapper';
-// import PageDashboard from '@pages/pageDashboard';
+import PageError from '@pages/pageError';
 
 export const routes = [
   {
     path: '/',
     element: <PageWrapper />,
+    errorElement: <PageError />,
     children: [
       {
         name: 'dashboard',
