@@ -15,12 +15,18 @@ type TAuthContext = {
 type TLoginStatus = 'logged' | 'pending' | 'logged-out' | 'error';
 
 export const authContext = createContext<TAuthContext | null>(null);
-const REDIRECT_URL = 'https://t.me/umafic_bot';
+const REDIRECT_URL = 'https://t.me/UmaficTargetBot';
 
 export function AuthProvider({ children }: PropsWithChildren) {
   const [user, setUser] = useState<TUser | null>(null);
   const [authState, setAuthState] = useState<TLoginStatus>('pending');
   const [token, setToken] = useState<string | null>(localStorage.getItem('access_token'));
+
+  const removeAccessLinkParam = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('access_link');
+    window.history.replaceState({}, document.title, url.toString());
+  };
 
   const logout = useCallback(() => {
     setAuthState('logged-out');
@@ -35,6 +41,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         const { data: user } = await AuthService.get_user();
         setUser(user);
         setAuthState('logged');
+        removeAccessLinkParam();
       }
       if (!token) {
         const access_link = searchParams('access_link');
@@ -45,6 +52,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         const { data: user } = await AuthService.get_user();
         setUser(user);
         setAuthState('logged');
+        removeAccessLinkParam();
       }
     } catch (error) {
       if (error instanceof AxiosError) {

@@ -6,7 +6,7 @@ export default function AuthWrapper({ children }: PropsWithChildren) {
   const { authState, redirect } = useAuth();
 
   useEffect(() => {
-    if (authState === 'logged-out') return;
+    if (authState === 'logged-out') redirect();
   }, [authState, redirect]);
 
   return (

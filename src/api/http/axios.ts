@@ -1,7 +1,12 @@
 import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { toast } from 'react-toastify';
 
-const BASE_URL = 'http://45.86.39.81:6080';
+const BASE_DEV_URL = 'http://45.86.39.81:6080';
+const BASE_PROD_URL = 'https://api.umafic.com';
+
+const IS_DEV = false;
+
+const BASE_URL = IS_DEV ? BASE_DEV_URL : BASE_PROD_URL;
 
 const AUTH_ERROR_STATUS = 401;
 const NO_BALANCE_STATUS = 402;
