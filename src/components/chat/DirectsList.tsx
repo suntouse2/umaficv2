@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useDeleteDirect, useFetchChatDirects, useUpdateDirect } from '@api/queries';
+import { useFetchChatDirects, useUpdateDirect } from '@api/queries';
 import { useChat } from '@context/ChatContext';
 import uniqolor from 'uniqolor';
 import { Avatar, LinearProgress, Menu, MenuItem, ToggleButton, ToggleButtonGroup } from '@mui/material';
@@ -10,7 +10,6 @@ import mediaToText from '@helpers/mediaToText';
 export default function DirectsList() {
   const { campaignId, currentDirect, setCurrentDirect } = useChat();
   const { mutate: updateDirect } = useUpdateDirect();
-  const { mutate: deleteDirect } = useDeleteDirect();
   const [filter, setFilter] = useState<{ is_open?: boolean; is_favorite?: boolean }>({});
   const { data, isFetching } = useFetchChatDirects(campaignId, filter);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -62,17 +61,17 @@ export default function DirectsList() {
     setCurrentDirect(id);
   };
 
-  const handleDeleteDirect = () => {
-    const direct = currentMenuDirect;
-    if (!direct) return;
-    deleteDirect({ direct_id: direct.id });
-  };
+  // const handleDeleteDirect = () => {
+  //   const direct = currentMenuDirect;
+  //   if (!direct) return;
+  //   deleteDirect({ direct_id: direct.id });
+  // };
 
   return (
     <div className='p-2 mt-2 border-r-[1px] h-full border-softgray w-full min-w-[300px]'>
       <ToggleButtonGroup
         color='secondary'
-        className='mb-2 !w-full'
+        className='mb-2  !w-full'
         value={filter['is_favorite'] ? 'favorite' : 'all'}
         exclusive
         onChange={(_v, v) =>
@@ -89,8 +88,9 @@ export default function DirectsList() {
           Избранное
         </ToggleButton>
       </ToggleButtonGroup>
-      <ul className='flex flex-col h-full w-full'>
+      <ul className='relative flex flex-col h-full w-full'>
         {!data && isFetching && <LinearProgress color='secondary' />}
+        {data && data.pages.length > 0 && data.pages[0].data.length == 0 && <span className='font-bold text-sm'>Пока что у вас 0 диалогов</span>}
         {data &&
           data.pages.length > 0 &&
           data.pages.map((directs) =>
@@ -115,7 +115,6 @@ export default function DirectsList() {
 
         <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
           <MenuItem onClick={handleFavoriteChange}>{currentMenuDirect?.is_favorite ? 'Удалить из избранных' : 'Добавить в избранное'}</MenuItem>
-          <MenuItem onClick={handleDeleteDirect}>Удалить диалог</MenuItem>
         </Menu>
       </ul>
     </div>

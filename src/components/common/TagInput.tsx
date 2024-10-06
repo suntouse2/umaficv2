@@ -39,8 +39,8 @@ export default memo(function TagInput({ onAdd, onClose, className }: TagInputPro
 
   return (
     <div onClick={(e) => e.stopPropagation()} className={`flex  px-3 items-start shadow-[0_1px_5px_#0003,0_2px_2px_#00000024,0_3px_1px_-2px_#0000001f] bg-white rounded-md  min-w-60 w-max ${className}`}>
-      {!isList && <input onKeyDown={handleInputKeyDown} value={tag} onChange={(e) => setTag(e.target.value)} className='w-full mt-[9px] bg-[inherit] outline-none text-sm' placeholder={'введите фразу'} />}
-      {isList && <textarea onKeyDown={handleTextareaKeyDown} value={tag} onChange={(e) => setTag(e.target.value)} className='w-full min-h-40 mt-2 outline-none text-sm' placeholder={'вставьте список'} />}
+      {!isList && <input onKeyDown={handleInputKeyDown} value={tag} onBlur={handleAddTag} onChange={(e) => setTag(e.target.value)} className='w-full mt-[9px] bg-[inherit] outline-none text-sm' placeholder={'введите фразу'} />}
+      {isList && <textarea onKeyDown={handleTextareaKeyDown} value={tag} onBlur={handleAddTagList} onChange={(e) => setTag(e.target.value)} className='w-full min-h-40 mt-2 outline-none text-sm' placeholder={'вставьте список'} />}
       <IconButton onClick={() => (isList ? handleAddTagList() : handleAddTag())}>
         <Add />
       </IconButton>

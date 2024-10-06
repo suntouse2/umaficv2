@@ -56,8 +56,8 @@ export default function ChatLayout() {
   };
 
   return (
-    <>
-      <div className='hidden lg:grid h-full w-full overflow-hidden grid-cols-[max-content,1fr]'>
+    <div className=''>
+      <div className='relative hidden lg:grid h-full w-full overflow-hidden grid-cols-[max-content,1fr]'>
         <DirectsList />
         {currentDirect !== null && (
           <div className='flex flex-col h-full overflow-hidden'>
@@ -78,6 +78,6 @@ export default function ChatLayout() {
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 }
