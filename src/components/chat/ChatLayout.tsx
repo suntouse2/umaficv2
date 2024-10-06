@@ -20,7 +20,8 @@ export default function ChatLayout() {
       wsRef.current.close();
     }
 
-    const ws = new WebSocket(`ws://45.86.39.81:6080//directs/messages?campaign_id=${campaignId}&token=${localStorage.getItem('access_token')}`);
+    const ws = new WebSocket(`${import.meta.env.VITE_WS_URL}/directs/messages?campaign_id=${campaignId}&token=${localStorage.getItem('access_token')}`);
+
     wsRef.current = ws;
 
     ws.onopen = () => {
