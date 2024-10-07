@@ -142,11 +142,11 @@ export default function DirectCampaignCard({ campaign }: DirectCampaignCardProps
           </div>
           <div className='flex items-center justify-between'>
             <span className='text-sm'>Средняя цена одного избранного/лида</span>
-            <span className='text-sm'>{formatBalance((parseFloat(campaign.numeric_statistics.spending) / (campaign.numeric_statistics.directs_favorite || 0)).toFixed(0))}</span>
+            <span className='text-sm'>{formatBalance((parseFloat(campaign.numeric_statistics.spending) / (campaign.numeric_statistics.directs_favorite || 1)).toFixed(0))}</span>
           </div>
           <div className='flex items-center justify-between'>
             <span className='text-sm'>Средняя цена одного диалога</span>
-            <span className='text-sm'>{formatBalance((parseFloat(campaign.numeric_statistics.spending) / (campaign.numeric_statistics.directs || 0)).toFixed(0))}</span>
+            <span className='text-sm'>{formatBalance((parseFloat(campaign.numeric_statistics.spending) / (campaign.numeric_statistics.directs || 1)).toFixed(0))}</span>
           </div>
         </div>
       </Bubble>
