@@ -123,7 +123,7 @@ export function useEditDirectCampaign() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: ['editCampaign'],
-    mutationFn: ({ id, data }: { id: number; data: TDirectCampaignSettings }) => DirectCampaignService.editDirectCampaign(id, data),
+    mutationFn: ({ id, data }: { id: number; data: TPartialDirectCampaignSettings }) => DirectCampaignService.editDirectCampaign(id, data),
     gcTime: 0,
     onSuccess: () => {
       setTimeout(() => {

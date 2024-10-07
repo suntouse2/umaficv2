@@ -21,7 +21,7 @@ class DirectCampaignService {
   async createDirectCampaign(data: TDirectCampaignSettings): Promise<AxiosResponse> {
     return $api.post('/campaigns/direct', data);
   }
-  async editDirectCampaign(id: number, data: TDirectCampaignSettings): Promise<AxiosResponse> {
+  async editDirectCampaign(id: number, data: TPartialDirectCampaignSettings): Promise<AxiosResponse> {
     return $api.patch(`/campaigns/direct/${id}`, data);
   }
   async deleteDirectCampaign(id: number): Promise<AxiosResponse> {

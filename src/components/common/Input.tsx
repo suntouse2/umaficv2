@@ -5,6 +5,7 @@ type InputProps = {
   value: string;
   onChange: (value: string) => void;
   onKeyDown?: (event: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onBlur?: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   className?: string;
   placeholder?: string;
   min?: number;
@@ -12,7 +13,18 @@ type InputProps = {
   type?: string;
 };
 
-export function Input({ value, onChange, onKeyDown, placeholder, resize = false, min, max, type, className }: InputProps) {
+export function Input({ value, onChange, onKeyDown, onBlur, placeholder, resize = false, min, max, type, className }: InputProps) {
+  const handleInputBlur = (e: ChangeEvent<HTMLInputElement>) => {
+    if (onBlur) {
+      onBlur(e);
+    }
+  };
+  const handleTextAreaBlur = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    if (onBlur) {
+      onBlur(e);
+    }
+  };
+
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     onChange(e.target.value);
   };
@@ -23,8 +35,8 @@ export function Input({ value, onChange, onKeyDown, placeholder, resize = false,
 
   return (
     <>
-      {resize === false && <input min={min} max={max} type={type ?? 'text'} placeholder={placeholder ?? ''} className={'bg-inputbg text-sm p-2 font-normal leading-7 rounded-lg outline-none ' + className} value={value ?? ''} onChange={handleInputChange} onKeyDown={onKeyDown} />}
-      {resize === true && <textarea placeholder={placeholder ?? ''} className={'bg-inputbg text-sm p-2 font-normal leading-7 rounded-lg outline-none ' + className} value={value} onChange={handleTextAreaChange} onKeyDown={onKeyDown} />}
+      {resize === false && <input onBlur={handleInputBlur} min={min} max={max} type={type ?? 'text'} placeholder={placeholder ?? ''} className={'bg-inputbg text-sm p-2 font-normal leading-7 rounded-lg outline-none ' + className} value={value ?? ''} onChange={handleInputChange} onKeyDown={onKeyDown} />}
+      {resize === true && <textarea onBlur={handleTextAreaBlur} placeholder={placeholder ?? ''} className={'bg-inputbg text-sm p-2 font-normal leading-7 rounded-lg outline-none ' + className} value={value} onChange={handleTextAreaChange} onKeyDown={onKeyDown} />}
     </>
   );
 }

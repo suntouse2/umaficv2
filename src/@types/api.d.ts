@@ -266,6 +266,8 @@ type TCampaignSettingsCheckStatisticsResponse = {
   recommended_weekly_budget_limit: number;
 };
 
+type TPartialDirectCampaignSettings = Omit<TDirectCampaignSettings, 'settings' | 'budget_limit' | 'name'> & Partial<Pick<TDirectCampaignSettings, 'settings' | 'budget_limit' | 'name'>>;
+
 type TChatDirectResponse = TChatDirect;
 type TChatDirectsResponse = TChatDirect[];
 type TChatDirectMessagesResponse = TChatMessage[];

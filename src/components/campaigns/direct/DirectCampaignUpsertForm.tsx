@@ -15,6 +15,7 @@ import { anyMessageTip, firstMessageTip, keywordMessageTip, keywordTip, location
 import formatBalance from '@helpers/formatBalance';
 import { toast } from 'react-toastify';
 import { AxiosError } from 'axios';
+import parseBudget from '@helpers/parseBudget';
 
 type UpsertFormType = TDirectCampaignSettings & {
   temporary: {
@@ -307,7 +308,7 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
                 <h2 className='text-lg font-bold'>Запуск</h2>
                 <p className='text-sm mb-4'>Придумайте название кампании и укажите бюджет для нее.</p>
                 <Controller defaultValue={''} control={control} name='name' render={({ field: { onChange, value } }) => <Input className='w-full mt-2' value={value} onChange={onChange} placeholder='Название кампании' />} />
-                <Controller defaultValue={''} control={control} name='budget_limit' render={({ field: { onChange, value } }) => <Input className='w-full mt-4' value={value} onChange={onChange} placeholder='Бюджет кампании' />} />
+                <Controller defaultValue={''} control={control} name='budget_limit' render={({ field: { onChange, value } }) => <Input className='w-full mt-4' onBlur={(e) => onChange(parseBudget(e.target.value))} value={value} onChange={onChange} placeholder='Бюджет кампании' />} />
                 <b className='mt-2 text-sm'>
                   Рекомендуемый суточный бюджет по статистике: <span className='text-secondary'>{formatBalance(statsData?.data.recommended_daily_budget_limit)}</span>
                 </b>
