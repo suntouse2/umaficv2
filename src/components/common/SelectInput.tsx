@@ -40,14 +40,15 @@ export default memo(function SelectInput({ placeholder, options, onClose, onAdd 
   return (
     <div>
       <input onKeyDown={handleKeyDown} value={filter} onChange={(e) => setFilter(e.target.value)} className='w-full outline-none text-sm' placeholder={placeholder} />
-      <ul className='mt-1 max-h-64 overflow-auto border-t-softgray border-t-[1px]'>
-        {filteredOptions.length > 0 &&
-          filteredOptions.map((option, index) => (
+      {filteredOptions.length > 0 && (
+        <ul className='mt-1 max-h-64 overflow-auto border-t-softgray border-t-[1px]'>
+          {filteredOptions.map((option, index) => (
             <li onClick={() => handleAddOption(option[0])} className={`p-1 text-sm mt-1 cursor-pointer hover:bg-softgray ${selectedIndex === index ? 'bg-softgray' : ''}`} key={option[0]}>
               {option[1]}
             </li>
           ))}
-      </ul>
+        </ul>
+      )}
     </div>
   );
 });

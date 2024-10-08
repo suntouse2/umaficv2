@@ -11,8 +11,9 @@ export default function AuthWrapper({ children }: PropsWithChildren) {
 
   return (
     <>
-      {authState == 'error' && <PageLoading loading={false} text='Ошибка сервера, попробуйте еще раз' />}
+      {authState == 'server error' && <PageLoading loading={false} text='Ошибка сервера, попробуйте еще раз' />}
       {authState == 'pending' && <PageLoading loading text={'Загрузка...'} />}
+      {authState == 'expired link' && <PageLoading loading={false} text={'Ссылка на авторизацию исчерпана'} />}
       {authState == 'logged' && children}
     </>
   );

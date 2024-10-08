@@ -12,7 +12,7 @@ type TAuthContext = {
   redirect: () => void;
 };
 
-type TLoginStatus = 'logged' | 'pending' | 'logged-out' | 'error';
+type TLoginStatus = 'logged' | 'pending' | 'logged-out' | 'server error' | 'expired link';
 
 export const authContext = createContext<TAuthContext | null>(null);
 const REDIRECT_URL = 'https://t.me/UmaficTargetBot';
@@ -29,41 +29,64 @@ export function AuthProvider({ children }: PropsWithChildren) {
   };
 
   const logout = useCallback(() => {
-    setAuthState('logged-out');
     setUser(null);
     setToken(null);
     localStorage.removeItem('access_token');
   }, []);
 
-  const login = useCallback(async () => {
+  const loginByToken = useCallback(async () => {
     try {
-      if (token) {
-        const { data: user } = await AuthService.get_user();
-        setUser(user);
-        setAuthState('logged');
-        removeAccessLinkParam();
-      }
-      if (!token) {
-        const access_link = searchParams('access_link');
-        if (!access_link) return logout();
-        const { data: token } = await AuthService.get_access_token(access_link);
-        localStorage.setItem('access_token', token.access_token);
-        setToken(token.access_token);
-        const { data: user } = await AuthService.get_user();
-        setUser(user);
-        setAuthState('logged');
-        removeAccessLinkParam();
-      }
+      const { data: user } = await AuthService.get_user();
+      setUser(user);
+      setAuthState('logged');
+      removeAccessLinkParam();
     } catch (error) {
       if (error instanceof AxiosError) {
         if (!error.response) {
-          setAuthState('error');
+          setAuthState('server error');
         } else {
+          setAuthState('logged-out');
           logout();
         }
       }
     }
-  }, [token, logout]);
+  }, [logout]);
+
+  const loginByLink = useCallback(async () => {
+    try {
+      const access_link = searchParams('access_link');
+      if (!access_link) {
+        setAuthState('logged-out');
+        return logout();
+      }
+      const { data: token } = await AuthService.get_access_token(access_link);
+      localStorage.setItem('access_token', token.access_token);
+      setToken(token.access_token);
+      const { data: user } = await AuthService.get_user();
+      setUser(user);
+      setAuthState('logged');
+      removeAccessLinkParam();
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        if (!error.response) {
+          setAuthState('server error');
+        } else {
+          setAuthState('expired link');
+          logout();
+        }
+      }
+    }
+  }, [logout]);
+
+  const login = useCallback(async () => {
+    try {
+      if (token) await loginByToken();
+      if (!token) await loginByLink();
+    } catch {
+      setAuthState('logged-out');
+      logout();
+    }
+  }, [token, loginByToken, loginByLink, logout]);
 
   const redirect = useCallback(() => {
     window.location.href = REDIRECT_URL;
