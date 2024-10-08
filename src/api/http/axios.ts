@@ -35,7 +35,7 @@ $api.interceptors.response.use(
 
     if (error.response?.status === AUTH_ERROR_STATUS) {
       try {
-        const response = await axios.get(`${BASE_URL}/auth/refresh`);
+        const response = await axios.get(`${BASE_URL}/auth/refresh`, { withCredentials: true });
         localStorage.setItem('access_token', response.data.access_token);
         return originalRequest ? $api.request(originalRequest) : undefined;
       } catch {
