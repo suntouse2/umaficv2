@@ -75,7 +75,7 @@ export default function DirectsList() {
   // };
 
   return (
-    <div className='p-2 mt-2 border-r-[1px] h-full border-softgray w-full min-w-[300px]'>
+    <div className='p-2 mt-2 border-r-[1px] h-full overflow-hidden border-softgray w-full min-w-[300px]'>
       <ToggleButtonGroup
         color='secondary'
         className='mb-2  !w-full'
