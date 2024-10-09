@@ -6,7 +6,10 @@ import { useInView } from 'react-intersection-observer';
 
 export default memo(function DirectCampaignsList() {
   const { data, isPending, fetchNextPage } = useFetchDirectCampaigns();
-  const { ref, inView } = useInView();
+
+  const { ref, inView } = useInView({
+    threshold: 0,
+  });
 
   useEffect(() => {
     if (inView) fetchNextPage();
@@ -14,8 +17,8 @@ export default memo(function DirectCampaignsList() {
 
   return (
     <div className='mt-5 p-0 md:p-4 flex flex-col gap-5'>
-      {isPending && <CircularProgress color='inherit' />}
       {data && data.pages.map((campaigns) => campaigns.data.map((campaign) => <DirectCampaignCard key={campaign.id} campaign={campaign} />))}
+      {isPending && <CircularProgress color='inherit' />}
       <div ref={ref}></div>
     </div>
   );

@@ -41,7 +41,9 @@ export default function DirectsList() {
   };
 
   useEffect(() => {
-    if (inView) fetchNextPage();
+    if (inView) {
+      fetchNextPage();
+    }
   }, [fetchNextPage, inView]);
 
   function stringAvatar(name: string) {
@@ -96,28 +98,31 @@ export default function DirectsList() {
       <ul className='relative flex flex-col h-full w-full overflow-auto'>
         {!data && isFetching && <LinearProgress color='secondary' />}
         {data && data.pages.length > 0 && data.pages[0].data.length == 0 && <span className='font-bold text-sm'>Пока что у вас 0 диалогов</span>}
-        {data &&
-          data.pages.length > 0 &&
-          data.pages.map((directs) =>
-            directs.data.map((direct) => (
-              <li title='Нажмите правой кнопкой' onClick={() => handleDirectClick(direct)} onContextMenu={(e) => handleMenuOpen(e, direct)} onTouchStart={(e) => handleTouchStart(e, direct)} onTouchEnd={handleTouchEnd} key={direct.id} className={`flex gap-3 p-2 w-full transition-colors hover:bg-softgray cursor-pointer ${currentDirect === direct.id && '!bg-softgray'}`}>
-                <Avatar {...stringAvatar(direct.user.first_name)} />
-                <div className='w-full'>
-                  <p className='flex justify-between gap-5'>
-                    <b>{direct.user.first_name + ' ' + (direct.user.last_name ?? '')}</b> {direct.last_message && <span className='text-sm text-softgray4'>{dateToString(new Date(direct.last_message.date))}</span>}
-                  </p>
-                  <p>{direct.last_message.content.message && shortText(direct.last_message.content.message, 50)}</p>
-                  <p>{direct.last_message.content.media && mediaToText(direct.last_message.content.media.type)}</p>
-                </div>
-                {direct.unread_count > 0 && (
-                  <div className='flex h-full items-center'>
-                    <div className='bg-secondary  w-6 h-6 text-sm rounded-full flex justify-center items-center text-white '>{direct.unread_count}</div>
+        {data && data.pages.length > 0 && (
+          <>
+            {data.pages.map((directs) =>
+              directs.data.map((direct) => (
+                <li title='Нажмите правой кнопкой' onClick={() => handleDirectClick(direct)} onContextMenu={(e) => handleMenuOpen(e, direct)} onTouchStart={(e) => handleTouchStart(e, direct)} onTouchEnd={handleTouchEnd} key={direct.id} className={`flex gap-3 p-2 w-full transition-colors hover:bg-softgray cursor-pointer ${currentDirect === direct.id && '!bg-softgray'}`}>
+                  <Avatar {...stringAvatar(direct.user.first_name)} />
+                  <div className='w-full'>
+                    <p className='flex justify-between gap-5'>
+                      <b>{direct.user.first_name + ' ' + (direct.user.last_name ?? '')}</b> {direct.last_message && <span className='text-sm text-softgray4'>{dateToString(new Date(direct.last_message.date))}</span>}
+                    </p>
+                    <p>{direct.last_message.content.message && shortText(direct.last_message.content.message, 50)}</p>
+                    <p>{direct.last_message.content.media && mediaToText(direct.last_message.content.media.type)}</p>
                   </div>
-                )}
-              </li>
-            ))
-          )}
-        <div ref={ref}></div>
+                  {direct.unread_count > 0 && (
+                    <div className='flex h-full items-center'>
+                      <div className='bg-secondary  w-6 h-6 text-sm rounded-full flex justify-center items-center text-white '>{direct.unread_count}</div>
+                    </div>
+                  )}
+                </li>
+              ))
+            )}
+            <div ref={ref}></div>
+          </>
+        )}
+
         <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
           <MenuItem onClick={handleFavoriteChange}>{currentMenuDirect?.is_favorite ? 'Удалить из избранных' : 'Добавить в избранное'}</MenuItem>
         </Menu>
