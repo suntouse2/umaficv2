@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useFetchChatDirects, useUpdateDirect } from '@api/queries';
 import { useChat } from '@context/ChatContext';
 import uniqolor from 'uniqolor';
@@ -6,16 +6,17 @@ import { Avatar, LinearProgress, Menu, MenuItem, ToggleButton, ToggleButtonGroup
 import dateToString from '@helpers/dateToString';
 import { shortText } from '@helpers/shortText';
 import mediaToText from '@helpers/mediaToText';
+import { useInView } from 'react-intersection-observer';
 
 export default function DirectsList() {
   const { campaignId, currentDirect, setCurrentDirect } = useChat();
   const { mutate: updateDirect } = useUpdateDirect();
   const [filter, setFilter] = useState<{ is_open?: boolean; is_favorite?: boolean }>({});
-  const { data, isFetching } = useFetchChatDirects(campaignId, filter);
+  const { data, isFetching, fetchNextPage } = useFetchChatDirects(campaignId, filter);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [currentMenuDirect, setCurrentMenuDirect] = useState<TChatDirect | null>(null);
   const [touchTimer, setTouchTimer] = useState<NodeJS.Timeout | null>(null); // For long press
-
+  const { ref, inView } = useInView();
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement> | React.TouchEvent<HTMLElement>, direct: TChatDirect) => {
     event.preventDefault();
     setAnchorEl(event.currentTarget);
@@ -38,6 +39,10 @@ export default function DirectsList() {
       setTouchTimer(null);
     }
   };
+
+  useEffect(() => {
+    if (inView) fetchNextPage();
+  }, [fetchNextPage, inView]);
 
   function stringAvatar(name: string) {
     return {
@@ -88,7 +93,7 @@ export default function DirectsList() {
           Избранное
         </ToggleButton>
       </ToggleButtonGroup>
-      <ul className='relative flex flex-col h-full w-full'>
+      <ul className='relative flex flex-col h-full w-full overflow-auto'>
         {!data && isFetching && <LinearProgress color='secondary' />}
         {data && data.pages.length > 0 && data.pages[0].data.length == 0 && <span className='font-bold text-sm'>Пока что у вас 0 диалогов</span>}
         {data &&
@@ -112,7 +117,7 @@ export default function DirectsList() {
               </li>
             ))
           )}
-
+        <div ref={ref}></div>
         <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
           <MenuItem onClick={handleFavoriteChange}>{currentMenuDirect?.is_favorite ? 'Удалить из избранных' : 'Добавить в избранное'}</MenuItem>
         </Menu>
