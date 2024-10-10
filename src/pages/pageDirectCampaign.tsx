@@ -1,5 +1,4 @@
 import DirectCampaignsList from '@components/campaigns/direct/DirectCampaignsList';
-import Container from '@components/wrappers/layouts/Container';
 import { Button } from '@mui/material';
 import { useEffect } from 'react';
 
@@ -17,21 +16,19 @@ export default function PageDirectCampaign() {
   }, [navigate]);
 
   return (
-    <Container>
-      <div className='mx-auto w-full h-full overflow-auto max-w-[600px]'>
-        <div className='flex items-center flex-wrap justify-between'>
-          <h1 className='text-2xl font-bold'>Поиск клиентов</h1>
-          <div className='mt-5 flex gap-4 sm:mt-0'>
-            <Button onClick={() => navigate('/')} className='!rounded-full' variant='outlined'>
-              Назад
-            </Button>
-            <Button onClick={() => navigate('/campaigns/direct/create')} color='success' className='!rounded-full' variant='outlined'>
-              Создать
-            </Button>
-          </div>
+    <div className='mx-auto w-full h-full overflow-auto p-4'>
+      <div className='flex items-center flex-wrap justify-between'>
+        <h1 className='text-2xl font-bold'>Поиск клиентов</h1>
+        <div className='mt-5 flex gap-4 sm:mt-0'>
+          <Button onClick={() => navigate('/')} className='!rounded-full' variant='outlined'>
+            Назад
+          </Button>
+          <Button onClick={() => navigate('/campaigns/direct/create')} color='success' className='!rounded-full' variant='outlined'>
+            Создать
+          </Button>
         </div>
-        <DirectCampaignsList />
       </div>
-    </Container>
+      <DirectCampaignsList />
+    </div>
   );
 }

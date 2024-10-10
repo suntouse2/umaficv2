@@ -95,19 +95,19 @@ export default function DirectCampaignCard({ campaign }: DirectCampaignCardProps
         {/* Статистика */}
         <div className='flex flex-col gap-2'>
           <div className='flex items-center justify-between'>
-            <span className='text-sm'>Отправленных сообщений</span>
+            <span className='text-sm'>Отправленных сообщений (первое касание)</span>
             <span className='text-sm'>
               {campaign.numeric_statistics.outgoing_auto_reply_messages}
-              <span title='Отправленных в сутки' className='ml-1 bg-positive px-1 text-sm rounded-sm bg-opacity-20'>
+              <span title='Отправленных в сутки' className='ml-1 bg-positive whitespace-nowrap px-1 text-sm rounded-sm bg-opacity-20'>
                 + {campaign.numeric_statistics.outgoing_auto_reply_messages_by_day}
               </span>
             </span>
           </div>
           <div className='flex items-center justify-between'>
-            <span className='text-sm'>Входящих сообщений</span>
+            <span className='text-sm'>Состоялось диалогов (второе касание)</span>
             <span className='text-sm'>
               {campaign.numeric_statistics.incoming_messages}{' '}
-              <span title='Входящих в сутки' className='ml-1 bg-positive px-1 text-sm rounded-sm bg-opacity-20'>
+              <span title='Входящих в сутки' className='ml-1 whitespace-nowrap bg-positive px-1 text-sm rounded-sm bg-opacity-20'>
                 + {campaign.numeric_statistics.incoming_messages_by_day}
               </span>
             </span>
@@ -115,10 +115,6 @@ export default function DirectCampaignCard({ campaign }: DirectCampaignCardProps
           <div className='flex items-center justify-between'>
             <span className='text-sm'>Непрочитанных входящих сообщений</span>
             <span className='text-sm'>{campaign.numeric_statistics.incoming_messages_unread}</span>
-          </div>
-          <div className='flex items-center justify-between'>
-            <span className='text-sm'>Диалогов</span>
-            <span className='text-sm'>{campaign.numeric_statistics.directs}</span>
           </div>
           <div className='flex items-center justify-between'>
             <span className='text-sm'>Избранных диалогов</span>
@@ -137,7 +133,7 @@ export default function DirectCampaignCard({ campaign }: DirectCampaignCardProps
             <span className='text-sm'>{formatBalance(campaign.numeric_statistics.repayment)}</span>
           </div>
           <div className='flex items-center justify-between'>
-            <span className='text-sm'>Возврат средств за последний день</span>
+            <span className='text-sm'>Возврат средств за сутки</span>
             <span className='text-sm'>{formatBalance(campaign.numeric_statistics.repayment_by_day)}</span>
           </div>
           <div className='flex items-center justify-between'>

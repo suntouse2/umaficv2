@@ -17,7 +17,7 @@ export default function PageDashboard() {
                 Для партнеров
               </Button> */}
       </div>
-      <article className='grid grid-cols-auto-fill-100 gap-5 mt-10'>
+      <article className='grid grid-cols-auto-fill-300 gap-5 mt-10'>
         <Bubble onClick={() => navigate('/campaigns/direct')}>
           <div className='flex items-center justify-between mb-5'>
             <h1 className='text-2xl'>Поиск клиентов</h1>

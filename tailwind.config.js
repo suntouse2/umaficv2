@@ -14,7 +14,7 @@ export default {
       positive: '#21ba45',
       negative: '#c10015',
       info: '#31ccec',
-      warning: '#f2c037',
+      warning: '#c29a2f',
       dark: '#1d1d1d',
       white: '#fff',
       inputbg: '#f2f3f7cc',
@@ -42,8 +42,10 @@ export default {
         '9xl': '8rem', // 128px
       },
       gridTemplateColumns: {
-        'auto-fill-100': 'repeat(auto-fill, minmax(300px, 1fr))',
-        'auto-fit-100': 'repeat(auto-fit, minmax(300px, 1fr))',
+        'auto-fill-300': 'repeat(auto-fill, minmax(300px, 1fr))',
+        'auto-fit-300': 'repeat(auto-fit, minmax(300px, 1fr))',
+        'auto-fill-500': 'repeat(auto-fill, minmax(500px, 1fr))',
+        'auto-fit-500': 'repeat(auto-fit, minmax(500px, 1fr))',
       },
     },
   },

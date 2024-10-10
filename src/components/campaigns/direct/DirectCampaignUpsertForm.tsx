@@ -9,13 +9,15 @@ import CampaignCheckSettings from '@components/campaigns/CampaignCheckSettings';
 import { FormEvent, MouseEvent, useEffect, useMemo, useState } from 'react';
 import CampaignMessageManager from '@components/campaigns/CampaignMessageManager';
 import CampaignAvatar from '@components/campaigns/CampaignAvatar';
-import { ToggleButtonGroup, ToggleButton, Tabs, Tab, Button, Dialog } from '@mui/material';
-import { useBlocker, useNavigate } from 'react-router-dom';
+import { ToggleButtonGroup, ToggleButton, Tabs, Tab, Button } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import { anyMessageTip, firstMessageTip, keywordMessageTip, keywordTip, locationTip, minusWordsTip, orderMessageTip, profileTip } from '@components/helpers/tips';
 import formatBalance from '@helpers/formatBalance';
 import { toast } from 'react-toastify';
 import { AxiosError } from 'axios';
 import parseBudget from '@helpers/parseBudget';
+import { Link } from 'react-router-dom';
+import { ArrowBack } from '@mui/icons-material';
 
 type UpsertFormType = TDirectCampaignSettings & {
   temporary: {
@@ -25,10 +27,10 @@ type UpsertFormType = TDirectCampaignSettings & {
 };
 
 export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType; id?: number }) {
+  const CampaignLocalStorageName = `${id}-direct_campaign_unsaved_settings`;
   const { control, watch, setValue, getValues, formState } = useForm<UpsertFormType>({
-    defaultValues: data,
+    defaultValues: localStorage.getItem(CampaignLocalStorageName) ? JSON.parse(localStorage.getItem(CampaignLocalStorageName) as string) : data,
   });
-
   const navigate = useNavigate();
   const { data: languagesData } = useFetchLanguages();
   const { data: countriesData } = useFetchCountries(watch('settings.target.geo.language') ?? []);
@@ -45,7 +47,6 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
   const keywordMessageTipMemo = useMemo(() => keywordMessageTip, []);
   const orderMessageTipMemo = useMemo(() => orderMessageTip, []);
   const anyMessageTipMemo = useMemo(() => anyMessageTip, []);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [tabs, setTabs] = useState<{ name: string; disabled: boolean }[]>([
     {
@@ -76,20 +77,15 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
 
   const byType = !watch('settings.auto_reply.funnel.funnel_type') || watch('settings.auto_reply.funnel.funnel_type') == 'keyword' ? first : order;
 
-  const [dirty, setDirty] = useState<boolean>(false);
-
-  useEffect(() => {
-    setDirty(formState.isDirty);
-  }, [formState.isDirty, setDirty]);
-
   const [currentStep, setCurrentStep] = useState<number>(0);
 
-  const blocker = useBlocker(({ currentLocation, nextLocation }) => {
-    if (isSubmitting) {
-      return false;
+  const values = watch();
+
+  useEffect(() => {
+    if (formState.isDirty && id) {
+      localStorage.setItem(CampaignLocalStorageName, JSON.stringify(values));
     }
-    return data !== undefined && dirty && currentLocation.pathname !== nextLocation.pathname;
-  });
+  }, [CampaignLocalStorageName, formState.isDirty, id, values]);
 
   useEffect(() => {
     setTabs((prevTabs) => {
@@ -98,17 +94,12 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
       cTabs[2].disabled = first_name;
       cTabs[3].disabled = keyword || first_name;
       cTabs[4].disabled = byType || keyword || first_name;
-
       return cTabs;
     });
   }, [byType, first, first_name, keyword, order]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement> | MouseEvent<HTMLButtonElement>) => {
     try {
-      setIsSubmitting(true);
-      if (blocker.state === 'blocked') {
-        blocker.reset();
-      }
       e.preventDefault();
       if (tabs.some((e) => e.disabled)) return;
       if (getValues('name').length == 0) return toast.error('Имя кампании пустое');
@@ -128,54 +119,36 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
       delete (transposedData as { [key: string]: unknown })['temporary'];
       if (data == undefined) {
         await createCampaign({ data: transposedData });
-
         navigate('/campaigns/direct');
         return toast.success('Кампания создана');
       }
       if (data && id) {
         await editCampaign({ id: id, data: transposedData });
+        localStorage.removeItem(CampaignLocalStorageName);
         navigate('/campaigns/direct');
         return toast.success('Кампания изменена');
       }
     } catch (error) {
-      setIsSubmitting(false);
       if (error instanceof AxiosError) {
-        return toast.error(`${error.status}: Ошибка при создании кампании`);
+        if (error.status == 409) {
+          return toast.error('Кампанию нельзя изменить если она запущена');
+        }
+        return toast.error(`${error.status}: Ошибка при создании/изменении кампании`);
       }
     }
   };
 
   return (
     <>
-      {blocker.state === 'blocked' ? (
-        <Dialog open={true} onClose={() => blocker.reset()}>
-          <div className='p-4'>
-            <h2 className='font-bold text-xl'>Ваши изменения не сохранены</h2>
-            <p className=''>
-              Ваши изменения не сохранены. Вы точно хотите выйти <b>не сохранив</b> изменения?
-            </p>
-            <div className='flex gap-2 mt-5'>
-              <Button
-                className='w-full'
-                variant='outlined'
-                onClick={() => {
-                  if (blocker.state === 'blocked') {
-                    blocker.proceed();
-                    blocker.reset();
-                  }
-                }}>
-                Выйти
-              </Button>
-              <Button className='w-full' color='secondary' variant='outlined' onClick={handleSubmit}>
-                Сохранить
-              </Button>
-            </div>
-          </div>
-        </Dialog>
-      ) : null}
       <form onSubmit={handleSubmit} className='mx-auto w-full h-full max-w-[600px] '>
         <h1 className='text-2xl font-bold'>Поиск клиентов</h1>
-
+        {localStorage.getItem(CampaignLocalStorageName) && <p className='text-warning'>Настройки не сохранены</p>}
+        <Link to='/campaigns/direct'>
+          <Button color='secondary'>
+            <ArrowBack />
+            Назад
+          </Button>
+        </Link>
         <div>
           <Tabs textColor='secondary' indicatorColor='secondary' value={currentStep} onChange={(_e, v) => setCurrentStep(v)} variant='scrollable' scrollButtons='auto' allowScrollButtonsMobile>
             {tabs.map((tab, i) => (

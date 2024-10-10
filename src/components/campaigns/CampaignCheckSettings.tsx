@@ -1,5 +1,6 @@
-import { useFetchSettingsCheckMsg } from '@api/queries';
+import { useFetchSettingsCheckMsg, useFetchSettingsCheckStats } from '@api/queries';
 import dateToString from '@helpers/dateToString';
+import formatBalance from '@helpers/formatBalance';
 import { Button, ButtonGroup, Dialog, LinearProgress, Popover, Tab, Tabs, TextField } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
@@ -19,13 +20,20 @@ export default function CampaignCheckSettings({ value, onChange }: CampaignCheck
 
   const keyword = value.search.include[selectedTab];
 
-  const { data, isFetching, fetchNextPage, refetch } = useFetchSettingsCheckMsg({
+  const {
+    data: msgData,
+    isFetching: isMsgFetching,
+    fetchNextPage: fetchNextMsg,
+    refetch: refetchMsg,
+  } = useFetchSettingsCheckMsg({
     ...value,
     search: {
       ...value.search,
       include: keyword ? [keyword] : [],
     },
   });
+
+  const { data: statsData } = useFetchSettingsCheckStats(value);
 
   const handleWordClick = (event: React.MouseEvent<HTMLElement>, word: string) => {
     setAnchorEl(event.currentTarget);
@@ -34,9 +42,9 @@ export default function CampaignCheckSettings({ value, onChange }: CampaignCheck
 
   useEffect(() => {
     if (inView) {
-      fetchNextPage();
+      fetchNextMsg();
     }
-  }, [fetchNextPage, inView]);
+  }, [fetchNextMsg, inView]);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setSelectedTab(newValue);
@@ -67,8 +75,8 @@ export default function CampaignCheckSettings({ value, onChange }: CampaignCheck
   };
 
   useEffect(() => {
-    if (!dialogState) refetch();
-  }, [dialogState, value.search.include, value.search.exclude, refetch]);
+    if (!dialogState) refetchMsg();
+  }, [dialogState, value.search.include, value.search.exclude, refetchMsg]);
 
   return (
     <div className='mt-4'>
@@ -83,14 +91,16 @@ export default function CampaignCheckSettings({ value, onChange }: CampaignCheck
           open={dialogState}
           onClose={() => setDialogState(false)}>
           <div className='p-3'>
+            <p className='text-lg'>Всего найденных сообщений: {statsData?.data.unique_users}</p>
+            <p className='text-lg'>Рекомендуемый суточный бюджет: {formatBalance(statsData?.data.recommended_daily_budget_limit)}</p>
             <Tabs indicatorColor='secondary' textColor='secondary' value={selectedTab} onChange={handleTabChange} aria-label='tabs for settings'>
               {value.search.include.map((item, index) => (
                 <Tab key={index} label={item} />
               ))}
             </Tabs>
             <ul className='w-full flex flex-col gap-5 py-2'>
-              {isFetching && <LinearProgress color='secondary' />}
-              {data?.pages.map((messages) =>
+              {isMsgFetching && <LinearProgress color='secondary' />}
+              {msgData?.pages.map((messages) =>
                 messages.data.map((msg) => (
                   <li className='w-full  text-sm bg-softgray rounded-md p-2' key={msg.id}>
                     {msg.content.message.split(' ').map((word, index) => (
@@ -104,7 +114,7 @@ export default function CampaignCheckSettings({ value, onChange }: CampaignCheck
                   </li>
                 ))
               )}
-              {data?.pages[0].data.length == 0 && <p>Сообщений не найдено</p>}
+              {msgData?.pages[0].data.length == 0 && <p>Сообщений не найдено</p>}
             </ul>
             <div ref={ref}></div>
           </div>
