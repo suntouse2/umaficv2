@@ -60,7 +60,7 @@ export default function ChatLayout() {
   return (
     <>
       <div className='relative hidden lg:grid  h-full w-full overflow-hidden grid-cols-[max-content,1fr]'>
-        <div className='h-full w-full overflow-hidden'>
+        <div className='flex flex-col h-full w-full overflow-hidden'>
           <div className='border-b-[1px] border-softgray'>
             <Button onClick={() => navigate('/campaigns/direct')}>
               <ArrowBack /> Назад
