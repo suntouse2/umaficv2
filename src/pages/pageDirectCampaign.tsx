@@ -1,19 +1,9 @@
 import DirectCampaignsList from '@components/campaigns/direct/DirectCampaignsList';
 import { Button } from '@mui/material';
-import { useEffect } from 'react';
-
 import { useNavigate } from 'react-router-dom';
 
 export default function PageDirectCampaign() {
   const navigate = useNavigate();
-
-  useEffect(() => {
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Escape') navigate('/');
-    }
-    document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
-  }, [navigate]);
 
   return (
     <div className='mx-auto w-full h-full overflow-auto p-4'>

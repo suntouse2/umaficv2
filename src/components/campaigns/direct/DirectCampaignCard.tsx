@@ -1,11 +1,10 @@
 import { useDeleteDirectCampaign, useEditDirectCampaign, useToggleDirectCampaign } from '@api/queries';
 import Bubble from '@components/common/Bubble';
-import { Input } from '@components/common/Input';
+import ValueTuner from '@components/common/ValueTuner';
 import formatBalance from '@helpers/formatBalance';
-import parseBudget from '@helpers/parseBudget';
-import { Check, Delete, Edit, SettingsOutlined, TextsmsOutlined } from '@mui/icons-material';
-import { Badge, Button, Dialog, IconButton, Popover, Switch } from '@mui/material';
-import { useState } from 'react';
+import { Delete, SettingsOutlined, TextsmsOutlined } from '@mui/icons-material';
+import { Badge, Button, Dialog, IconButton, Switch } from '@mui/material';
+import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 type DirectCampaignCardProps = {
@@ -13,12 +12,11 @@ type DirectCampaignCardProps = {
 };
 
 export default function DirectCampaignCard({ campaign }: DirectCampaignCardProps) {
-  const [budget, setBudget] = useState<string>(campaign.budget_limit.toString());
-  const { mutate: toggleCampaign, isPending } = useToggleDirectCampaign();
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const { mutateAsync: editCampaign } = useEditDirectCampaign();
-  const { mutateAsync: deleteDirectCampaign } = useDeleteDirectCampaign();
   const [dialogState, setDialogState] = useState<boolean>(false);
+
+  const { mutate: toggleCampaign, isPending } = useToggleDirectCampaign();
+  const { mutate: editCampaign } = useEditDirectCampaign();
+  const { mutate: deleteDirectCampaign } = useDeleteDirectCampaign();
 
   const navigate = useNavigate();
 
@@ -27,26 +25,17 @@ export default function DirectCampaignCard({ campaign }: DirectCampaignCardProps
     toggleCampaign({ id: campaign.id, campaignState: campaign.state });
   };
 
-  const openBudgetEdit = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const closeBudgetEditor = () => {
-    setAnchorEl(null);
-  };
-
-  const handleRemoveCampaign = () => {
-    deleteDirectCampaign({ id: campaign.id });
-  };
-
-  const updateBudget = () => {
-    editCampaign({
-      id: campaign.id,
-      data: {
-        budget_limit: budget,
-      },
-    });
-  };
+  const updateBudget = useCallback(
+    (new_budget: string) => {
+      editCampaign({
+        id: campaign.id,
+        data: {
+          budget_limit: new_budget,
+        },
+      });
+    },
+    [campaign.id, editCampaign]
+  );
 
   return (
     <>
@@ -58,12 +47,13 @@ export default function DirectCampaignCard({ campaign }: DirectCampaignCardProps
             <Button className='!w-full' variant='outlined' onClick={() => setDialogState(false)}>
               Отмена
             </Button>
-            <Button onClick={handleRemoveCampaign} className='!w-full' color='error' variant='outlined'>
+            <Button onClick={() => deleteDirectCampaign({ id: campaign.id })} className='!w-full' color='error' variant='outlined'>
               Удалить
             </Button>
           </div>
         </div>
       </Dialog>
+
       <Bubble className='p-4'>
         <div className='flex items-center justify-between'>
           <h2 className='text-lg font-bold'>{campaign.name}</h2>
@@ -99,18 +89,9 @@ export default function DirectCampaignCard({ campaign }: DirectCampaignCardProps
         )}
         <div className='flex mt-2 items-center justify-between'>
           <span>Бюджет кампании</span>
-          <span className='flex items-center'>
-            <div className='flex items-center'>
-              {formatBalance(campaign.budget_limit)}
-              <IconButton onClick={openBudgetEdit} size='small'>
-                <Edit />
-              </IconButton>
-            </div>
-          </span>
+          <ValueTuner type='number' value={campaign.budget_limit.toString()} onChange={(v) => updateBudget(v)} />
         </div>
         <hr className='my-2 h-[1px] border-none bg-softgray' />
-
-        {/* Статистика */}
         <div className='flex flex-col gap-2'>
           <div className='flex items-center justify-between'>
             <span className='text-sm'>Отправленных сообщений (первое касание)</span>
@@ -164,31 +145,6 @@ export default function DirectCampaignCard({ campaign }: DirectCampaignCardProps
           </div>
         </div>
       </Bubble>
-
-      <Popover
-        open={Boolean(anchorEl)}
-        anchorEl={anchorEl}
-        onClose={closeBudgetEditor}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'left',
-        }}>
-        <div>
-          <Input onBlur={(e) => setBudget(parseBudget(e.target.value).toString())} value={budget.toString()} onChange={(e) => setBudget(e)} />
-          <IconButton
-            onClick={() => {
-              updateBudget();
-              closeBudgetEditor();
-            }}
-            color='success'>
-            <Check />
-          </IconButton>
-        </div>
-      </Popover>
     </>
   );
 }

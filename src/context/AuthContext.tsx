@@ -103,6 +103,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
 export function useAuth() {
   const context = useContext(authContext);
 
-  if (!context) throw new Error('отсутствует провайдер AuthProvider');
+  if (!context) throw new Error('Отсутствует провайдер AuthProvider');
   return context;
 }

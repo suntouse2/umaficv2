@@ -17,6 +17,7 @@ import { toast } from 'react-toastify';
 import parseBudget from '@helpers/parseBudget';
 import { Link } from 'react-router-dom';
 import { ArrowBack } from '@mui/icons-material';
+import { mapDirectCampaignSettingsToResponse } from '@helpers/campaigns/direct/mapDirectCampaignSettings';
 
 type UpsertFormType = TDirectCampaignSettings & {
   temporary: {
@@ -27,6 +28,7 @@ type UpsertFormType = TDirectCampaignSettings & {
 
 export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType; id?: number }) {
   const CampaignLocalStorageName = `${id}-direct_campaign_unsaved_settings`;
+
   const { control, watch, setValue, getValues, formState } = useForm<UpsertFormType>({
     defaultValues: localStorage.getItem(CampaignLocalStorageName) ? JSON.parse(localStorage.getItem(CampaignLocalStorageName) as string) : data,
   });
@@ -38,47 +40,41 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
   const { mutateAsync: createCampaign } = useCreateDirectCampaign();
   const { mutateAsync: editCampaign } = useEditDirectCampaign();
   const { data: statsData } = useFetchSettingsCheckStats(watch('settings.target'));
-  const profileTipMemo = useMemo(() => profileTip, []);
-  const locationTipMemo = useMemo(() => locationTip, []);
-  const keywordTipMemo = useMemo(() => keywordTip, []);
-  const minusWordsTipMemo = useMemo(() => minusWordsTip, []);
-  const firstMessageTipMemo = useMemo(() => firstMessageTip, []);
-  const keywordMessageTipMemo = useMemo(() => keywordMessageTip, []);
-  const orderMessageTipMemo = useMemo(() => orderMessageTip, []);
-  const anyMessageTipMemo = useMemo(() => anyMessageTip, []);
 
-  const [tabs, setTabs] = useState<{ name: string; disabled: boolean }[]>([
-    {
-      name: 'Профиль',
-      disabled: false,
-    },
-    {
-      name: 'Аудитория',
-      disabled: true,
-    },
-    {
-      name: 'Таргет',
-      disabled: true,
-    },
-    {
-      name: 'Сообщения',
-      disabled: true,
-    },
-    {
-      name: 'Запуск',
-      disabled: true,
-    },
-  ]);
-  const first_name = !watch('settings.profile.first_name') || watch('settings.profile.first_name').length === 0;
-  const keyword = !watch('settings.target.search.include') || watch('settings.target.search.include').length === 0;
-  const order = !watch('settings.auto_reply.funnel.order') || watch('settings.auto_reply.funnel.order').length === 0;
-  const first = !watch('temporary.first_message') || watch('temporary.first_message').length === 0;
+  const tips = useMemo(
+    () => ({
+      profile: profileTip,
+      location: locationTip,
+      keyword: keywordTip,
+      minusWords: minusWordsTip,
+      firstMessage: firstMessageTip,
+      keywordMessage: keywordMessageTip,
+      orderMessage: orderMessageTip,
+      anyMessage: anyMessageTip,
+    }),
+    []
+  );
 
-  const byType = !watch('settings.auto_reply.funnel.funnel_type') || watch('settings.auto_reply.funnel.funnel_type') == 'keyword' ? first : order;
+  const isFirstNameEmpty = !watch('settings.profile.first_name') || watch('settings.profile.first_name').length === 0;
+  const isKeywordEmpty = !watch('settings.target.search.include') || watch('settings.target.search.include').length === 0;
+  const isMsgByOrderEmpty = !watch('settings.auto_reply.funnel.order') || watch('settings.auto_reply.funnel.order').length === 0;
+  const isMsgByKeywordEmpty = !watch('temporary.first_message') || watch('temporary.first_message').length === 0;
+  const isByTypeEmpty = !watch('settings.auto_reply.funnel.funnel_type') || watch('settings.auto_reply.funnel.funnel_type') == 'keyword' ? isMsgByKeywordEmpty : isMsgByOrderEmpty;
 
   const [currentStep, setCurrentStep] = useState<number>(0);
 
   const values = watch();
+
+  const tabs = useMemo(
+    () => [
+      { name: 'Профиль', disabled: false },
+      { name: 'Аудитория', disabled: isFirstNameEmpty },
+      { name: 'Таргет', disabled: isFirstNameEmpty },
+      { name: 'Сообщения', disabled: isKeywordEmpty || isFirstNameEmpty },
+      { name: 'Запуск', disabled: isByTypeEmpty || isKeywordEmpty || isFirstNameEmpty },
+    ],
+    [isFirstNameEmpty, isKeywordEmpty, isByTypeEmpty]
+  );
 
   useEffect(() => {
     if (formState.isDirty && id) {
@@ -86,35 +82,18 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
     }
   }, [CampaignLocalStorageName, formState.isDirty, id, values]);
 
-  useEffect(() => {
-    setTabs((prevTabs) => {
-      const cTabs = [...prevTabs];
-      cTabs[1].disabled = first_name;
-      cTabs[2].disabled = first_name;
-      cTabs[3].disabled = keyword || first_name;
-      cTabs[4].disabled = byType || keyword || first_name;
-      return cTabs;
-    });
-  }, [byType, first, first_name, keyword, order]);
-
   const handleSubmit = async (e: FormEvent<HTMLFormElement> | MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+
     if (tabs.some((e) => e.disabled)) return;
     if (getValues('name').length == 0) return toast.error('Имя кампании пустое');
     if (Number(getValues('budget_limit')) < 10) return toast.error('Бюджет кампании должен быть больше 10 рублей');
 
     const requestData = getValues();
-    const transposedData = { ...requestData };
-    if (transposedData.settings.auto_reply.funnel.funnel_type == 'keyword') {
-      const firstMessages = transposedData?.temporary?.first_message[0]?.messages;
-      const anyMessages = transposedData?.temporary?.any_message[0]?.messages;
-      if (!firstMessages || firstMessages.length == 0) return;
-      transposedData.settings.auto_reply.funnel.order = [];
-      transposedData.settings.auto_reply.funnel.order.push({ order: 1, messages: [...firstMessages] });
-      if (anyMessages && anyMessages.length > 0) transposedData.settings.auto_reply.funnel.order.push({ order: 2, messages: [...anyMessages] });
-    }
+    const transposedData = mapDirectCampaignSettingsToResponse(requestData);
 
-    delete (transposedData as { [key: string]: unknown })['temporary'];
+    if (transposedData == undefined) return;
+
     if (data == undefined) {
       await createCampaign({ data: transposedData });
       return navigate('/campaigns/direct');
@@ -153,7 +132,7 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
                   <Controller defaultValue={''} control={control} name='settings.profile.about' render={({ field: { onChange, value } }) => <Input resize className='w-full min-h-32' value={value} onChange={onChange} placeholder='Обо мне' />} />
                 </div>
                 <div className='block sm:hidden'>
-                  <TipBox content={profileTipMemo} />
+                  <TipBox content={tips.profile} />
                 </div>
 
                 <div className='hidden sm:block'>
@@ -171,7 +150,7 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
           )}
           {currentStep == 1 && (
             <Bubble className='relative mt-4'>
-              <TipBox content={locationTipMemo} />
+              <TipBox content={tips.location} />
               <h2 className='text-lg font-bold'>География</h2>
               <p className='text-sm mt-2 mb-2'>Выберите нужные регионы и увеличьте эффективность вашей рекламы! Настройте точечную рекламу и достигните своей целевой аудитории прямо сейчас.</p>
               <Controller defaultValue={[]} control={control} name='settings.target.geo.language' render={({ field: { value, onChange } }) => <CampaignLocationManager value={new Set(value)} onChange={(v) => onChange(Array.from(v))} placeholder='введите язык' label='Добавить язык' options={new Map(Object.entries(languagesData ?? []))} />} />
@@ -183,11 +162,11 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
           {currentStep == 2 && (
             <>
               <Bubble className='relative mt-4'>
-                <TipBox content={keywordTipMemo} />
+                <TipBox content={tips.keyword} />
                 <Controller defaultValue={[]} control={control} name='settings.target.search.include' render={({ field: { value, onChange } }) => <CampaignKeywordManager title='Ключевые фразы' description='Фразы, которые система будет искать в чатах Telegram.' value={new Set(value)} onChange={(v) => onChange(Array.from(v))} />} />
               </Bubble>
               <Bubble className='mt-4 relative'>
-                <TipBox content={minusWordsTipMemo} />
+                <TipBox content={tips.minusWords} />
                 <Controller defaultValue={[]} control={control} name='settings.target.search.exclude' render={({ field: { value, onChange } }) => <CampaignKeywordManager title='Минус-слова' description='Фразы, которые система будет исключать из поиска в чатах Telegram.' value={new Set(value)} onChange={(v) => onChange(Array.from(v))} />} />
               </Bubble>
               <Bubble className='mt-4'>
@@ -225,16 +204,12 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
                   </ToggleButtonGroup>
                 )}
               />
-              {/* <div className='flex  items-center'>
-              <Switch color='secondary' />
-              <p>Включить режим общения с искусственным интелектом</p>
-            </div> */}
               <p className='mt-2 mb-2 text-sm'>
                 Вы можете выбрать только один из двух режимов. По порядку или по ключевым словам. На данный момент выбрано: <span className='text-secondary'>{watch('settings.auto_reply.funnel.funnel_type') == 'order' ? 'По порядку' : 'По ключевым словам'}</span>
               </p>
               {watch('settings.auto_reply.funnel.funnel_type') == 'order' ? (
                 <Bubble className='mt-2 relative'>
-                  <TipBox content={orderMessageTipMemo} />
+                  <TipBox content={tips.orderMessage} />
                   <h2 className='text-lg font-bold'>Настройка диалога по порядку</h2>
                   <p className='text-sm mb-4'>Сообщения, которые будут отправляться, если не выбраны ключевые слова.</p>
                   <Controller defaultValue={[]} control={control} name='settings.auto_reply.funnel.order' render={({ field: { value, onChange } }) => <CampaignMessageManager filter_type='order' value={value} onChange={onChange} />} />
@@ -242,19 +217,19 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
               ) : (
                 <>
                   <Bubble className='mt-2 relative'>
-                    <TipBox content={firstMessageTipMemo} />
+                    <TipBox content={tips.firstMessage} />
                     <h2 className='text-lg font-bold'>Первое сообщение</h2>
                     <p className='text-sm mb-4'>Сообщение, которое будет отправлено в чат или в личные сообщения первым.</p>
                     <Controller defaultValue={[]} control={control} name='temporary.first_message' render={({ field: { value, onChange } }) => <CampaignMessageManager filter_type='none' value={value} onChange={onChange} />} />
                   </Bubble>
                   <Bubble className='mt-2 relative'>
-                    <TipBox content={keywordMessageTipMemo} />
+                    <TipBox content={tips.keywordMessage} />
                     <h2 className='text-lg font-bold'>Настройка диалога по ключевым словам</h2>
                     <p className='text-sm mb-4'>Сообщения, которые будут отправляться, если пользователь продолжил общение.</p>
                     <Controller defaultValue={[]} control={control} name='settings.auto_reply.funnel.keyword' render={({ field: { value, onChange } }) => <CampaignMessageManager filter_type='keyword' value={value} onChange={onChange} />} />
                   </Bubble>
                   <Bubble className='mt-2 relative'>
-                    <TipBox content={anyMessageTipMemo} />
+                    <TipBox content={tips.anyMessage} />
                     <h2 className='text-lg font-bold'>Настройка диалога на любые фразы</h2>
                     <p className='text-sm mb-4'>Сообщения, которые будут отправляться, если не выбраны другие настройки.</p>
                     <Controller defaultValue={[]} control={control} name='temporary.any_message' render={({ field: { value, onChange } }) => <CampaignMessageManager filter_type='none' value={value} onChange={onChange} />} />

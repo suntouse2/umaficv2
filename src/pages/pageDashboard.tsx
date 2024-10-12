@@ -13,19 +13,12 @@ export default function PageDashboard() {
         <Button href='https://t.me/Umafic_support' target='_blank' className='!rounded-full' variant='contained'>
           Тех.поддержка
         </Button>
-        {/* <Button className='!rounded-full' variant='outlined'>
-                Для партнеров
-              </Button> */}
       </div>
       <article className='grid grid-cols-auto-fill-300 gap-5 mt-10'>
         <Bubble onClick={() => navigate('/campaigns/direct')}>
           <div className='flex items-center justify-between mb-5'>
             <h1 className='text-2xl'>Поиск клиентов</h1>
-            {/* <Badge badgeContent='5' color='primary'>
-                    <Chat className='!fill-softgray3' />
-                  </Badge> */}
           </div>
-          {/* <p className='text-positive text-xs'>9 активных</p> */}
         </Bubble>
         <Bubble>
           <div className='flex items-center justify-between mb-5'>

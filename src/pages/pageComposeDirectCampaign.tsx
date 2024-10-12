@@ -1,6 +1,7 @@
 import DirectCampaignService from '@api/http/services/campaigns/DirectCampaignService';
 import DirectCampaignUpsertForm from '@components/campaigns/direct/DirectCampaignUpsertForm';
 import Container from '@components/wrappers/layouts/Container';
+import { mapDirectCampaignSettingsFromResponse } from '@helpers/campaigns/direct/mapDirectCampaignSettings';
 import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -21,20 +22,7 @@ export default function ComposeDirectCampaign() {
 
   const fetchCampaign = useCallback(async (id: number) => {
     const { data } = await DirectCampaignService.getDirectCampaign(id);
-    const first_message: { messages: TFunnelMessage[] }[] = [{ messages: [] }];
-    const any_message: { messages: TFunnelMessage[] }[] = [{ messages: [] }];
-    if (data.settings.auto_reply.funnel.funnel_type == 'keyword') {
-      first_message[0]['messages'] = data.settings.auto_reply.funnel.order[0]?.messages ?? [];
-      any_message[0]['messages'] = data.settings.auto_reply.funnel.order[1]?.messages ?? [];
-      data.settings.auto_reply.funnel.order = [];
-    }
-    setData({
-      ...data,
-      temporary: {
-        first_message,
-        any_message,
-      },
-    });
+    setData(mapDirectCampaignSettingsFromResponse(data));
   }, []);
 
   useEffect(() => {
