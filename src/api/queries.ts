@@ -2,8 +2,8 @@ import DirectCampaignService from '@api/http/services/campaigns/DirectCampaignSe
 import SettingsCheckService from '@api/http/services/campaigns/SettingsCheckService';
 import GeoService from '@api/http/services/GeoService';
 import DirectService from '@api/http/services/chat/DirectService';
-import { InfiniteData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { AxiosError, AxiosResponse } from 'axios';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
 
 export function useFetchDirectCampaigns() {
@@ -32,16 +32,6 @@ export function useToggleDirectCampaign() {
   return useMutation({
     mutationKey: ['toggle-campaign'],
     mutationFn: ({ id, campaignState }: { id: number; campaignState: TDirectCampaign['state'] }) => (campaignState == 'active' ? DirectCampaignService.stopCampaign(id) : DirectCampaignService.startCampaign(id)),
-    onMutate: ({ id }) => {
-      queryClient.setQueryData(['get-direct-campaigns'], (data: InfiniteData<AxiosResponse<TDirectCampaignResponse[]>>) => ({
-        ...data,
-        pages: [
-          ...data.pages.map((item) => {
-            return { ...item, data: item.data.map((item) => (item.id == id ? { ...item, state: 'pending' } : item)) };
-          }),
-        ],
-      }));
-    },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['get-direct-campaigns'] });
     },
@@ -82,6 +72,7 @@ export function useFetchCities(regions: string[]) {
     staleTime: Infinity,
   });
 }
+
 export function useFetchSettingsCheckMsg(target: TCampaignSettingsTarget) {
   return useInfiniteQuery({
     queryKey: ['check-settings-msg', target.search.include, target.geo],
@@ -111,7 +102,11 @@ export function useCreateDirectCampaign() {
     mutationKey: ['createCampaign'],
     mutationFn: ({ data }: { data: TDirectCampaignSettings }) => DirectCampaignService.createDirectCampaign(data),
     gcTime: 0,
+    onError: () => {
+      toast.error('Не удалось создать кампанию');
+    },
     onSuccess: () => {
+      toast.success('Кампания создана');
       setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: ['get-direct-campaigns'] });
       }, 2000);
@@ -125,7 +120,11 @@ export function useEditDirectCampaign() {
     mutationKey: ['editCampaign'],
     mutationFn: ({ id, data }: { id: number; data: TPartialDirectCampaignSettings }) => DirectCampaignService.editDirectCampaign(id, data),
     gcTime: 0,
+    onError: () => {
+      toast.error('Не удалось изменить кампанию');
+    },
     onSuccess: () => {
+      toast.success('Кампания изменена');
       setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: ['get-direct-campaigns'] });
       }, 2000);
@@ -139,18 +138,14 @@ export function useDeleteDirectCampaign() {
     mutationKey: ['deleteCampaign'],
     mutationFn: ({ id }: { id: number }) => DirectCampaignService.deleteDirectCampaign(id),
     gcTime: 0,
-    onMutate: ({ id }) => {
-      queryClient.setQueryData(['get-direct-campaigns'], (data: InfiniteData<AxiosResponse<TDirectCampaignResponse[]>>) => ({
-        ...data,
-        pages: [
-          ...data.pages.map((item) => {
-            return { ...item, data: item.data.filter((item) => item.id !== id) };
-          }),
-        ],
-      }));
-    },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['get-direct-campaigns'] });
+    },
+    onSuccess: () => {
+      toast.success('Кампания удалена');
+    },
+    onError: () => {
+      toast.error('Не удалось удалить кампанию');
     },
   });
 }

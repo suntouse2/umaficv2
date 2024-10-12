@@ -14,7 +14,6 @@ import { useNavigate } from 'react-router-dom';
 import { anyMessageTip, firstMessageTip, keywordMessageTip, keywordTip, locationTip, minusWordsTip, orderMessageTip, profileTip } from '@components/helpers/tips';
 import formatBalance from '@helpers/formatBalance';
 import { toast } from 'react-toastify';
-import { AxiosError } from 'axios';
 import parseBudget from '@helpers/parseBudget';
 import { Link } from 'react-router-dom';
 import { ArrowBack } from '@mui/icons-material';
@@ -99,42 +98,31 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
   }, [byType, first, first_name, keyword, order]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement> | MouseEvent<HTMLButtonElement>) => {
-    try {
-      e.preventDefault();
-      if (tabs.some((e) => e.disabled)) return;
-      if (getValues('name').length == 0) return toast.error('Имя кампании пустое');
-      if (Number(getValues('budget_limit')) < 10) return toast.error('Бюджет кампании должен быть больше 10 рублей');
+    e.preventDefault();
+    if (tabs.some((e) => e.disabled)) return;
+    if (getValues('name').length == 0) return toast.error('Имя кампании пустое');
+    if (Number(getValues('budget_limit')) < 10) return toast.error('Бюджет кампании должен быть больше 10 рублей');
 
-      const requestData = getValues();
-      const transposedData = { ...requestData };
-      if (transposedData.settings.auto_reply.funnel.funnel_type == 'keyword') {
-        const firstMessages = transposedData?.temporary?.first_message[0]?.messages;
-        const anyMessages = transposedData?.temporary?.any_message[0]?.messages;
-        if (!firstMessages || firstMessages.length == 0) return;
-        transposedData.settings.auto_reply.funnel.order = [];
-        transposedData.settings.auto_reply.funnel.order.push({ order: 1, messages: [...firstMessages] });
-        if (anyMessages && anyMessages.length > 0) transposedData.settings.auto_reply.funnel.order.push({ order: 2, messages: [...anyMessages] });
-      }
+    const requestData = getValues();
+    const transposedData = { ...requestData };
+    if (transposedData.settings.auto_reply.funnel.funnel_type == 'keyword') {
+      const firstMessages = transposedData?.temporary?.first_message[0]?.messages;
+      const anyMessages = transposedData?.temporary?.any_message[0]?.messages;
+      if (!firstMessages || firstMessages.length == 0) return;
+      transposedData.settings.auto_reply.funnel.order = [];
+      transposedData.settings.auto_reply.funnel.order.push({ order: 1, messages: [...firstMessages] });
+      if (anyMessages && anyMessages.length > 0) transposedData.settings.auto_reply.funnel.order.push({ order: 2, messages: [...anyMessages] });
+    }
 
-      delete (transposedData as { [key: string]: unknown })['temporary'];
-      if (data == undefined) {
-        await createCampaign({ data: transposedData });
-        navigate('/campaigns/direct');
-        return toast.success('Кампания создана');
-      }
-      if (data && id) {
-        await editCampaign({ id: id, data: transposedData });
-        localStorage.removeItem(CampaignLocalStorageName);
-        navigate('/campaigns/direct');
-        return toast.success('Кампания изменена');
-      }
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        if (error.status == 409) {
-          return toast.error('Кампанию нельзя изменить если она запущена');
-        }
-        return toast.error(`${error.status}: Ошибка при создании/изменении кампании`);
-      }
+    delete (transposedData as { [key: string]: unknown })['temporary'];
+    if (data == undefined) {
+      await createCampaign({ data: transposedData });
+      return navigate('/campaigns/direct');
+    }
+    if (data && id) {
+      await editCampaign({ id: id, data: transposedData });
+      localStorage.removeItem(CampaignLocalStorageName);
+      return navigate('/campaigns/direct');
     }
   };
 

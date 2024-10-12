@@ -1,13 +1,12 @@
-import { useEditDirectCampaign, useToggleDirectCampaign } from '@api/queries';
+import { useDeleteDirectCampaign, useEditDirectCampaign, useToggleDirectCampaign } from '@api/queries';
 import Bubble from '@components/common/Bubble';
 import { Input } from '@components/common/Input';
 import formatBalance from '@helpers/formatBalance';
 import parseBudget from '@helpers/parseBudget';
-import { Check, Edit, SettingsOutlined, TextsmsOutlined } from '@mui/icons-material';
-import { Badge, IconButton, Popover, Switch } from '@mui/material';
+import { Check, Delete, Edit, SettingsOutlined, TextsmsOutlined } from '@mui/icons-material';
+import { Badge, Button, Dialog, IconButton, Popover, Switch } from '@mui/material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
 
 type DirectCampaignCardProps = {
   campaign: TDirectCampaign;
@@ -18,6 +17,9 @@ export default function DirectCampaignCard({ campaign }: DirectCampaignCardProps
   const { mutate: toggleCampaign, isPending } = useToggleDirectCampaign();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const { mutateAsync: editCampaign } = useEditDirectCampaign();
+  const { mutateAsync: deleteDirectCampaign } = useDeleteDirectCampaign();
+  const [dialogState, setDialogState] = useState<boolean>(false);
+
   const navigate = useNavigate();
 
   const handleToggleCampaign = () => {
@@ -33,26 +35,42 @@ export default function DirectCampaignCard({ campaign }: DirectCampaignCardProps
     setAnchorEl(null);
   };
 
-  const updateBudget = async () => {
-    try {
-      await editCampaign({
-        id: campaign.id,
-        data: {
-          budget_limit: budget,
-        },
-      });
-      toast.success('Бюджет изменен');
-    } catch {
-      //
-    }
+  const handleRemoveCampaign = () => {
+    deleteDirectCampaign({ id: campaign.id });
+  };
+
+  const updateBudget = () => {
+    editCampaign({
+      id: campaign.id,
+      data: {
+        budget_limit: budget,
+      },
+    });
   };
 
   return (
     <>
+      <Dialog open={dialogState} onClose={() => setDialogState(false)}>
+        <div className='p-4'>
+          <h2 className='text-xl font-bold'>Вы уверены что хотите удалить кампанию?</h2>
+          <p className='mt-2'>Ваша кампания будет удалено навсегда, без возможности сохранить настройки.</p>
+          <div className='flex gap-2 mt-2'>
+            <Button className='!w-full' variant='outlined' onClick={() => setDialogState(false)}>
+              Отмена
+            </Button>
+            <Button onClick={handleRemoveCampaign} className='!w-full' color='error' variant='outlined'>
+              Удалить
+            </Button>
+          </div>
+        </div>
+      </Dialog>
       <Bubble className='p-4'>
         <div className='flex items-center justify-between'>
           <h2 className='text-lg font-bold'>{campaign.name}</h2>
           <div className='flex items-center'>
+            <IconButton onClick={() => setDialogState(true)} color='success'>
+              <Delete />
+            </IconButton>
             <IconButton onClick={() => navigate('/campaigns/direct/edit', { state: { id: campaign.id } })} color='success'>
               <SettingsOutlined />
             </IconButton>
