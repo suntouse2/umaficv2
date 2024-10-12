@@ -10,15 +10,13 @@ export default function AvatarInput({ file, onChange }: AvatarProps) {
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   const handleAvatarClick = () => {
-    if (!fileRef.current) return;
-    fileRef.current.click();
+    if (fileRef.current) fileRef.current.click();
   };
 
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     try {
       const file = e.target.files && e.target.files[0];
-      if (!file) return;
-      onChange(file);
+      if (file) onChange(file);
     } catch {
       onChange(null);
     }
