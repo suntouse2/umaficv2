@@ -3,48 +3,33 @@ import Message from '@components/chat/Message';
 import { useChat } from '@context/ChatContext';
 import { AccessTimeOutlined, StraightRounded } from '@mui/icons-material';
 import { Button } from '@mui/material';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 export default function ChatScreen() {
   const { currentDirect, messagesQueue } = useChat();
   const { data, fetchNextPage, isFetching, isFetchingNextPage, hasNextPage } = useFetchDirectMessages(currentDirect ?? 0);
   const ref = useRef<HTMLUListElement | null>(null);
-  const [shouldScroll, setShouldScroll] = useState(true);
-
-  const handleScroll = () => {
-    if (!ref.current) return;
-    const { scrollTop, scrollHeight, clientHeight } = ref.current;
-    setShouldScroll(scrollHeight - (scrollTop + clientHeight) <= 200);
-  };
 
   useEffect(() => {
     if (!ref.current) return;
+    const currentScrollPosition = ref.current.scrollTop;
+    const totalHeight = ref.current.scrollHeight;
+    const visibleHeight = ref.current.clientHeight;
+    const isInBottomHalf = currentScrollPosition + visibleHeight >= totalHeight / 2;
+    if (isInBottomHalf) {
+      const timeout = setTimeout(() => {
+        ref.current!.scrollTop = ref.current!.scrollHeight;
+      }, 100);
 
-    if (shouldScroll) {
-      ref.current.scrollTo({
-        top: ref.current.scrollHeight,
-        behavior: 'smooth',
-      });
+      return () => clearTimeout(timeout);
     }
-  }, [data, messagesQueue, isFetchingNextPage, shouldScroll]);
-
-  useEffect(() => {
-    const currentRef = ref.current;
-    if (currentRef) {
-      currentRef.addEventListener('scroll', handleScroll);
-    }
-    return () => {
-      if (currentRef) {
-        currentRef.removeEventListener('scroll', handleScroll);
-      }
-    };
-  }, []);
+  }, [data, messagesQueue, isFetchingNextPage]);
 
   return (
-    <section className='flex flex-col w-full p-5 h-full overflow-hidden '>
+    <section className='flex flex-col w-full p-5 h-full overflow-hidden bg-primary bg-opacity-10'>
       <div className='flex items-center w-full justify-center'>
         {hasNextPage && (
-          <Button disabled={isFetching} onClick={() => fetchNextPage()} color='secondary'>
+          <Button disabled={isFetching} onClick={() => fetchNextPage()} color='primary'>
             {isFetching ? (
               <>Загрузка...</>
             ) : (

@@ -102,7 +102,7 @@ export default function MessageInput() {
 
   return (
     <div onDrop={handleDrop} onDragOver={handleDragOver} onPaste={handlePaste}>
-      <div className='w-full flex p-4 gap-2 items-center'>
+      <div className=' w-full flex p-4 gap-2 items-center'>
         <IconButton onClick={handleMenuClick} sx={{ width: '50px', height: '50px' }}>
           <AttachFile />
         </IconButton>

@@ -1,3 +1,4 @@
+import ChatContact from '@components/chat/ChatContact';
 import ChatScreen from '@components/chat/ChatScreen';
 import DirectsList from '@components/chat/DirectsList';
 import MessageInput from '@components/chat/MessageInput';
@@ -58,22 +59,33 @@ export default function ChatLayout() {
 
   return (
     <>
+      <div className='border-b-[1px] border-softgray'>
+        <div className='block lg:hidden'>
+          <Button onClick={handleGoBack}>
+            <ArrowBack /> Назад
+          </Button>
+        </div>
+        <div className='hidden lg:block'>
+          <Button onClick={() => navigate('/campaigns/direct')}>
+            <ArrowBack /> Назад
+          </Button>
+        </div>
+      </div>
       <div className='relative hidden lg:grid  h-full w-full overflow-hidden grid-cols-[max-content,1fr]'>
         <DirectsList />
         {currentDirect !== null && (
           <div className='flex flex-col h-full overflow-hidden'>
+            <ChatContact />
             <ChatScreen />
             <MessageInput />
           </div>
         )}
       </div>
       <div className='flex flex-col lg:hidden h-full w-full overflow-hidden'>
-        <Button onClick={handleGoBack}>
-          <ArrowBack /> Назад
-        </Button>
         {currentDirect === null && <DirectsList />}
         {currentDirect !== null && (
           <div className='flex flex-col h-full overflow-hidden'>
+            <ChatContact />
             <ChatScreen />
             <MessageInput />
           </div>

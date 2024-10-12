@@ -160,8 +160,6 @@ export function useFetchChatDirects(campaign_id: number, filter?: { is_open?: bo
     queryKey: ['directs', campaign_id, filter],
     queryFn: ({ queryKey, pageParam }) => {
       const campaign_id = queryKey[1] as number;
-      console.log(pageParam);
-
       return DirectService.getDirects(campaign_id, pageParam, filter);
     },
     staleTime: Infinity,
@@ -210,7 +208,7 @@ export function useFetchDirectMessages(direct_id: number) {
     staleTime: Infinity,
     initialPageParam: 1,
     getNextPageParam: (lastPage, _allPages, lastPageParam) => {
-      if (lastPage.data.length == 0) {
+      if (lastPage.data.length < 10) {
         return undefined;
       }
       return lastPageParam + 1;
