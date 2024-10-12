@@ -59,20 +59,15 @@ export default function ChatLayout() {
 
   return (
     <>
-      <div className='border-b-[1px] border-softgray'>
-        <div className='block lg:hidden'>
-          <Button onClick={handleGoBack}>
-            <ArrowBack /> Назад
-          </Button>
-        </div>
-        <div className='hidden lg:block'>
-          <Button onClick={() => navigate('/campaigns/direct')}>
-            <ArrowBack /> Назад
-          </Button>
-        </div>
-      </div>
       <div className='relative hidden lg:grid  h-full w-full overflow-hidden grid-cols-[max-content,1fr]'>
-        <DirectsList />
+        <div className='h-full w-full overflow-hidden'>
+          <div className='border-b-[1px] border-softgray'>
+            <Button onClick={() => navigate('/campaigns/direct')}>
+              <ArrowBack /> Назад
+            </Button>
+          </div>
+          <DirectsList />
+        </div>
         {currentDirect !== null && (
           <div className='flex flex-col h-full overflow-hidden'>
             <ChatContact />
@@ -82,6 +77,11 @@ export default function ChatLayout() {
         )}
       </div>
       <div className='flex flex-col lg:hidden h-full w-full overflow-hidden'>
+        <div className='border-b-[1px] border-softgray'>
+          <Button onClick={handleGoBack}>
+            <ArrowBack /> Назад
+          </Button>
+        </div>
         {currentDirect === null && <DirectsList />}
         {currentDirect !== null && (
           <div className='flex flex-col h-full overflow-hidden'>

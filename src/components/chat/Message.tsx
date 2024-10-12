@@ -20,6 +20,13 @@ export default function Message({ message }: { message: TChatMessage }) {
   return (
     <div className={`flex w-full ${message.is_self ? 'justify-end' : 'justify-start'} gap-2 items-end`}>
       <div className={`flex flex-col ${message.is_self ? 'items-end' : 'items-start'}`}>
+        {message.forwarded_message?.content && (
+          <div className={`p-2  max-w-[320px] ${message.is_self ? isSelf : isFrom}`}>
+            <i>Пересланное сообщение:</i>
+            <p className='w-full'>{message.forwarded_message.content.message}</p>
+            {message.forwarded_message.content.media && <MediaRenderer media={message.forwarded_message.content.media} />}
+          </div>
+        )}
         {message.content.message && (
           <div className={`p-2  max-w-[320px] ${message.is_self ? isSelf : isFrom}`}>
             <p className='w-full'>{message.content.message}</p>
