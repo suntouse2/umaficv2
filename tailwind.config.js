@@ -3,6 +3,7 @@ import getBreakpoints from './src/static/mediaBreakpoints';
 
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  darkMode: 'class',
   theme: {
     colors: {
       backdrop: 'rgb(0,0,0,0.3)',
@@ -15,8 +16,9 @@ export default {
       negative: '#c10015',
       info: '#31ccec',
       warning: '#c29a2f',
-      dark: '#1d1d1d',
       white: '#fff',
+      bg: '#fafafa',
+      dark: '#1a1919',
       inputbg: '#f2f3f7cc',
       softgray: '#eeeeee',
       softgray3: '#9e9e9e',
@@ -41,11 +43,14 @@ export default {
         '8xl': '6rem', // 96px
         '9xl': '8rem', // 128px
       },
+      height: {
+        'calc-auto': "calc-size('auto')",
+      },
       gridTemplateColumns: {
         'auto-fill-300': 'repeat(auto-fill, minmax(300px, 1fr))',
         'auto-fit-300': 'repeat(auto-fit, minmax(300px, 1fr))',
-        'auto-fill-500': 'repeat(auto-fill, minmax(500px, 1fr))',
-        'auto-fit-500': 'repeat(auto-fit, minmax(500px, 1fr))',
+        'auto-fill-450': 'repeat(auto-fill, minmax(450px, 1fr))',
+        'auto-fit-450': 'repeat(auto-fit, minmax(450px, 1fr))',
       },
     },
   },

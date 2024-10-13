@@ -49,7 +49,7 @@ export default function CampaignKeywordManager({ title, description, value, onCh
             </Button>
             {popupState && (
               <ClickAwayListener mouseEvent='onMouseDown' touchEvent='onTouchStart' onClickAway={() => setPopupState(false)}>
-                <div className='absolute z-10 left-full ml-2 top-0'>
+                <div className='absolute slideUp z-10 left-full ml-2 top-0'>
                   <TagInput onClose={closePopupAndDialog} onAdd={handleAddTag} />
                 </div>
               </ClickAwayListener>

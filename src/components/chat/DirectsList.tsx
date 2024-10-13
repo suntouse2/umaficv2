@@ -65,10 +65,10 @@ export default function DirectsList() {
   // };
 
   return (
-    <div className='flex flex-col p-2  border-r-[1px] h-full overflow-hidden border-softgray w-full min-w-[400px] lg:max-w-[400px] '>
+    <div className='flex flex-col  border-r-[1px] h-full overflow-hidden border-softgray w-full min-w-[400px] lg:max-w-[400px] '>
       <ToggleButtonGroup
         color='primary'
-        className='mb-2  !w-full '
+        className='!w-full '
         value={filter['is_favorite'] ? 'favorite' : 'all'}
         exclusive
         onChange={(_v, v) =>
@@ -92,7 +92,7 @@ export default function DirectsList() {
           <>
             {data.pages.map((directs) =>
               directs.data.map((direct) => (
-                <li onClick={() => handleDirectClick(direct)} onContextMenu={(e) => handleMenuOpen(e, direct)} onTouchStart={(e) => handleTouchStart(e, direct)} onTouchEnd={handleTouchEnd} key={direct.id} className={`flex gap-3 p-2 w-full min-h-20 max-h-20 transition-colors hover:bg-softgray cursor-pointer ${currentDirect === direct.id && '!bg-primary !bg-opacity-10'}`}>
+                <li onClick={() => handleDirectClick(direct)} onContextMenu={(e) => handleMenuOpen(e, direct)} onTouchStart={(e) => handleTouchStart(e, direct)} onTouchEnd={handleTouchEnd} key={direct.id} className={`flex popup gap-3 p-2 w-full min-h-20 max-h-20  hover:bg-softgray cursor-pointer ${currentDirect === direct.id && '!bg-primary !bg-opacity-10'}`}>
                   <Avatar {...stringAvatar(direct.user.first_name)} />
                   <div className='w-full overflow-hidden'>
                     <p className='flex justify-between gap-5 w-full overflow-hidden'>

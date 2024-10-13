@@ -187,7 +187,8 @@ export function useUpdateDirect() {
   return useMutation({
     mutationKey: ['setDialogOpened'],
     mutationFn: ({ direct_id, data }: { campaign_id: number; direct_id: number; data: TChatDirectStatusUpdate }) => DirectService.updateDirect(direct_id, data),
-    onSuccess: (_, { campaign_id }) => {
+    onSuccess: (_, { campaign_id, direct_id }) => {
+      queryClient.invalidateQueries({ queryKey: ['direct', direct_id] });
       queryClient.invalidateQueries({ queryKey: ['directs', campaign_id] });
     },
   });

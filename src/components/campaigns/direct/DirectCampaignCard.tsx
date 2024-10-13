@@ -54,7 +54,7 @@ export default function DirectCampaignCard({ campaign }: DirectCampaignCardProps
         </div>
       </Dialog>
 
-      <Bubble className='p-4'>
+      <Bubble className='p-4 slideUp'>
         <div className='flex items-center justify-between'>
           <h2 className='text-lg font-bold'>{campaign.name}</h2>
           <div className='flex items-center'>
@@ -96,18 +96,18 @@ export default function DirectCampaignCard({ campaign }: DirectCampaignCardProps
           <div className='flex items-center justify-between'>
             <span className='text-sm'>Отправленных сообщений (первое касание)</span>
             <span className='text-sm'>
-              {campaign.numeric_statistics.outgoing_auto_reply_messages}
+              {campaign.numeric_statistics.directs}
               <span title='Отправленных в сутки' className='ml-1 bg-positive whitespace-nowrap px-1 text-sm rounded-sm bg-opacity-20'>
-                + {campaign.numeric_statistics.outgoing_auto_reply_messages_by_day}
+                + {campaign.numeric_statistics.directs_by_day}
               </span>
             </span>
           </div>
           <div className='flex items-center justify-between'>
             <span className='text-sm'>Состоялось диалогов (второе касание)</span>
             <span className='text-sm'>
-              {campaign.numeric_statistics.incoming_messages}{' '}
+              {campaign.numeric_statistics.directs_interacted}{' '}
               <span title='Входящих в сутки' className='ml-1 whitespace-nowrap bg-positive px-1 text-sm rounded-sm bg-opacity-20'>
-                + {campaign.numeric_statistics.incoming_messages_by_day}
+                + {campaign.numeric_statistics.directs_interacted_by_day}
               </span>
             </span>
           </div>
@@ -121,19 +121,21 @@ export default function DirectCampaignCard({ campaign }: DirectCampaignCardProps
           </div>
           <div className='flex items-center justify-between'>
             <span className='text-sm'>Общий расход</span>
-            <span className='text-sm'>{formatBalance(campaign.numeric_statistics.spending)}</span>
-          </div>
-          <div className='flex items-center justify-between'>
-            <span className='text-sm'>Расход за последние сутки</span>
-            <span className='text-sm'>{formatBalance(campaign.numeric_statistics.spending_by_day)}</span>
+            <span className='text-sm'>
+              {formatBalance(campaign.numeric_statistics.spending)}
+              <span title='Входящих в сутки' className='ml-1 whitespace-nowrap bg-positive px-1 text-sm rounded-sm bg-opacity-20'>
+                + {campaign.numeric_statistics.spending_by_day}
+              </span>
+            </span>
           </div>
           <div className='flex items-center justify-between'>
             <span className='text-sm'>Общий возврат средств</span>
-            <span className='text-sm'>{formatBalance(campaign.numeric_statistics.repayment)}</span>
-          </div>
-          <div className='flex items-center justify-between'>
-            <span className='text-sm'>Возврат средств за сутки</span>
-            <span className='text-sm'>{formatBalance(campaign.numeric_statistics.repayment_by_day)}</span>
+            <span className='text-sm'>
+              {formatBalance(campaign.numeric_statistics.repayment)}
+              <span title='Входящих в сутки' className='ml-1 whitespace-nowrap bg-positive px-1 text-sm rounded-sm bg-opacity-20'>
+                + {campaign.numeric_statistics.repayment_by_day}
+              </span>
+            </span>
           </div>
           <div className='flex items-center justify-between'>
             <span className='text-sm'>Средняя цена одного избранного/лида</span>
@@ -141,7 +143,7 @@ export default function DirectCampaignCard({ campaign }: DirectCampaignCardProps
           </div>
           <div className='flex items-center justify-between'>
             <span className='text-sm'>Средняя цена одного диалога</span>
-            <span className='text-sm'>{formatBalance((parseFloat(campaign.numeric_statistics.spending) / (campaign.numeric_statistics.directs || 1)).toFixed(0))}</span>
+            <span className='text-sm'>{campaign.numeric_statistics.directs_interacted < 1 ? '―' : formatBalance((parseFloat(campaign.numeric_statistics.spending) / campaign.numeric_statistics.directs_interacted).toFixed(0))}</span>
           </div>
         </div>
       </Bubble>

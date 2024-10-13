@@ -13,7 +13,7 @@ export default memo(function DirectCampaignsList() {
   }, [fetchNextPage, inView]);
 
   return (
-    <div className='flex flex-col mt-5 p-0 md:p-4 sm:grid grid-cols-auto-fit-500 gap-2'>
+    <div className='flex flex-col p-0 pt-2 md:p-4 md:pt-3 sm:grid grid-cols-auto-fit-450 gap-2'>
       {data && data.pages.map((campaigns) => campaigns.data.map((campaign) => <DirectCampaignCard key={campaign.id} campaign={campaign} />))}
       {isPending && <CircularProgress color='inherit' />}
       {data && <div ref={ref}></div>}

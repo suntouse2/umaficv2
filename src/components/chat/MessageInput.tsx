@@ -129,8 +129,8 @@ export default function MessageInput() {
           </MenuItem>
         </Menu>
         <TextField multiline className='w-full' onKeyDown={handleEnter} variant='standard' value={message} onChange={(v) => setMessage(v.target.value)} />
-        <Button onClick={handleSendMessage} variant='contained' className='!h-full' endIcon={<Send />}>
-          Отправить
+        <Button onClick={handleSendMessage} variant='text' className='!h-full'>
+          <Send />
         </Button>
         <input ref={fileInputRef} type='file' hidden onChange={handleFileChange} />
       </div>

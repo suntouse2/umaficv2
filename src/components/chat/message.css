@@ -1,0 +1,31 @@
+.messageFrom {
+  margin-left: 10px;
+}
+.messageSelf {
+  margin-right: 10px;
+}
+.messageFrom::before {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-top: 17px solid white;
+  border-left: 16px solid transparent;
+  border-right: 16px solid transparent;
+  rotate: 180deg;
+  bottom: 0px;
+  left: -10px;
+}
+
+.messageSelf::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-top: 17px solid #568ce1;
+  border-left: 16px solid transparent;
+  border-right: 16px solid transparent;
+  rotate: 180deg;
+  bottom: 0px;
+  right: -10px;
+}

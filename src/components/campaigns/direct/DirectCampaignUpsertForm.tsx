@@ -107,7 +107,7 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
 
   return (
     <>
-      <form onSubmit={handleSubmit} className='mx-auto w-full h-full max-w-[600px] '>
+      <form onSubmit={handleSubmit} className='mx-auto w-full h-full max-w-[600px] slideUp'>
         <h1 className='text-2xl font-bold'>Поиск клиентов</h1>
         {localStorage.getItem(CampaignLocalStorageName) && <p className='text-warning'>Настройки не сохранены</p>}
         <Link to='/campaigns/direct'>

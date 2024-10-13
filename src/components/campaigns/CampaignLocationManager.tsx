@@ -44,7 +44,7 @@ export default function CampaignLocationManager({ label, onChange, placeholder, 
         </Button>
         {popupState && (
           <ClickAwayListener mouseEvent='onMouseDown' touchEvent='onTouchStart' onClickAway={() => setPopupState(false)}>
-            <div className='z-10 bg-white p-2 left-full ml-2 rounded-md shadow-[0_1px_5px_#0003,0_2px_2px_#00000024,0_3px_1px_-2px_#0000001f] top-[-5px] absolute min-w-60'>
+            <div className='z-10 slideUp bg-white p-2 left-full ml-2 rounded-md shadow-[0_1px_5px_#0003,0_2px_2px_#00000024,0_3px_1px_-2px_#0000001f] top-[-5px] absolute min-w-60'>
               <SelectInput onClose={closePopupAndDialog} onAdd={handleAddOption} placeholder={placeholder} options={options} />
             </div>
           </ClickAwayListener>
@@ -54,7 +54,7 @@ export default function CampaignLocationManager({ label, onChange, placeholder, 
         {Array.from(value).map((v) => (
           <ListItem
             key={v}
-            className='bg-inputbg rounded-xl px-2'
+            className='bg-inputbg rounded-xl px-2 popup'
             secondaryAction={
               <IconButton edge='end' aria-label='delete' onClick={() => handleDeleteOption(v)}>
                 <Delete color='error' />

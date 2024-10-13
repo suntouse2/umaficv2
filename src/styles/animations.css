@@ -1,0 +1,19 @@
+.popup {
+  opacity: 1;
+  transition: opacity 0.3s, transform 0.3s, color 0.3s;
+}
+.slideUp {
+  opacity: 1;
+  transform: translateY(0px);
+  transition: opacity 0.3s, transform 0.3s, color 0.3s;
+}
+
+@starting-style {
+  .popup {
+    opacity: 0;
+  }
+  .slideUp {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+}
