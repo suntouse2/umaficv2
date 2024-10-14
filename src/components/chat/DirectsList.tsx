@@ -60,7 +60,6 @@ export default function DirectsList() {
                 </li>
               ))
             )}
-
             <div ref={ref}></div>
           </>
         )}
