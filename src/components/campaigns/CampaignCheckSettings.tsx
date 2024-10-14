@@ -109,7 +109,7 @@ export default function CampaignCheckSettings({ value, onChange }: CampaignCheck
                       </span>
                     ))}
                     <div className='w-full flex justify-end'>
-                      <span className='text-xs mt-2 text-softgray4'>{dateToString(new Date(msg.date))}</span>
+                      <span className='text-xs mt-2 text-inputbg'>{dateToString(new Date(msg.date))}</span>
                     </div>
                   </li>
                 ))
