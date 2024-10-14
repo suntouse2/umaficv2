@@ -93,7 +93,7 @@ export default function CampaignCheckSettings({ value, onChange }: CampaignCheck
           <div className='p-3'>
             <p className='text-lg'>Всего найденных сообщений: {statsData?.data.unique_users}</p>
             <p className='text-lg'>Рекомендуемый суточный бюджет: {formatBalance(statsData?.data.recommended_daily_budget_limit)}</p>
-            <Tabs indicatorColor='secondary' textColor='secondary' value={selectedTab} onChange={handleTabChange} aria-label='tabs for settings'>
+            <Tabs variant='scrollable' scrollButtons='auto' allowScrollButtonsMobile indicatorColor='secondary' textColor='secondary' value={selectedTab} onChange={handleTabChange} aria-label='tabs for settings'>
               {value.search.include.map((item, index) => (
                 <Tab key={index} label={item} />
               ))}

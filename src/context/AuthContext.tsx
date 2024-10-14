@@ -8,7 +8,7 @@ type TAuthContext = {
   authState: TLoginStatus;
   user: TUser | null;
   login: () => void;
-  logout: () => void;
+  exit: () => void;
   redirect: () => void;
 };
 
@@ -33,6 +33,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
     setToken(null);
     localStorage.removeItem('access_token');
   }, []);
+
+  const exit = useCallback(() => {
+    logout();
+    setAuthState('logged-out');
+  }, [logout]);
 
   const loginByToken = useCallback(async () => {
     try {
@@ -98,7 +103,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     }
   }, [authState, login]);
 
-  return <authContext.Provider value={{ user, authState, login, logout, redirect }}>{children}</authContext.Provider>;
+  return <authContext.Provider value={{ user, authState, login, redirect, exit }}>{children}</authContext.Provider>;
 }
 export function useAuth() {
   const context = useContext(authContext);

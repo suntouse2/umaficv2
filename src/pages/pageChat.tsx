@@ -41,7 +41,7 @@ export default function PageChat() {
   }, [campaignId, queryClient]);
 
   const handleGoBack = () => {
-    return directId ? navigate(-1) : navigate('/campaigns/direct');
+    return directId ? navigate(`/chat/${campaignId}`) : navigate('/campaigns/direct');
   };
 
   return (

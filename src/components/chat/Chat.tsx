@@ -7,7 +7,7 @@ export default function Chat() {
   const params = useParams();
   const directId = Number(params.directId);
 
-  const INITIAL_ITEM_COUNT = 1000000;
+  const INITIAL_ITEM_COUNT = 10000;
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useFetchDirectMessages(directId);
 
@@ -19,6 +19,7 @@ export default function Chat() {
     <section className='flex flex-col w-full p-5 h-full overflow-hidden bg-primary bg-opacity-10'>
       <Virtuoso
         style={{ height: '100%', width: '100%' }}
+        className='chatScroll'
         data={messages}
         firstItemIndex={firstItemIndex}
         itemContent={(_index, message) => <Message message={message} />}

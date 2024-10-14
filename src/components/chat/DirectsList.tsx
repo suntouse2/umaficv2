@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useFetchChatDirects, useUpdateDirect } from '@api/queries';
-import { LinearProgress, ToggleButton, ToggleButtonGroup } from '@mui/material';
-import { useInView } from 'react-intersection-observer';
+import { ToggleButton, ToggleButtonGroup } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import Direct from '@components/chat/Direct';
+import { Virtuoso } from 'react-virtuoso';
 
 export default function DirectsList() {
   const params = useParams();
@@ -12,14 +12,9 @@ export default function DirectsList() {
 
   const { mutate: updateDirect } = useUpdateDirect();
   const [filter, setFilter] = useState<{ is_open?: boolean; is_favorite?: boolean }>({});
-  const { data, isFetching, fetchNextPage } = useFetchChatDirects(campaignId, filter);
-  const { ref, inView } = useInView();
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useFetchChatDirects(campaignId, filter);
 
-  useEffect(() => {
-    if (inView) {
-      fetchNextPage();
-    }
-  }, [fetchNextPage, inView]);
+  const directs = data?.pages.flatMap((direct) => direct.data) || [];
 
   const handleDirectClick = ({ is_open, id }: TChatDirect) => {
     if (!is_open) updateDirect({ campaign_id: campaignId, direct_id: id, data: { is_open: true } });
@@ -49,21 +44,17 @@ export default function DirectsList() {
           </ToggleButton>
         </ToggleButtonGroup>
       </div>
-      <ul className='relative flex flex-col h-full w-full overflow-x-hidden overflow-y-auto'>
-        {!data && isFetching && <LinearProgress color='primary' />}
-        {data && data.pages.length > 0 && (
-          <>
-            {data.pages.map((directs) =>
-              directs.data.map((direct) => (
-                <li key={direct.id}>
-                  <Direct direct={direct} onClick={() => handleDirectClick(direct)} />
-                </li>
-              ))
-            )}
-            <div ref={ref}></div>
-          </>
-        )}
-      </ul>
+      <Virtuoso
+        style={{ height: '100%', width: '100%' }}
+        className='chatScroll'
+        data={directs}
+        itemContent={(_index, direct) => <Direct onClick={() => handleDirectClick(direct)} direct={direct} />}
+        endReached={() => {
+          if (hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+          }
+        }}
+      />
     </div>
   );
 }

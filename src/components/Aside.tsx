@@ -15,7 +15,7 @@ type AsideProps = {
 };
 
 export default function Aside({ asideState, onChange }: AsideProps) {
-  const { user, logout } = useAuth();
+  const { user, exit } = useAuth();
   const [quitDialogState, setQuitDialogState] = useState<boolean>(false);
 
   const openQuitDialog = useCallback(() => {
@@ -41,7 +41,7 @@ export default function Aside({ asideState, onChange }: AsideProps) {
             <Button onClick={() => setQuitDialogState(false)} className='!w-full' variant='outlined' color='secondary'>
               Остаться
             </Button>
-            <Button onClick={logout} className='!w-full' variant='outlined' color='error'>
+            <Button onClick={exit} className='!w-full' variant='outlined' color='error'>
               Выйти
             </Button>
           </div>

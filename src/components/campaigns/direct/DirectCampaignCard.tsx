@@ -89,7 +89,7 @@ export default function DirectCampaignCard({ campaign }: DirectCampaignCardProps
         )}
         <div className='flex mt-2 items-center justify-between'>
           <span>Бюджет кампании</span>
-          <ValueTuner type='number' value={campaign.budget_limit.toString()} onChange={(v) => updateBudget(v)} />
+          <ValueTuner type='number' value={formatBalance(campaign.budget_limit) ?? ''} onChange={(v) => updateBudget(v)} />
         </div>
         <hr className='my-2 h-[1px] border-none bg-softgray' />
         <div className='flex flex-col gap-2'>

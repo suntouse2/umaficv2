@@ -22,7 +22,7 @@ export function useFetchDirectCampaigns() {
       if (!data) return false;
       if (!data.state.data) return false;
       const hasPendingCampaigns = data.state.data.pages.some((page) => page.data.some((campaign) => ['preparing', 'pending'].includes(campaign.state)));
-      return hasPendingCampaigns ? 2000 : Infinity;
+      return hasPendingCampaigns ? 2000 : 60 * 1000;
     },
   });
 }
