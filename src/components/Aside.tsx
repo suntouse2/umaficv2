@@ -8,6 +8,7 @@ import { Button, Dialog } from '@mui/material';
 import { useCallback, useState } from 'react';
 import { ContentCopy } from '@mui/icons-material';
 import NavItem from '@components/NavItem';
+import { supportLink } from '@static/links';
 
 type AsideProps = {
   asideState: boolean;
@@ -62,7 +63,7 @@ export default function Aside({ asideState, onChange }: AsideProps) {
             <hr className='h-[1px] border-none bg-border' />
             <NavItem type='link' to='/balance' Icon={Balance} title='Баланс' />
             <hr className='h-[1px] border-none bg-border' />
-            <NavItem type='a' Icon={Support} title='Поддержка' href='https://t.me/Umafic_support' />
+            <NavItem type='a' Icon={Support} title='Поддержка' href={supportLink} />
             <hr className='h-[1px] border-none bg-border' />
             <NavItem type='button' Icon={Exit} title='Выйти' onClick={openQuitDialog} />
             <hr className='h-[1px] border-none bg-border' />

@@ -29,7 +29,7 @@ export default function Chat() {
           }
         }}
         initialTopMostItemIndex={messages.length - 1}
-        followOutput={false}
+        followOutput='auto'
         increaseViewportBy={{ top: 500, bottom: 500 }}
       />
     </section>

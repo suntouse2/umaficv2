@@ -1,6 +1,7 @@
 import Bubble from '@components/common/Bubble';
 import Container from '@components/wrappers/layouts/Container';
 import { Button } from '@mui/material';
+import { supportLink } from '@static/links';
 import { useNavigate } from 'react-router-dom';
 
 export default function PageDashboard() {
@@ -10,7 +11,7 @@ export default function PageDashboard() {
     <Container>
       <h1 className='text-3xl my-2 font-bold text-softgray4'>Umafic ADS</h1>
       <div className='flex gap-3 mt-5'>
-        <Button href='https://t.me/Umafic_support' target='_blank' className='!rounded-full' variant='contained'>
+        <Button href={supportLink} target='_blank' className='!rounded-full' variant='contained'>
           Тех.поддержка
         </Button>
       </div>

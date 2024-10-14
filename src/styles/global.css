@@ -21,6 +21,19 @@ html {
   background-color: #909090;
 }
 
+.fadeIn {
+  opacity: 1;
+  animation: fadeIn 0.2s linear;
+}
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 body {
   max-width: 100dvw;
   overflow-x: hidden;

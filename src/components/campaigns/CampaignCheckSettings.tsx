@@ -102,14 +102,14 @@ export default function CampaignCheckSettings({ value, onChange }: CampaignCheck
               {isMsgFetching && <LinearProgress color='secondary' />}
               {msgData?.pages.map((messages) =>
                 messages.data.map((msg) => (
-                  <li className='w-full  text-sm bg-softgray rounded-md p-2' key={msg.id}>
+                  <li className='w-full  text-sm bg-inputbg rounded-md p-2' key={msg.id}>
                     {msg.content.message.split(' ').map((word, index) => (
                       <span key={index} onClick={(e) => handleWordClick(e, word)} className='cursor-pointer'>
                         {word}{' '}
                       </span>
                     ))}
                     <div className='w-full flex justify-end'>
-                      <span className='text-xs mt-2 text-inputbg'>{dateToString(new Date(msg.date))}</span>
+                      <span className='text-xs mt-2 text-softgray4'>{dateToString(new Date(msg.date))}</span>
                     </div>
                   </li>
                 ))

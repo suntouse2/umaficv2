@@ -22,7 +22,7 @@ export default function ChatContact() {
   return (
     <div className='w-full h-20 flex items-center gap-2 p-2 border-b-[1px] border-softgray'>
       {client && (
-        <div className='flex justify-between w-full gap-2'>
+        <div className='flex w-full gap-4'>
           <a target='_blank' href={client.link} className='flex items-center gap-2'>
             <Avatar {...stringAvatar(client.first_name)} />
             <div className='flex flex-col'>

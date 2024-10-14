@@ -4,9 +4,17 @@ import PageError from '@pages/pageError';
 
 export const routes = [
   {
+    path: '*',
+    async lazy() {
+      const NotFound = await import('@pages/page404');
+      return { Component: NotFound.default };
+    },
+  },
+  {
     path: '/',
     element: <PageLayout />,
     errorElement: <PageError />,
+
     children: [
       {
         name: 'dashboard',
