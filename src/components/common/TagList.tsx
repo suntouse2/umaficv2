@@ -73,11 +73,7 @@ export default function TagList(props: TagListProps) {
             vertical: 'top',
             horizontal: 'left',
           }}>
-          <div
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
-            className='w-max flex z-20 bg-white p-2 shadow-[0_1px_5px_#0003,0_2px_2px_#00000024,0_3px_1px_-2px_#0000001f]'>
+          <div onClick={(e) => e.stopPropagation()} className='w-max flex z-20 bg-white p-2 shadow-[0_1px_5px_#0003,0_2px_2px_#00000024,0_3px_1px_-2px_#0000001f]'>
             <Input onKeyDown={handleInputKeyDown} value={input} onChange={(e) => setInput(e.target.value)} className='w-44' />
             <IconButton onClick={closeEditor}>
               <Close />

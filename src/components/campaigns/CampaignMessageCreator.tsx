@@ -1,8 +1,6 @@
-import { useState, useRef, ChangeEvent } from 'react';
-import { Button, IconButton, Menu, MenuItem } from '@mui/material';
-import { AttachFile, Delete, Description, GraphicEq, SlowMotionVideo } from '@mui/icons-material';
-import PhotoIcon from '@mui/icons-material/Photo';
-import VideocamIcon from '@mui/icons-material/Videocam';
+import { useState, useRef, ChangeEvent, useCallback } from 'react';
+import { Button, IconButton } from '@mui/material';
+import { AttachFile, Delete } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 
 import { Input } from '@components/common/Input';
@@ -13,6 +11,7 @@ import MediaRenderer from '@components/MediaRenderer';
 import InputAcceptByMediaType from '@helpers/setInputAttributeByFileType';
 import useMediaService from '../../hooks/useMediaService';
 import { addTag, addTagList } from '@helpers/tagHelper';
+import Skrepka from '@components/Skrepka';
 
 type CampaignMessageCreatorProps = {
   data: {
@@ -40,7 +39,7 @@ export default function CampaignMessageCreator({ data: { order, keywords, messag
     setAnchorEl(event.currentTarget);
   };
 
-  const handleMenuClose = () => setAnchorEl(null);
+  const handleMenuClose = useCallback(() => setAnchorEl(null), []);
 
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -50,13 +49,16 @@ export default function CampaignMessageCreator({ data: { order, keywords, messag
     e.target.value = '';
   };
 
-  const handleMediaUpdate = (type: TMediaTypes) => {
-    if (!fileInputRef.current) return;
-    fileInputRef.current.accept = InputAcceptByMediaType(type);
-    setLastType(type);
-    fileInputRef.current.click();
-    handleMenuClose();
-  };
+  const handleMediaUpdate = useCallback(
+    (type: TMediaTypes) => {
+      if (!fileInputRef.current) return;
+      fileInputRef.current.accept = InputAcceptByMediaType(type);
+      setLastType(type);
+      fileInputRef.current.click();
+      handleMenuClose();
+    },
+    [handleMenuClose]
+  );
 
   const handleUpdateMessage = () => {
     if (!newMessage && !newMedia) {
@@ -109,7 +111,7 @@ export default function CampaignMessageCreator({ data: { order, keywords, messag
         </>
       )}
 
-      <textarea value={newMessage} onChange={(e) => setNewMessage(e.target.value)} className='text-sm p-2 outline-none w-full min-h-[100px] !bg-softgray' placeholder='Сообщение' />
+      <textarea value={newMessage} onChange={(e) => setNewMessage(e.target.value)} className='text-sm p-2 outline-none w-full min-h-[100px] !bg-softgray rounded-lg' placeholder='Сообщение' />
 
       <div className='relative group'>
         {newMedia && (
@@ -126,32 +128,8 @@ export default function CampaignMessageCreator({ data: { order, keywords, messag
         <IconButton onClick={handleMenuClick}>
           <AttachFile />
         </IconButton>
-
-        <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose} MenuListProps={{ 'aria-labelledby': 'media-button' }}>
-          <MenuItem className='!p-2 flex gap-2' onClick={() => handleMediaUpdate('round')}>
-            <SlowMotionVideo />
-            Кружочек
-          </MenuItem>
-          <MenuItem className='!p-2 flex gap-2' onClick={() => handleMediaUpdate('voice')}>
-            <GraphicEq />
-            Голосовое
-          </MenuItem>
-          <MenuItem className='!p-2 flex gap-2' onClick={() => handleMediaUpdate('auto')}>
-            <PhotoIcon />
-            Фото
-          </MenuItem>
-          <MenuItem className='!p-2 flex gap-2' onClick={() => handleMediaUpdate('auto')}>
-            <VideocamIcon />
-            Видео
-          </MenuItem>
-          <MenuItem className='!p-2 flex gap-2' onClick={() => handleMediaUpdate('document')}>
-            <Description />
-            Файлом
-          </MenuItem>
-        </Menu>
-
+        <Skrepka anchorEl={anchorEl} onClose={handleMenuClose} onClick={handleMediaUpdate} />
         <input ref={fileInputRef} type='file' hidden onChange={handleFileChange} />
-
         <Button onClick={handleUpdateMessage} variant='outlined' color='secondary'>
           Сохранить
         </Button>

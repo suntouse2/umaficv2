@@ -1,17 +1,27 @@
-import { AttachFile, Delete, Description, GraphicEq, Send, SlowMotionVideo } from '@mui/icons-material';
-import { Button, IconButton, Menu, MenuItem, TextField } from '@mui/material';
-import { ChangeEvent, ClipboardEvent, DragEvent, KeyboardEvent, useRef, useState } from 'react';
-import PhotoIcon from '@mui/icons-material/Photo';
-import VideocamIcon from '@mui/icons-material/Videocam';
+import { AttachFile, Delete, Send } from '@mui/icons-material';
+import { Button, IconButton, TextField } from '@mui/material';
+import { ChangeEvent, ClipboardEvent, DragEvent, KeyboardEvent, memo, useCallback, useRef, useState } from 'react';
 import useMediaService from '@hooks/useMediaService';
 import InputAcceptByMediaType from '@helpers/setInputAttributeByFileType';
 import MediaRenderer from '@components/MediaRenderer';
 import { useSendMessage } from '@api/queries';
 import { toast } from 'react-toastify';
-import { useChat } from '@context/ChatContext';
+import Skrepka from '@components/Skrepka';
+import { useParams } from 'react-router-dom';
 
-export default function MessageInput() {
-  const { campaignId, currentDirect, addMessageToQueue } = useChat();
+type SendedMessage = { direct_id: number; content: TMessageContent; catch_slug: string };
+
+type ChatInputProps = {
+  onMessageSended?: (msg: SendedMessage) => void;
+};
+
+export default memo(function ChatInput({ onMessageSended }: ChatInputProps) {
+  console.log('re-rendered');
+
+  const params = useParams();
+  const campaignId = Number(params.campaignId);
+  const directId = Number(params.directId);
+
   const [message, setMessage] = useState<string>('');
   const [media, setMedia] = useState<TMessageContent['media']>(null);
   const [lastType, setLastType] = useState<TMediaTypes>('auto');
@@ -23,7 +33,7 @@ export default function MessageInput() {
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
-  const handleMenuClose = () => setAnchorEl(null);
+  const handleMenuClose = useCallback(() => setAnchorEl(null), []);
 
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -59,13 +69,16 @@ export default function MessageInput() {
     e.preventDefault();
   };
 
-  const handleMediaUpdate = (type: TMediaTypes) => {
-    if (!fileInputRef.current) return;
-    fileInputRef.current.accept = InputAcceptByMediaType(type);
-    setLastType(type);
-    fileInputRef.current.click();
-    handleMenuClose();
-  };
+  const handleMediaUpdate = useCallback(
+    (type: TMediaTypes) => {
+      if (!fileInputRef.current) return;
+      fileInputRef.current.accept = InputAcceptByMediaType(type);
+      setLastType(type);
+      fileInputRef.current.click();
+      handleMenuClose();
+    },
+    [handleMenuClose]
+  );
 
   const handleEnter = (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -80,9 +93,9 @@ export default function MessageInput() {
         toast.error('Сообщение должно содержать текст или медиа.');
         return;
       }
-      if (!currentDirect) return;
+      if (!directId) return;
       const msg = await sendMessage({
-        direct_id: currentDirect,
+        direct_id: directId,
         msg: {
           content: {
             message,
@@ -92,7 +105,9 @@ export default function MessageInput() {
         },
         campaign_id: campaignId,
       });
-      addMessageToQueue(currentDirect, { message, media }, msg.data.catch_slug);
+      if (onMessageSended) {
+        onMessageSended({ direct_id: directId, content: { message, media }, catch_slug: msg.data.catch_slug });
+      }
       setMessage('');
       setMedia(null);
     } catch {
@@ -106,28 +121,7 @@ export default function MessageInput() {
         <IconButton onClick={handleMenuClick} sx={{ width: '50px', height: '50px' }}>
           <AttachFile />
         </IconButton>
-        <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose} MenuListProps={{ 'aria-labelledby': 'media-button' }}>
-          <MenuItem className='!p-2 flex gap-2' onClick={() => handleMediaUpdate('round')}>
-            <SlowMotionVideo />
-            Кружочек
-          </MenuItem>
-          <MenuItem className='!p-2 flex gap-2' onClick={() => handleMediaUpdate('voice')}>
-            <GraphicEq />
-            Голосовое
-          </MenuItem>
-          <MenuItem className='!p-2 flex gap-2' onClick={() => handleMediaUpdate('auto')}>
-            <PhotoIcon />
-            Фото
-          </MenuItem>
-          <MenuItem className='!p-2 flex gap-2' onClick={() => handleMediaUpdate('auto')}>
-            <VideocamIcon />
-            Видео
-          </MenuItem>
-          <MenuItem className='!p-2 flex gap-2' onClick={() => handleMediaUpdate('document')}>
-            <Description />
-            Файлом
-          </MenuItem>
-        </Menu>
+        <Skrepka anchorEl={anchorEl} onClose={handleMenuClose} onClick={handleMediaUpdate} />
         <TextField multiline className='w-full' onKeyDown={handleEnter} variant='standard' value={message} onChange={(v) => setMessage(v.target.value)} />
         <Button onClick={handleSendMessage} variant='text' className='!h-full'>
           <Send />
@@ -146,4 +140,4 @@ export default function MessageInput() {
       </div>
     </div>
   );
-}
+});

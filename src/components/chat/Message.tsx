@@ -1,25 +1,27 @@
 import { useSetLastMessageRead } from '@api/queries';
 import MediaRenderer from '@components/MediaRenderer';
-import { useChat } from '@context/ChatContext';
 import dateToString from '@helpers/dateToString';
 import { useEffect } from 'react';
-import './message.css';
+import './chat.css';
+import { useParams } from 'react-router-dom';
 
 export default function Message({ message }: { message: TChatMessage }) {
-  const { campaignId, currentDirect } = useChat();
+  const params = useParams();
+  const campaignId = Number(params.campaignId);
+  const directId = Number(params.directId);
+
   const { mutate: readLastMessage } = useSetLastMessageRead();
   const isSelf = 'relative bg-primary text-white rounded-lg messageSelf';
   const isFrom = 'relative bg-white rounded-lg  messageFrom';
 
   useEffect(() => {
-    if (!currentDirect) return;
     if (message.is_read == false) {
-      readLastMessage({ campaign_id: campaignId, direct_id: currentDirect, message_id: message.id });
+      readLastMessage({ campaign_id: campaignId, direct_id: directId, message_id: message.id });
     }
-  }, [campaignId, currentDirect, message.id, message.is_read, readLastMessage]);
+  }, [campaignId, directId, message.id, message.is_read, readLastMessage]);
 
   return (
-    <div className={`flex w-full popup ${message.is_self ? 'justify-end' : 'justify-start'} gap-2 items-end`}>
+    <div className={`flex w-full ${message.is_self ? 'justify-end' : 'justify-start'} gap-2 items-end`}>
       <div className={`flex flex-col ${message.is_self ? 'items-end' : 'items-start'}`}>
         {message.forwarded_message?.content && (
           <div className={`p-2  max-w-[320px] ${message.is_self ? isSelf : isFrom}`}>

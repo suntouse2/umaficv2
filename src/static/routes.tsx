@@ -1,10 +1,11 @@
-import PageWrapper from '@components/wrappers/PageWrapper';
+import ChatScreen from '@components/chat/ChatScreen';
+import PageLayout from '@components/wrappers/layouts/PageLayout';
 import PageError from '@pages/pageError';
 
 export const routes = [
   {
     path: '/',
-    element: <PageWrapper />,
+    element: <PageLayout />,
     errorElement: <PageError />,
     children: [
       {
@@ -49,7 +50,14 @@ export const routes = [
       },
       {
         name: 'chat',
-        path: 'chat',
+        path: 'chat/:campaignId',
+        children: [
+          {
+            name: 'chat current',
+            path: ':directId',
+            element: <ChatScreen />,
+          },
+        ],
         async lazy() {
           const Chat = await import('@pages/pageChat');
           return { Component: Chat.default };

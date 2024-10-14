@@ -109,7 +109,7 @@ export default function CampaignMessageManager({ value, onChange, filter_type }:
           value.length > 0 &&
           value.map((v, i) =>
             v.messages.map((m, i2) => (
-              <li className='bg-softgray max-w-full p-4 rounded-sm overflow-hidden' key={`${i}-${i2}`} onClick={() => handleEditMessage(i, i2)} style={{ cursor: 'pointer' }}>
+              <li className='bg-inputbg max-w-full p-4 rounded-sm overflow-hidden' key={`${i}-${i2}`} onClick={() => handleEditMessage(i, i2)} style={{ cursor: 'pointer' }}>
                 <div className='flex justify-end mb-2'>
                   <Delete
                     onClick={(e) => {

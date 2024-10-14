@@ -11,9 +11,10 @@ type InputProps = {
   min?: number;
   max?: number;
   type?: string;
+  onlyDigits?: boolean;
 };
 
-export function Input({ value, onChange, onKeyDown, onBlur, placeholder, resize = false, min, max, type, className }: InputProps) {
+export function Input({ value, onChange, onKeyDown, onBlur, placeholder, onlyDigits = false, resize = false, min, max, type, className }: InputProps) {
   const handleInputBlur = (e: ChangeEvent<HTMLInputElement>) => {
     if (onBlur) {
       onBlur(e);
@@ -26,10 +27,18 @@ export function Input({ value, onChange, onKeyDown, onBlur, placeholder, resize 
   };
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (onlyDigits == true) {
+      const numericValue = e.target.value.replace(/\D/g, '');
+      return onChange(numericValue);
+    }
     onChange(e.target.value);
   };
 
   const handleTextAreaChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    if (onlyDigits == true) {
+      const numericValue = e.target.value.replace(/\D/g, '');
+      return onChange(numericValue);
+    }
     onChange(e.target.value);
   };
 

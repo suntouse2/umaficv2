@@ -1,10 +1,10 @@
 import RoundVideo from '@components/common/RoundVideo';
 import Voice from '@components/common/Voice';
+import { Description } from '@mui/icons-material';
 import { memo } from 'react';
 type FileViewerProps = {
   file: File;
   mediaType?: TMediaTypes;
-  disableAnimation?: boolean;
 };
 
 export default memo(function FileViewer({ file, mediaType }: FileViewerProps) {
@@ -19,7 +19,12 @@ export default memo(function FileViewer({ file, mediaType }: FileViewerProps) {
         {type == 'video' && mediaType == 'auto' && <video className='w-full max-w-64' controls src={blob}></video>}
         {type == 'image' && mediaType == 'auto' && <img className='w-full max-w-64' src={blob}></img>}
         {type == 'video' && mediaType == 'document' && <video className='w-full max-w-64' controls src={blob}></video>}
-        {type !== 'video' && mediaType == 'document' && <p>{file.name}</p>}
+        {type !== 'video' && mediaType == 'document' && (
+          <p className='text-sm p-2'>
+            <Description />
+            {file.name}
+          </p>
+        )}
       </>
     </div>
   );

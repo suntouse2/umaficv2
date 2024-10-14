@@ -1,7 +1,7 @@
-@import url('./animations.css');
 html {
   max-width: 100dvw;
 }
+
 ::-webkit-scrollbar {
   width: 10px;
 }

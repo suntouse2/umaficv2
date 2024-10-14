@@ -44,7 +44,7 @@ export default memo(function Voice({ audioFile, blob }: AudioAnalyzerProps) {
       const waveformProps: IWaveformProps = {
         peak: Math.max(...spikes),
         fillStyle: 'rgb(193, 193, 193)',
-        progressFillStyle: '#27c39e',
+        progressFillStyle: '#568ce1',
       };
 
       renderWaveform(canvas.current, spikes, progress, waveformProps);
@@ -64,10 +64,10 @@ export default memo(function Voice({ audioFile, blob }: AudioAnalyzerProps) {
   }, []);
 
   return (
-    <div className='bg-softgray px-2 w-max rounded-md'>
+    <div className='bg-inputbg px-2 w-max rounded-md'>
       <div className='flex gap-2'>
         <button
-          className={play ? 'text-secondary' : 'text-softgray4'}
+          className={play ? 'text-primary' : 'text-softgray3'}
           type='button'
           onClick={(e) => {
             e.stopPropagation();
@@ -77,7 +77,7 @@ export default memo(function Voice({ audioFile, blob }: AudioAnalyzerProps) {
         </button>
         <canvas ref={canvas}></canvas>
       </div>
-      <audio controls ref={audioRef} style={{ display: 'none' }} src={blob}></audio> {/* Аудиоплеер */}
+      <audio controls ref={audioRef} style={{ display: 'none' }} src={blob}></audio>
     </div>
   );
 });

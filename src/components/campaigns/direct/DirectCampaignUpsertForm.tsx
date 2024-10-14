@@ -107,7 +107,7 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
 
   return (
     <>
-      <form onSubmit={handleSubmit} className='mx-auto w-full h-full max-w-[600px] slideUp'>
+      <form onSubmit={handleSubmit} className='mx-auto w-full h-full max-w-[600px]'>
         <h1 className='text-2xl font-bold'>Поиск клиентов</h1>
         {localStorage.getItem(CampaignLocalStorageName) && <p className='text-warning'>Настройки не сохранены</p>}
         <Link to='/campaigns/direct'>
@@ -163,11 +163,15 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
             <>
               <Bubble className='relative mt-4'>
                 <TipBox content={tips.keyword} />
-                <Controller defaultValue={[]} control={control} name='settings.target.search.include' render={({ field: { value, onChange } }) => <CampaignKeywordManager title='Ключевые фразы' description='Фразы, которые система будет искать в чатах Telegram.' value={new Set(value)} onChange={(v) => onChange(Array.from(v))} />} />
+                <h2 className='text-lg font-bold'>Ключевые фразы</h2>
+                <p className='text-sm mt-2'>Фразы, которые система будет искать в чатах Telegram.</p>
+                <Controller defaultValue={[]} control={control} name='settings.target.search.include' render={({ field: { value, onChange } }) => <CampaignKeywordManager value={new Set(value)} onChange={(v) => onChange(Array.from(v))} />} />
               </Bubble>
               <Bubble className='mt-4 relative'>
                 <TipBox content={tips.minusWords} />
-                <Controller defaultValue={[]} control={control} name='settings.target.search.exclude' render={({ field: { value, onChange } }) => <CampaignKeywordManager title='Минус-слова' description='Фразы, которые система будет исключать из поиска в чатах Telegram.' value={new Set(value)} onChange={(v) => onChange(Array.from(v))} />} />
+                <h2 className='text-lg font-bold'>Минус-слова</h2>
+                <p className='text-sm mt-2'>Фразы, которые система будет исключать из поиска в чатах Telegram.</p>
+                <Controller defaultValue={[]} control={control} name='settings.target.search.exclude' render={({ field: { value, onChange } }) => <CampaignKeywordManager value={new Set(value)} onChange={(v) => onChange(Array.from(v))} />} />
               </Bubble>
               <Bubble className='mt-4'>
                 <p className='text-sm'>

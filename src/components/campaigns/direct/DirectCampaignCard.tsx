@@ -54,7 +54,7 @@ export default function DirectCampaignCard({ campaign }: DirectCampaignCardProps
         </div>
       </Dialog>
 
-      <Bubble className='p-4 slideUp'>
+      <Bubble className='p-4'>
         <div className='flex items-center justify-between'>
           <h2 className='text-lg font-bold'>{campaign.name}</h2>
           <div className='flex items-center'>
@@ -64,7 +64,7 @@ export default function DirectCampaignCard({ campaign }: DirectCampaignCardProps
             <IconButton onClick={() => navigate('/campaigns/direct/edit', { state: { id: campaign.id } })} color='success'>
               <SettingsOutlined />
             </IconButton>
-            <IconButton onClick={() => navigate('/chat', { state: { id: campaign.id } })} color='success'>
+            <IconButton onClick={() => navigate(`/chat/${campaign.id}`)} color='success'>
               <Badge badgeContent={campaign.numeric_statistics.incoming_messages_unread} color='secondary'>
                 <TextsmsOutlined />
               </Badge>

@@ -1,5 +1,4 @@
-import { memo, useEffect, useState } from 'react';
-
+import { memo, useCallback, useEffect, useState } from 'react';
 import FileViewer from '@components/FileViewer';
 import useMediaService from '@hooks/useMediaService';
 import { CircularProgress } from '@mui/material';
@@ -9,31 +8,27 @@ export default memo(function MediaRenderer({ media }: { media: TFunnelMessage['m
   const { getFile } = useMediaService();
   const [loading, setLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    setLoading(true);
-    let isMounted = true;
-    if (media && media.filepath) {
-      getFile(media.filepath).then((fileData) => {
-        if (isMounted) {
-          setFile(fileData);
-          setLoading(false);
-        }
-      });
+  const fetchFile = useCallback(async () => {
+    try {
+      setLoading(true);
+      if (!media) throw new Error('no media');
+      const file = await getFile(media?.filepath);
+      setFile(file);
+    } catch {
+      //
+    } finally {
+      setLoading(false);
     }
-    return () => {
-      isMounted = false;
-    };
   }, [getFile, media]);
 
-  if (!file) {
-    return null;
-  }
-  if (!media) return <></>;
+  useEffect(() => {
+    fetchFile();
+  }, [fetchFile]);
+
   return (
     <>
-      {loading && 'Загрузка'}
-      {loading && <CircularProgress className='mt-10' color='primary' />}
-      {!loading && <FileViewer file={file} mediaType={media.type} />}
+      {media && loading && <CircularProgress className='mt-10' color='primary' />}
+      {media && !loading && file && <FileViewer file={file} mediaType={media.type} />}
     </>
   );
 });

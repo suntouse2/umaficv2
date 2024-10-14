@@ -1,28 +1,26 @@
 import TagInput from '@components/common/TagInput';
 import TagList from '@components/common/TagList';
-import { Button, ClickAwayListener, Dialog, DialogTitle } from '@mui/material';
+import { Button, Dialog, DialogTitle, Popover } from '@mui/material';
 import getBreakpoints from '@static/mediaBreakpoints';
-import { useCallback, useState } from 'react';
+import { MouseEvent, useCallback, useMemo, useState } from 'react';
 import { addTag, addTagList, removeAllTags } from '@helpers/tagHelper';
 type CampaignKeywordManagerProps = {
-  title?: string;
-  description?: string;
   value: Set<string>;
   onChange: (value: Set<string>) => void;
 };
 
-export default function CampaignKeywordManager({ title, description, value, onChange }: CampaignKeywordManagerProps) {
-  const [popupState, setPopupState] = useState<boolean>(false);
+export default function CampaignKeywordManager({ value, onChange }: CampaignKeywordManagerProps) {
+  const [popoverAnchor, setPopoverAnchor] = useState<null | HTMLElement>(null);
   const [dialogState, setDialogState] = useState<boolean>(false);
   const [deleteAllDialogState, setDeleteAllDialogState] = useState<boolean>(false);
 
   const closePopupAndDialog = useCallback(() => {
-    setPopupState(false);
+    setPopoverAnchor(null);
     setDialogState(false);
   }, []);
 
-  const openPopupOrDialog = useCallback(() => {
-    return window.innerWidth <= getBreakpoints(false).md ? setDialogState(true) : setPopupState(true);
+  const openPopupOrDialog = useCallback((e: MouseEvent<HTMLButtonElement>) => {
+    return window.innerWidth <= getBreakpoints(false).md ? setDialogState(true) : setPopoverAnchor(e.currentTarget);
   }, []);
 
   const handleAddTag = useCallback(
@@ -33,6 +31,14 @@ export default function CampaignKeywordManager({ title, description, value, onCh
     [value, onChange]
   );
 
+  const popoverPosition = useMemo(
+    () => ({
+      anchorOrigin: { vertical: 'center' as const, horizontal: 'right' as const },
+      transformOrigin: { vertical: 'center' as const, horizontal: 'left' as const },
+    }),
+    []
+  );
+
   const handleDeleteAllTags = useCallback(() => {
     onChange(removeAllTags());
   }, [onChange]);
@@ -40,21 +46,13 @@ export default function CampaignKeywordManager({ title, description, value, onCh
   return (
     <div>
       <div>
-        <h2 className='text-lg font-bold'>{title}</h2>
-        <p className='text-sm mt-2'>{description}</p>
         <div className='mt-3 flex gap-2'>
-          <div className='relative '>
-            <Button onClick={openPopupOrDialog} color='secondary' variant='outlined' className='!rounded-full '>
-              Создать
-            </Button>
-            {popupState && (
-              <ClickAwayListener mouseEvent='onMouseDown' touchEvent='onTouchStart' onClickAway={() => setPopupState(false)}>
-                <div className='absolute slideUp z-10 left-full ml-2 top-0'>
-                  <TagInput onClose={closePopupAndDialog} onAdd={handleAddTag} />
-                </div>
-              </ClickAwayListener>
-            )}
-          </div>
+          <Button onClick={openPopupOrDialog} color='secondary' variant='outlined' className='!rounded-full '>
+            Создать
+          </Button>
+          <Popover {...popoverPosition} onClose={() => setPopoverAnchor(null)} open={Boolean(popoverAnchor)} anchorEl={popoverAnchor}>
+            <TagInput onClose={closePopupAndDialog} onAdd={handleAddTag} />
+          </Popover>
           <Button onClick={() => setDeleteAllDialogState(true)} variant='outlined' color='error' className='!rounded-full'>
             Удалить все
           </Button>
@@ -66,7 +64,7 @@ export default function CampaignKeywordManager({ title, description, value, onCh
           <div className='p-2'>
             <DialogTitle>
               Вы уверены что хотите <br />
-              удалить все {title?.toLowerCase()}?
+              удалить все теги?
             </DialogTitle>
             <div className='flex gap-1'>
               <Button onClick={() => setDeleteAllDialogState(false)} className='!w-full' variant='contained'>
