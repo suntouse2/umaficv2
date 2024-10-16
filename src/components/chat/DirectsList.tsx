@@ -54,6 +54,7 @@ export default function DirectsList() {
             fetchNextPage();
           }
         }}
+        increaseViewportBy={{ top: 0, bottom: 200 }}
       />
     </div>
   );

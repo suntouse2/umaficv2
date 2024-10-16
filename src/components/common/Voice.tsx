@@ -55,6 +55,11 @@ export default memo(function Voice({ audioFile, blob }: AudioAnalyzerProps) {
     const audio = audioRef.current;
     if (audio) {
       const updateProgress = () => {
+        if (audio.currentTime == audio.duration) {
+          audio.currentTime = 0;
+          audio.pause();
+          setPlay(false);
+        }
         setProgress(audio.currentTime / audio.duration);
       };
 

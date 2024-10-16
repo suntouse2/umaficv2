@@ -30,7 +30,7 @@ export default function Chat() {
         }}
         initialTopMostItemIndex={messages.length - 1}
         followOutput='auto'
-        increaseViewportBy={{ top: 500, bottom: 500 }}
+        increaseViewportBy={{ top: 500, bottom: 0 }}
       />
     </section>
   );

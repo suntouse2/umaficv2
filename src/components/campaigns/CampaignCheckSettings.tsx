@@ -118,21 +118,19 @@ export default function CampaignCheckSettings({ value, onChange }: CampaignCheck
             </ul>
             <div ref={ref}></div>
           </div>
-          {anchorEl && (
-            <Popover onClose={() => setAnchorEl(null)} open={Boolean(anchorEl)} anchorEl={anchorEl}>
-              <div className='bg-white p-5 flex flex-col gap-2'>
-                <TextField variant='standard' value={editingKeyword} onChange={(e) => setEditingKeyword(e.target.value)} />
-                <ButtonGroup>
-                  <Button onClick={handleIncludeKeyword} color='success'>
-                    Добавить
-                  </Button>
-                  <Button onClick={handleExcludeKeyword} color='error'>
-                    Исключить
-                  </Button>
-                </ButtonGroup>
-              </div>
-            </Popover>
-          )}
+          <Popover onClose={() => setAnchorEl(null)} open={Boolean(anchorEl)} anchorEl={anchorEl}>
+            <div className='bg-white p-5 flex flex-col gap-2'>
+              <TextField variant='standard' value={editingKeyword} onChange={(e) => setEditingKeyword(e.target.value)} />
+              <ButtonGroup>
+                <Button onClick={handleIncludeKeyword} color='success'>
+                  Добавить
+                </Button>
+                <Button onClick={handleExcludeKeyword} color='error'>
+                  Исключить
+                </Button>
+              </ButtonGroup>
+            </div>
+          </Popover>
         </Dialog>
       </div>
     </div>

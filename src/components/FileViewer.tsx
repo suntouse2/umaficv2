@@ -1,8 +1,9 @@
 import RoundVideo from '@components/common/RoundVideo';
 import Voice from '@components/common/Voice';
 import { Description, Download } from '@mui/icons-material';
-import { memo } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { IconButton } from '@mui/material';
+import Video from '@components/common/Video';
 
 type FileViewerProps = {
   file: File;
@@ -11,43 +12,64 @@ type FileViewerProps = {
 
 export default memo(function FileViewer({ file, mediaType }: FileViewerProps) {
   const type = file.type.split('/')[0];
-  const blob = URL.createObjectURL(file);
+
+  const [blobUrl, setBlobUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const url = URL.createObjectURL(file);
+    setBlobUrl(url);
+
+    return () => {
+      URL.revokeObjectURL(url);
+    };
+  }, [file]);
 
   const handleDownload = () => {
     const link = document.createElement('a');
-    link.href = blob;
+    link.href = blobUrl ?? '';
     link.download = file.name;
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link); // Убираем элемент после клика
+    document.body.removeChild(link);
   };
 
+  let content;
+
+  const fileNameSplit = file.name.split('.');
+
+  if (blobUrl) {
+    if (mediaType === 'voice') {
+      content = <Voice audioFile={file} blob={blobUrl} />;
+    } else if (mediaType === 'round') {
+      content = <RoundVideo blob={blobUrl} />;
+    } else if (file.type === 'application/octet-stream') {
+      content = <img className='w-full h-full object-cover' src={blobUrl} alt={file.name} />;
+    } else if (file.type === 'video/webm') {
+      content = <video loop autoPlay muted className='w-full h-full overflow-hidden' src={blobUrl}></video>;
+    } else if (type === 'video' && (mediaType === 'auto' || mediaType === 'document')) {
+      content = <Video blob={blobUrl}></Video>;
+    } else if (type === 'audio') {
+      content = <audio controls src={blobUrl} />;
+    } else {
+      content = (
+        <div className='flex bg-white rounded-full justify-between items-center p-2'>
+          <p className='flex  text-sm p-2 max-w-80 overflow-hidden'>
+            <Description />
+            {fileNameSplit[0].slice(0, 5) + '....' + fileNameSplit[fileNameSplit.length - 1]}
+          </p>
+          <IconButton onClick={handleDownload}>
+            <Download />
+          </IconButton>
+        </div>
+      );
+    }
+  } else {
+    content = null;
+  }
+
   return (
-    <div className='w-max' onClick={(e) => e.stopPropagation()}>
-      <>
-        {mediaType == 'voice' && <Voice audioFile={file} blob={blob} />}
-        {mediaType == 'round' && <RoundVideo blob={blob} />}
-        {type == 'video' && mediaType == 'auto' && <video controls className='w-full max-w-64' src={blob}></video>}
-        {type == 'image' && mediaType == 'auto' && <img className='w-full max-w-64' src={blob}></img>}
-        {type == 'video' && mediaType == 'document' && <video loop muted autoPlay className='w-full max-w-64' src={blob}></video>}
-        {type !== 'video' && mediaType == 'document' && (
-          <>
-            {(file.name.endsWith('.webp') || type == 'image') && <img className='w-full max-w-64' src={blob} />}
-            {type == 'audio' && <audio controls src={blob} />}
-            {type == 'application' && !file.name.endsWith('.webp') && (
-              <div className='flex items-center'>
-                <p className='flex text-sm p-2 max-w-80 overflow-hidden'>
-                  <Description />
-                  {file.name.split('.')[0].slice(0, 10) + '.' + file.name.split('.')[file.name.split('.').length - 1]}
-                </p>
-                <IconButton onClick={handleDownload}>
-                  <Download />
-                </IconButton>
-              </div>
-            )}
-          </>
-        )}
-      </>
+    <div style={{ width: '190px', height: '190px', overflow: 'hidden' }} onClick={(e) => e.stopPropagation()}>
+      {content}
     </div>
   );
 });
