@@ -8,13 +8,14 @@ type InputProps = {
   onBlur?: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   className?: string;
   placeholder?: string;
+  error?: string;
   min?: number;
   max?: number;
   type?: string;
   onlyDigits?: boolean;
 };
 
-export function Input({ value, onChange, onKeyDown, onBlur, placeholder, onlyDigits = false, resize = false, min, max, type, className }: InputProps) {
+export function Input({ value, onChange, onKeyDown, onBlur, error, placeholder, onlyDigits = false, resize = false, min, max, type, className }: InputProps) {
   const handleInputBlur = (e: ChangeEvent<HTMLInputElement>) => {
     if (onBlur) {
       onBlur(e);
@@ -46,6 +47,7 @@ export function Input({ value, onChange, onKeyDown, onBlur, placeholder, onlyDig
     <>
       {resize === false && <input onBlur={handleInputBlur} min={min} max={max} type={type ?? 'text'} placeholder={placeholder ?? ''} className={'bg-inputbg text-sm p-2 font-normal leading-7 rounded-lg outline-none ' + className} value={value ?? ''} onChange={handleInputChange} onKeyDown={onKeyDown} />}
       {resize === true && <textarea onBlur={handleTextAreaBlur} placeholder={placeholder ?? ''} className={'bg-inputbg text-sm p-2 font-normal leading-7 rounded-lg outline-none ' + className} value={value} onChange={handleTextAreaChange} onKeyDown={onKeyDown} />}
+      {error && <p className='text-sm text-negative'>{error}</p>}
     </>
   );
 }

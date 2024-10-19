@@ -111,7 +111,7 @@ export default function CampaignMessageCreator({ data: { order, keywords, messag
         </>
       )}
 
-      <textarea value={newMessage} onChange={(e) => setNewMessage(e.target.value)} className='text-sm p-2 outline-none w-full min-h-[100px] !bg-softgray rounded-lg' placeholder='Сообщение' />
+      <textarea maxLength={4096} value={newMessage} onChange={(e) => setNewMessage(e.target.value)} className='text-sm p-2 outline-none w-full min-h-[100px] !bg-softgray rounded-lg' placeholder='Сообщение' />
 
       <div className='relative group'>
         {newMedia && (

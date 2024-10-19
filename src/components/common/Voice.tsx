@@ -18,13 +18,11 @@ export default memo(function Voice({ audioFile, blob }: AudioAnalyzerProps) {
 
   useEffect(() => {
     if (audioFile) {
-      processAudioFile(audioFile)
-        .then((data) => {
-          if (data?.data) {
-            setSpikes(data.data);
-          }
-        })
-        .catch(() => alert('а'));
+      processAudioFile(audioFile).then((data) => {
+        if (data?.data) {
+          setSpikes(data.data);
+        }
+      });
     }
   }, [audioFile]);
 

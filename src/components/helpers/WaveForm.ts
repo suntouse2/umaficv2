@@ -9,9 +9,10 @@ const SPIKE_WIDTH = 2;
 const SPIKE_STEP = 3;
 const SPIKE_RADIUS = 2;
 const HEIGHT = 50;
+const WIDTH = 120;
 
 export function renderWaveform(canvas: HTMLCanvasElement, spikes: number[], progress: number, { peak, fillStyle, progressFillStyle }: IWaveformProps) {
-  const width = spikes.length * SPIKE_STEP;
+  const width = WIDTH;
   const height = HEIGHT;
 
   canvas.width = width * 2;
@@ -23,11 +24,13 @@ export function renderWaveform(canvas: HTMLCanvasElement, spikes: number[], prog
   ctx.scale(2, 2);
 
   spikes.forEach((item, i) => {
-    ctx.globalAlpha = i / spikes.length >= progress ? 0.5 : 1;
-    ctx.fillStyle = progress > i / spikes.length ? progressFillStyle : fillStyle;
-    const spikeHeight = Math.max(2, HEIGHT * (item / Math.max(1, peak)));
-    roundedRectangle(ctx, i * SPIKE_STEP, (height + spikeHeight) / 2, SPIKE_WIDTH, spikeHeight, SPIKE_RADIUS);
-    ctx.fill();
+    if (i % Math.ceil(spikes.length / 60) === 0) {
+      ctx.globalAlpha = i / spikes.length >= progress ? 0.5 : 1;
+      ctx.fillStyle = progress > i / spikes.length ? progressFillStyle : fillStyle;
+      const spikeHeight = Math.max(2, HEIGHT * (item / Math.max(1, peak)));
+      roundedRectangle(ctx, (i / Math.ceil(spikes.length / 60)) * SPIKE_STEP, (height + spikeHeight) / 2, SPIKE_WIDTH, spikeHeight, SPIKE_RADIUS);
+      ctx.fill();
+    }
   });
 }
 

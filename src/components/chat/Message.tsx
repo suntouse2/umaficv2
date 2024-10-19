@@ -1,9 +1,10 @@
 import { useSetLastMessageRead } from '@api/queries';
 import MediaRenderer from '@components/MediaRenderer';
 import dateToString from '@helpers/dateToString';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import './chat.css';
 import { useParams } from 'react-router-dom';
+import ReactLinkify from 'react-linkify';
 
 export default function Message({ message }: { message: TChatMessage }) {
   const params = useParams();
@@ -20,19 +21,29 @@ export default function Message({ message }: { message: TChatMessage }) {
     }
   }, [campaignId, directId, message.id, message.is_read, readLastMessage]);
 
+  const linkDecorator = (href: string, text: string, key?: React.Key | null) => (
+    <a className='underline text-primary' href={href} key={key} target='_blank' rel='noopener noreferrer'>
+      {text}
+    </a>
+  );
+
   return (
     <div className={`flex w-full ${message.is_self ? 'justify-end' : 'justify-start'} gap-2 items-end`}>
       <div className={`flex flex-col ${message.is_self ? 'items-end' : 'items-start'}`}>
         {message.forwarded_message?.content && (
           <div className={`p-2 max-w-[320px] ${message.is_self ? isSelf : isFrom}`}>
             <i>Пересланное сообщение:</i>
-            <p className='w-full'>{message.forwarded_message.content.message}</p>
+            <ReactLinkify componentDecorator={linkDecorator}>
+              <p className='w-full'>{message.forwarded_message.content.message}</p>
+            </ReactLinkify>
             {message.forwarded_message.content.media && <MediaRenderer media={message.forwarded_message.content.media} />}
           </div>
         )}
         {message.content.message && (
           <div className={`p-2 max-w-[320px] ${message.is_self ? isSelf : isFrom}`}>
-            <p className='w-full overflow-hidden break-words'>{message.content.message}</p>
+            <ReactLinkify componentDecorator={linkDecorator}>
+              <p className='w-full overflow-hidden break-words'>{message.content.message}</p>
+            </ReactLinkify>
           </div>
         )}
         {message.content.media && (

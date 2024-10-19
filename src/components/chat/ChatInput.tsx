@@ -122,7 +122,7 @@ export default memo(function ChatInput({ onMessageSended }: ChatInputProps) {
           <AttachFile />
         </IconButton>
         <Skrepka anchorEl={anchorEl} onClose={handleMenuClose} onClick={handleMediaUpdate} />
-        <TextField multiline className='w-full' onKeyDown={handleEnter} variant='standard' value={message} onChange={(v) => setMessage(v.target.value)} />
+        <TextField multiline fullWidth slotProps={{ htmlInput: { maxLength: 4096 } }} onKeyDown={handleEnter} variant='standard' value={message} onChange={(v) => setMessage(v.target.value)} />
         <Button onClick={handleSendMessage} variant='text' className='!h-full'>
           <Send />
         </Button>
