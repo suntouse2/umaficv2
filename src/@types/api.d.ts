@@ -234,6 +234,7 @@ type TUserResponse = {
   last_name: string;
   is_superuser: boolean;
   is_operator: boolean;
+  is_debug: boolean;
   balance: string;
   created_at: Date;
 };

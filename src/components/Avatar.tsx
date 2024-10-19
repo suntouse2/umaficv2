@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
-import useMediaService from '../../hooks/useMediaService';
+import useMediaService from '../hooks/useMediaService';
 import AvatarInput from '@components/common/AvatarInput';
 
-type CampaignAvatarProps = {
+type AvatarProps = {
   value: string | null;
   onChange: (value: string | null) => void;
 };
 
-export default function CampaignAvatar({ value, onChange }: CampaignAvatarProps) {
+export default function CampaignAvatar({ value, onChange }: AvatarProps) {
   const [file, setFile] = useState<File | null>(null);
   const { getFile, uploadFile } = useMediaService();
 

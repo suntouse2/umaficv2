@@ -2,13 +2,13 @@ import { Controller, useForm } from 'react-hook-form';
 import Bubble from '@components/common/Bubble';
 import { Input } from '@components/common/Input';
 import TipBox from '@components/common/TipBox';
-import CampaignLocationManager from '@components/campaigns/CampaignLocationManager';
+import SelectList from '@components/SelectList';
 import { useFetchLanguages, useFetchCountries, useFetchRegions, useFetchCities, useFetchSettingsCheckStats, useCreateDirectCampaign, useEditDirectCampaign } from '@api/queries';
-import CampaignKeywordManager from '@components/campaigns/CampaignKeywordManager';
+import KeywordManager from '@components/KeywordManager';
 import CampaignCheckSettings from '@components/campaigns/CampaignCheckSettings';
 import { FormEvent, MouseEvent, useEffect, useMemo, useState } from 'react';
 import CampaignMessageManager from '@components/campaigns/CampaignMessageManager';
-import CampaignAvatar from '@components/campaigns/CampaignAvatar';
+import Avatar from '@components/Avatar';
 import { ToggleButtonGroup, ToggleButton, Tabs, Tab, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { anyMessageTip, firstMessageTip, keywordMessageTip, keywordTip, locationTip, minusWordsTip, orderMessageTip, profileTip } from '@components/helpers/tips';
@@ -126,7 +126,7 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
             <Bubble className='mt-4 relative'>
               <div className='grid grid-cols-1 sm:grid-cols-2 p-4 gap-5'>
                 <div className='flex flex-col items-center  gap-5'>
-                  <Controller defaultValue={null} control={control} name='settings.profile.photo' render={({ field: { onChange, value } }) => <CampaignAvatar onChange={onChange} value={value} />} />
+                  <Controller defaultValue={null} control={control} name='settings.profile.photo' render={({ field: { onChange, value } }) => <Avatar onChange={onChange} value={value} />} />
                   <Controller defaultValue={''} control={control} name='settings.profile.first_name' render={({ field: { onChange, value } }) => <Input className='w-full' value={value} onChange={onChange} placeholder='Имя' />} />
                   <Controller defaultValue={''} control={control} name='settings.profile.last_name' render={({ field: { onChange, value } }) => <Input className='w-full' value={value} onChange={onChange} placeholder='Фамилия' />} />
                   <Controller defaultValue={''} control={control} name='settings.profile.about' render={({ field: { onChange, value } }) => <Input resize className='w-full min-h-32' value={value} onChange={onChange} placeholder='Обо мне' />} />
@@ -153,10 +153,10 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
               <TipBox content={tips.location} />
               <h2 className='text-lg font-bold'>География</h2>
               <p className='text-sm mt-2 mb-2'>Выберите нужные регионы и увеличьте эффективность вашей рекламы! Настройте точечную рекламу и достигните своей целевой аудитории прямо сейчас.</p>
-              <Controller defaultValue={[]} control={control} name='settings.target.geo.language' render={({ field: { value, onChange } }) => <CampaignLocationManager value={new Set(value)} onChange={(v) => onChange(Array.from(v))} placeholder='введите язык' label='Добавить язык' options={new Map(Object.entries(languagesData ?? []))} />} />
-              <Controller defaultValue={[]} control={control} name='settings.target.geo.country' render={({ field: { value, onChange } }) => <CampaignLocationManager value={new Set(value)} onChange={(v) => onChange(Array.from(v))} placeholder='введите страну' label='Добавить страну' options={new Map(Object.entries(countriesData ?? []))} />} />
-              <Controller defaultValue={[]} control={control} name='settings.target.geo.region' render={({ field: { value, onChange } }) => <CampaignLocationManager value={new Set(value)} onChange={(v) => onChange(Array.from(v))} placeholder='введите регион' label='Добавить регион' options={new Map(Object.entries(regionsData ?? []))} />} />
-              <Controller defaultValue={[]} control={control} name='settings.target.geo.city' render={({ field: { value, onChange } }) => <CampaignLocationManager value={new Set(value)} onChange={(v) => onChange(Array.from(v))} placeholder='введите город' label='Добавить город' options={new Map(Object.entries(citiesData ?? []))} />} />
+              <Controller defaultValue={[]} control={control} name='settings.target.geo.language' render={({ field: { value, onChange } }) => <SelectList value={new Set(value)} onChange={(v) => onChange(Array.from(v))} placeholder='введите язык' label='Добавить язык' options={new Map(Object.entries(languagesData ?? []))} />} />
+              <Controller defaultValue={[]} control={control} name='settings.target.geo.country' render={({ field: { value, onChange } }) => <SelectList value={new Set(value)} onChange={(v) => onChange(Array.from(v))} placeholder='введите страну' label='Добавить страну' options={new Map(Object.entries(countriesData ?? []))} />} />
+              <Controller defaultValue={[]} control={control} name='settings.target.geo.region' render={({ field: { value, onChange } }) => <SelectList value={new Set(value)} onChange={(v) => onChange(Array.from(v))} placeholder='введите регион' label='Добавить регион' options={new Map(Object.entries(regionsData ?? []))} />} />
+              <Controller defaultValue={[]} control={control} name='settings.target.geo.city' render={({ field: { value, onChange } }) => <SelectList value={new Set(value)} onChange={(v) => onChange(Array.from(v))} placeholder='введите город' label='Добавить город' options={new Map(Object.entries(citiesData ?? []))} />} />
             </Bubble>
           )}
           {currentStep == 2 && (
@@ -165,13 +165,13 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
                 <TipBox content={tips.keyword} />
                 <h2 className='text-lg font-bold'>Ключевые фразы</h2>
                 <p className='text-sm mt-2'>Фразы, которые система будет искать в чатах Telegram.</p>
-                <Controller defaultValue={[]} control={control} name='settings.target.search.include' render={({ field: { value, onChange } }) => <CampaignKeywordManager value={new Set(value)} onChange={(v) => onChange(Array.from(v))} />} />
+                <Controller defaultValue={[]} control={control} name='settings.target.search.include' render={({ field: { value, onChange } }) => <KeywordManager value={new Set(value)} onChange={(v) => onChange(Array.from(v))} />} />
               </Bubble>
               <Bubble className='mt-4 relative'>
                 <TipBox content={tips.minusWords} />
                 <h2 className='text-lg font-bold'>Минус-слова</h2>
                 <p className='text-sm mt-2'>Фразы, которые система будет исключать из поиска в чатах Telegram.</p>
-                <Controller defaultValue={[]} control={control} name='settings.target.search.exclude' render={({ field: { value, onChange } }) => <CampaignKeywordManager value={new Set(value)} onChange={(v) => onChange(Array.from(v))} />} />
+                <Controller defaultValue={[]} control={control} name='settings.target.search.exclude' render={({ field: { value, onChange } }) => <KeywordManager value={new Set(value)} onChange={(v) => onChange(Array.from(v))} />} />
               </Bubble>
               <Bubble className='mt-4'>
                 <p className='text-sm'>

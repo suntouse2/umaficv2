@@ -4,12 +4,12 @@ import { Button, Dialog, DialogTitle, Popover } from '@mui/material';
 import getBreakpoints from '@static/mediaBreakpoints';
 import { MouseEvent, useCallback, useMemo, useState } from 'react';
 import { addTag, addTagList, removeAllTags } from '@helpers/tagHelper';
-type CampaignKeywordManagerProps = {
+type KeywordManagerProps = {
   value: Set<string>;
   onChange: (value: Set<string>) => void;
 };
 
-export default function CampaignKeywordManager({ value, onChange }: CampaignKeywordManagerProps) {
+export default function KeywordManager({ value, onChange }: KeywordManagerProps) {
   const [popoverAnchor, setPopoverAnchor] = useState<null | HTMLElement>(null);
   const [dialogState, setDialogState] = useState<boolean>(false);
   const [deleteAllDialogState, setDeleteAllDialogState] = useState<boolean>(false);

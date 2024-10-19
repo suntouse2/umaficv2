@@ -4,7 +4,7 @@ import { List, ListItem, IconButton, ListItemText, Button, Dialog, Popover } fro
 import getBreakpoints from '@static/mediaBreakpoints';
 import { MouseEvent, useMemo, useState } from 'react';
 
-type CampaignLocationManagerProps = {
+type SelectListProps = {
   placeholder: string;
   label: string;
   value: Set<string>;
@@ -12,7 +12,7 @@ type CampaignLocationManagerProps = {
   options: Map<string, string>;
 };
 
-export default function CampaignLocationManager({ label, onChange, placeholder, options, value }: CampaignLocationManagerProps) {
+export default function SelectList({ label, onChange, placeholder, options, value }: SelectListProps) {
   const [popoverAnchor, setPopoverAnchor] = useState<null | HTMLElement>(null);
   const [dialogState, setDialogState] = useState<boolean>(false);
 

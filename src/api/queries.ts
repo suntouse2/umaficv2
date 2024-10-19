@@ -102,7 +102,11 @@ export function useCreateDirectCampaign() {
     mutationKey: ['createCampaign'],
     mutationFn: ({ data }: { data: TDirectCampaignSettings }) => DirectCampaignService.createDirectCampaign(data),
     gcTime: 0,
-    onError: () => {
+    onError: (error) => {
+      if (error instanceof AxiosError) {
+        const status = error.status;
+        return toast.error(`${status}: Не удалось создать кампанию`);
+      }
       toast.error('Не удалось создать кампанию');
     },
     onSuccess: () => {
@@ -120,7 +124,12 @@ export function useEditDirectCampaign() {
     mutationKey: ['editCampaign'],
     mutationFn: ({ id, data }: { id: number; data: TPartialDirectCampaignSettings }) => DirectCampaignService.editDirectCampaign(id, data),
     gcTime: 0,
-    onError: () => {
+    onError: (error) => {
+      console.log(error);
+      if (error instanceof AxiosError) {
+        const status = error.status;
+        return toast.error(`${status}: Не удалось изменить кампанию`);
+      }
       toast.error('Не удалось изменить кампанию');
     },
     onSuccess: () => {
