@@ -14,6 +14,8 @@ type CampaignMessageProps = {
   }[];
   onChange: (value: { messages: TFunnelMessage[]; order?: number; keywords?: string[] }[]) => void;
   filter_type: 'order' | 'keyword' | 'none';
+  error?: string;
+  maxMsgLength?: number;
 };
 
 type CurrentMessage = {
@@ -23,7 +25,7 @@ type CurrentMessage = {
   keywords?: string[];
 };
 
-export default function CampaignMessageManager({ value, onChange, filter_type }: CampaignMessageProps) {
+export default function CampaignMessageManager({ value, onChange, filter_type, error, maxMsgLength }: CampaignMessageProps) {
   const initialData = () => ({
     index: -1,
     message: {
@@ -101,7 +103,7 @@ export default function CampaignMessageManager({ value, onChange, filter_type }:
         }}
         open={dialogState}
         onClose={() => setDialogState(false)}>
-        <CampaignMessageCreator data={currentMessage} onClose={() => setDialogState(false)} updateMessage={updateMessage} filter_type={filter_type} />
+        <CampaignMessageCreator maxMsgLength={maxMsgLength} data={currentMessage} onClose={() => setDialogState(false)} updateMessage={updateMessage} filter_type={filter_type} />
       </Dialog>
       <hr className='border-none h-[1px] bg-softgray4 opacity-15 mt-4 w-full' />
       <ul className='flex flex-col gap-2 mt-2'>
@@ -135,6 +137,7 @@ export default function CampaignMessageManager({ value, onChange, filter_type }:
             ))
           )}
       </ul>
+      {error && <p className='text-sm text-negative mt-2'>{error}</p>}
     </div>
   );
 }

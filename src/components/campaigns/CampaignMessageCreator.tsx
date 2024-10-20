@@ -1,4 +1,4 @@
-import { useState, useRef, ChangeEvent, useCallback } from 'react';
+import { useState, useRef, ChangeEvent, useCallback, KeyboardEvent } from 'react';
 import { Button, IconButton } from '@mui/material';
 import { AttachFile, Delete } from '@mui/icons-material';
 import { toast } from 'react-toastify';
@@ -22,9 +22,10 @@ type CampaignMessageCreatorProps = {
   updateMessage: (data: { message: TFunnelMessage; order?: number; keywords?: string[] }) => void;
   filter_type: 'order' | 'keyword' | 'none';
   onClose?: () => void;
+  maxMsgLength?: number;
 };
 
-export default function CampaignMessageCreator({ data: { order, keywords, message }, updateMessage, onClose, filter_type }: CampaignMessageCreatorProps) {
+export default function CampaignMessageCreator({ data: { order, keywords, message }, maxMsgLength, updateMessage, onClose, filter_type }: CampaignMessageCreatorProps) {
   const [newOrder, setNewOrder] = useState<number | undefined>(filter_type === 'order' ? order : undefined);
   const [newKeyword, setNewKeyword] = useState<Set<string>>(filter_type === 'keyword' ? new Set([...(keywords || [])]) : new Set());
   const [newMedia, setNewMedia] = useState<TFunnelMessage['media']>(message.media);
@@ -60,14 +61,18 @@ export default function CampaignMessageCreator({ data: { order, keywords, messag
     [handleMenuClose]
   );
 
+  const handleTextAreaKeydown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.code == 'Enter') {
+      handleUpdateMessage();
+    }
+  };
+
   const handleUpdateMessage = () => {
     if (!newMessage && !newMedia) {
-      toast.error('Сообщение должно содержать текст или медиа.');
-      return;
+      return toast.error('Сообщение должно содержать текст или медиа.');
     }
     if (filter_type === 'keyword' && newKeyword.size === 0) {
-      toast.error('Ключевые слова не должны быть пустыми.');
-      return;
+      return toast.error('Ключевые слова не должны быть пустыми.');
     }
 
     const messageData = {
@@ -111,7 +116,7 @@ export default function CampaignMessageCreator({ data: { order, keywords, messag
         </>
       )}
 
-      <textarea maxLength={4096} value={newMessage} onChange={(e) => setNewMessage(e.target.value)} className='text-sm p-2 outline-none w-full min-h-[100px] !bg-softgray rounded-lg' placeholder='Сообщение' />
+      <textarea onKeyDown={handleTextAreaKeydown} maxLength={maxMsgLength ?? 4096} value={newMessage} onChange={(e) => setNewMessage(e.target.value)} className='text-sm p-2 outline-none w-full min-h-[100px] !bg-softgray rounded-lg' placeholder='Сообщение' />
 
       <div className='relative group'>
         {newMedia && (
