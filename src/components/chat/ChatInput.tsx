@@ -4,30 +4,24 @@ import { ChangeEvent, ClipboardEvent, DragEvent, KeyboardEvent, memo, useCallbac
 import useMediaService from '@hooks/useMediaService';
 import InputAcceptByMediaType from '@helpers/setInputAttributeByFileType';
 import MediaRenderer from '@components/MediaRenderer';
-import { useSendMessage } from '@api/queries';
 import { toast } from 'react-toastify';
 import Skrepka from '@components/Skrepka';
-import { useParams } from 'react-router-dom';
+import { useChat } from '@context/chat/ChatContext';
 
-type SendedMessage = { direct_id: number; content: TMessageContent; catch_slug: string };
+// type SendedMessage = { direct_id: number; content: TMessageContent; catch_slug: string };
 
-type ChatInputProps = {
-  onMessageSended?: (msg: SendedMessage) => void;
-};
+// type ChatInputProps = {
+//   onMessageSended?: (msg: SendedMessage) => void;
+// };
 
-export default memo(function ChatInput({ onMessageSended }: ChatInputProps) {
-  console.log('re-rendered');
-
-  const params = useParams();
-  const campaignId = Number(params.campaignId);
-  const directId = Number(params.directId);
+export default memo(function ChatInput() {
+  const { sendMessage } = useChat();
 
   const [message, setMessage] = useState<string>('');
   const [media, setMedia] = useState<TMessageContent['media']>(null);
   const [lastType, setLastType] = useState<TMediaTypes>('auto');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { mutateAsync: sendMessage } = useSendMessage();
   const { uploadFile } = useMediaService();
 
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -93,21 +87,15 @@ export default memo(function ChatInput({ onMessageSended }: ChatInputProps) {
         toast.error('Сообщение должно содержать текст или медиа.');
         return;
       }
-      if (!directId) return;
       const msg = await sendMessage({
-        direct_id: directId,
-        msg: {
-          content: {
-            message,
-            media,
-          },
-          reply_to: null,
+        content: {
+          message,
+          media,
         },
-        campaign_id: campaignId,
+        reply_to: null,
       });
-      if (onMessageSended) {
-        onMessageSended({ direct_id: directId, content: { message, media }, catch_slug: msg.data.catch_slug });
-      }
+      console.log(msg);
+
       setMessage('');
       setMedia(null);
     } catch {

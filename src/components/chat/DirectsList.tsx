@@ -1,24 +1,20 @@
-import { useState } from 'react';
-import { useFetchChatDirects, useUpdateDirect } from '@api/queries';
-import { ToggleButton, ToggleButtonGroup } from '@mui/material';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Direct from '@components/chat/Direct';
 import { Virtuoso } from 'react-virtuoso';
+import { useChat } from '@context/chat/ChatContext';
+import { ToggleButtonGroup, ToggleButton } from '@mui/material';
+import DirectService from '@api/http/services/chat/DirectService';
 
 export default function DirectsList() {
-  const params = useParams();
+  const { isFavorite, directs, setIsFavorite, fetchNextDirects, campaignId } = useChat();
+
   const navigate = useNavigate();
-  const campaignId = Number(params.campaignId);
 
-  const { mutate: updateDirect } = useUpdateDirect();
-  const [filter, setFilter] = useState<{ is_open?: boolean; is_favorite?: boolean }>({});
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useFetchChatDirects(campaignId, filter);
-
-  const directs = data?.pages.flatMap((direct) => direct.data) || [];
-
-  const handleDirectClick = ({ is_open, id }: TChatDirect) => {
-    if (!is_open) updateDirect({ campaign_id: campaignId, direct_id: id, data: { is_open: true } });
-    navigate(`${id}`, { relative: 'path' });
+  const handleDirectClick = ({ id }: TChatDirect) => {
+    if (directs.find((direct) => direct.id == id)?.is_open == false) {
+      DirectService.updateDirect(id, { is_open: true });
+    }
+    navigate(`/chat/${campaignId}/${id}`);
   };
 
   return (
@@ -27,14 +23,15 @@ export default function DirectsList() {
         <ToggleButtonGroup
           color='primary'
           className='!w-full'
-          value={filter['is_favorite'] ? 'favorite' : 'all'}
+          value={isFavorite ? 'favorite' : 'all'}
           exclusive
-          onChange={(_v, v) =>
-            setFilter((e) => ({
-              ...e,
-              is_favorite: v === 'favorite' ? true : undefined,
-            }))
-          }
+          onChange={(_v, v) => {
+            if (v == 'favorite') {
+              setIsFavorite(true);
+            } else if (v == 'all') {
+              setIsFavorite(false);
+            }
+          }}
           aria-label='Platform'>
           <ToggleButton className='w-full' value='all'>
             Все
@@ -50,9 +47,7 @@ export default function DirectsList() {
         data={directs}
         itemContent={(_index, direct) => <Direct onClick={() => handleDirectClick(direct)} direct={direct} />}
         endReached={() => {
-          if (hasNextPage && !isFetchingNextPage) {
-            fetchNextPage();
-          }
+          fetchNextDirects();
         }}
         increaseViewportBy={{ top: 0, bottom: 200 }}
       />

@@ -32,7 +32,7 @@ export default function CampaignMessageManager({ value, onChange, filter_type, e
       message: '',
       media: null,
     },
-    ...(filter_type === 'order' && { order: (value.slice(-1)[0]?.order ?? 0) + 1 }),
+    ...(filter_type === 'order' && { order: (value.slice(-1)[0]?.order ?? 1) + 1 }),
     ...(filter_type === 'keyword' && { keywords: [] }),
   });
   const [dialogState, setDialogState] = useState<boolean>(false);

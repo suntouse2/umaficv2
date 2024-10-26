@@ -1,22 +1,18 @@
-import { useFetchDirect, useUpdateDirect } from '@api/queries';
-
+import { useChat } from '@context/chat/ChatContext';
 import { stringAvatar } from '@helpers/stringAvatar';
 import { Favorite } from '@mui/icons-material';
 import { Avatar, IconButton } from '@mui/material';
-import { useParams } from 'react-router-dom';
 
 export default function ChatContact() {
-  const params = useParams();
-  const campaignId = Number(params.campaignId);
-  const directId = Number(params.directId);
-  const { data: direct } = useFetchDirect(directId);
-  const { mutate: updateDirect } = useUpdateDirect();
+  const { currentDirect, setDirectFavorite } = useChat();
 
-  const client = direct?.user;
-  const isFavorite = direct?.is_favorite;
+  const client = currentDirect?.user;
+  const isFavorite = currentDirect?.is_favorite;
 
-  const handleFavoriteChange = () => {
-    updateDirect({ campaign_id: campaignId, direct_id: directId, data: { is_favorite: !isFavorite } });
+  const handleFavoriteChange = async () => {
+    if (!currentDirect) return;
+    await setDirectFavorite(currentDirect.id, !isFavorite);
+    // updateDirect({ campaign_id: campaignId, direct_id: directId, data: { is_favorite: !isFavorite } });
   };
 
   return (

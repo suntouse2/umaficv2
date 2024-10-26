@@ -1,75 +1,54 @@
-import ChatScreen from '@components/chat/ChatScreen';
-import PageLayout from '@components/wrappers/layouts/PageLayout';
+/* eslint-disable react-refresh/only-export-components */
+import { lazy } from 'react';
 import PageError from '@pages/pageError';
+import PageLayout from '@components/wrappers/layouts/PageLayout';
+
+const NotFound = lazy(() => import('@pages/page404'));
+const Dashboard = lazy(() => import('@pages/pageDashboard'));
+const Balance = lazy(() => import('@pages/pageBalance'));
+const DirectCampaign = lazy(() => import('@pages/pageDirectCampaign'));
+const ComposeDirectCampaign = lazy(() => import('@pages/pageComposeDirectCampaign'));
+const Chat = lazy(() => import('@pages/pageChat'));
 
 export const routes = [
   {
     path: '*',
-    async lazy() {
-      const NotFound = await import('@pages/page404');
-      return { Component: NotFound.default };
-    },
+    element: <NotFound />,
   },
   {
     path: '/',
     element: <PageLayout />,
     errorElement: <PageError />,
-
     children: [
       {
         name: 'dashboard',
         path: '',
-        async lazy() {
-          const Dashboard = await import('@pages/pageDashboard');
-          return { Component: Dashboard.default };
-        },
+        element: <Dashboard />,
       },
       {
         name: 'payment page',
         path: 'balance',
-        async lazy() {
-          const Balance = await import('@pages/pageBalance');
-          return { Component: Balance.default };
-        },
+        element: <Balance />,
       },
       {
         name: 'direct campaign',
         path: 'campaigns/direct',
-        async lazy() {
-          const Campaigns = await import('@pages/pageDirectCampaign');
-          return { Component: Campaigns.default };
-        },
+        element: <DirectCampaign />,
       },
       {
         name: 'direct campaign create',
         path: 'campaigns/direct/create',
-        async lazy() {
-          const ComposeDirectCampaign = await import('@pages/pageComposeDirectCampaign');
-          return { Component: ComposeDirectCampaign.default };
-        },
+        element: <ComposeDirectCampaign />,
       },
       {
         name: 'direct campaign edit',
         path: 'campaigns/direct/edit',
-        async lazy() {
-          const ComposeDirectCampaign = await import('@pages/pageComposeDirectCampaign');
-          return { Component: ComposeDirectCampaign.default };
-        },
+        element: <ComposeDirectCampaign />,
       },
       {
         name: 'chat',
-        path: 'chat/:campaignId',
-        children: [
-          {
-            name: 'chat current',
-            path: ':directId',
-            element: <ChatScreen />,
-          },
-        ],
-        async lazy() {
-          const Chat = await import('@pages/pageChat');
-          return { Component: Chat.default };
-        },
+        path: 'chat/:campaignId/:directId?',
+        element: <Chat />,
       },
     ],
   },

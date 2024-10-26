@@ -63,6 +63,8 @@ export default function CampaignMessageCreator({ data: { order, keywords, messag
 
   const handleTextAreaKeydown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.code == 'Enter') {
+      e.preventDefault();
+      e.stopPropagation();
       handleUpdateMessage();
     }
   };
@@ -92,7 +94,7 @@ export default function CampaignMessageCreator({ data: { order, keywords, messag
     <div className='p-2 flex flex-col gap-3'>
       <h2 className='font-bold text-xl mb-4'>Новое сообщение</h2>
 
-      {filter_type === 'order' && <Input min={1} max={99} className='bg-softgray' type='number' value={newOrder?.toString() || ''} onChange={(value) => setNewOrder(Math.max(Number(value), 1))} />}
+      {filter_type === 'order' && <Input min={2} max={99} className='bg-softgray' type='number' value={newOrder?.toString() || ''} onChange={(value) => setNewOrder(Math.max(Number(value), 2))} />}
 
       {filter_type === 'keyword' && (
         <>

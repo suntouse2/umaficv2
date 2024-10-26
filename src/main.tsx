@@ -1,4 +1,4 @@
-import { StrictMode } from 'react';
+import { StrictMode, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createHashRouter, RouterProvider } from 'react-router-dom';
 import { routes } from '@static/routes';
@@ -9,7 +9,7 @@ import './main.css';
 import { ThemeProvider } from '@mui/material';
 import { THEME } from '@static/MIUItheme';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import PageLoading from '@pages/pageLoading';
+import PageGate from '@pages/pageGate';
 import { DBConfig } from '@static/DBConfig';
 import { initDB } from 'react-indexed-db-hook';
 
@@ -23,7 +23,9 @@ createRoot(document.getElementById('root')!).render(
       <AuthProvider>
         <ThemeProvider theme={THEME}>
           <ToastContainer position='top-center' autoClose={2000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss pauseOnHover theme='colored' />
-          <RouterProvider router={router} fallbackElement={<PageLoading text='' loading={true} />} />
+          <Suspense fallback={<PageGate text='' loading={true} />}>
+            <RouterProvider router={router} />
+          </Suspense>
         </ThemeProvider>
       </AuthProvider>
     </QueryClientProvider>

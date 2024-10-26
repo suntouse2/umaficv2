@@ -36,6 +36,7 @@
     "react-router-dom": "^6.26.2",
     "react-simple-player": "^1.1.0",
     "react-toastify": "^10.0.5",
+    "react-use-websocket": "^4.10.0",
     "react-virtuoso": "^4.11.0",
     "react-window": "^1.8.10",
     "tsoa": "^6.4.0",

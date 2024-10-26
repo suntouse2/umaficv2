@@ -3,8 +3,8 @@ import Bubble from '@components/common/Bubble';
 import ValueTuner from '@components/common/ValueTuner';
 import formatBalance from '@helpers/formatBalance';
 import { Delete, SettingsOutlined, TextsmsOutlined } from '@mui/icons-material';
-import { Badge, Button, Dialog, IconButton, Switch } from '@mui/material';
-import { useCallback, useState } from 'react';
+import { Badge, IconButton, Switch } from '@mui/material';
+import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 type DirectCampaignCardProps = {
@@ -12,13 +12,15 @@ type DirectCampaignCardProps = {
 };
 
 export default function DirectCampaignCard({ campaign }: DirectCampaignCardProps) {
-  const [dialogState, setDialogState] = useState<boolean>(false);
-
   const { mutate: toggleCampaign, isPending } = useToggleDirectCampaign();
   const { mutate: editCampaign } = useEditDirectCampaign();
   const { mutate: deleteDirectCampaign } = useDeleteDirectCampaign();
 
   const navigate = useNavigate();
+
+  const handleDeleteCampaign = () => {
+    if (confirm('Вы точно хотите удалить кампанию?')) deleteDirectCampaign({ id: campaign.id });
+  };
 
   const handleToggleCampaign = () => {
     if (isPending) return;
@@ -39,26 +41,11 @@ export default function DirectCampaignCard({ campaign }: DirectCampaignCardProps
 
   return (
     <>
-      <Dialog open={dialogState} onClose={() => setDialogState(false)}>
-        <div className='p-4'>
-          <h2 className='text-xl font-bold'>Вы уверены что хотите удалить кампанию?</h2>
-          <p className='mt-2'>Ваша кампания будет удалено навсегда, без возможности сохранить настройки.</p>
-          <div className='flex gap-2 mt-2'>
-            <Button className='!w-full' variant='outlined' onClick={() => setDialogState(false)}>
-              Отмена
-            </Button>
-            <Button onClick={() => deleteDirectCampaign({ id: campaign.id })} className='!w-full' color='error' variant='outlined'>
-              Удалить
-            </Button>
-          </div>
-        </div>
-      </Dialog>
-
       <Bubble className='p-4'>
         <div className='flex items-center justify-between'>
           <h2 className='text-lg font-bold'>{campaign.name}</h2>
           <div className='flex items-center'>
-            <IconButton onClick={() => setDialogState(true)} color='success'>
+            <IconButton onClick={handleDeleteCampaign} color='success'>
               <Delete />
             </IconButton>
             <IconButton onClick={() => navigate('/campaigns/direct/edit', { state: { id: campaign.id } })} color='success'>

@@ -1,7 +1,6 @@
 import DirectCampaignService from '@api/http/services/campaigns/DirectCampaignService';
 import SettingsCheckService from '@api/http/services/campaigns/SettingsCheckService';
 import GeoService from '@api/http/services/GeoService';
-import DirectService from '@api/http/services/chat/DirectService';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
@@ -156,102 +155,5 @@ export function useDeleteDirectCampaign() {
     onError: () => {
       toast.error('Не удалось удалить кампанию');
     },
-  });
-}
-
-export function useFetchChatDirects(campaign_id: number, filter?: { is_open?: boolean; is_favorite?: boolean }) {
-  return useInfiniteQuery({
-    queryKey: ['directs', campaign_id, filter],
-    queryFn: ({ queryKey, pageParam }) => {
-      const campaign_id = queryKey[1] as number;
-      return DirectService.getDirects(campaign_id, pageParam, filter);
-    },
-    staleTime: Infinity,
-    initialPageParam: 1,
-    getNextPageParam: (lastPage, _allPages, lastPageParam) => {
-      if (lastPage.data.length == 0) {
-        return undefined;
-      }
-      return lastPageParam + 1;
-    },
-  });
-}
-
-export function useFetchDirect(id: number) {
-  return useQuery({
-    queryKey: ['direct', id],
-    queryFn: ({ queryKey }) => {
-      const id = queryKey[1] as number;
-      return DirectService.getDirect(id);
-    },
-    select: (data) => {
-      return data.data;
-    },
-    staleTime: Infinity,
-  });
-}
-
-export function useUpdateDirect() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationKey: ['setDialogOpened'],
-    mutationFn: ({ direct_id, data }: { campaign_id: number; direct_id: number; data: TChatDirectStatusUpdate }) => DirectService.updateDirect(direct_id, data),
-    onSuccess: (_, { campaign_id, direct_id }) => {
-      queryClient.invalidateQueries({ queryKey: ['direct', direct_id] });
-      queryClient.invalidateQueries({ queryKey: ['directs', campaign_id] });
-    },
-  });
-}
-
-export function useFetchDirectMessages(direct_id: number) {
-  return useInfiniteQuery({
-    queryKey: ['direct-messages', direct_id],
-    queryFn: ({ queryKey, pageParam }) => {
-      const id = queryKey[1] as number;
-      return DirectService.getDirectMessages(id, pageParam);
-    },
-    staleTime: Infinity,
-    initialPageParam: 1,
-    getNextPageParam: (lastPage, _allPages, lastPageParam) => {
-      if (lastPage.data.length < 10) {
-        return undefined;
-      }
-      return lastPageParam + 1;
-    },
-    select: (data) => {
-      return { pages: [...data.pages.map((item) => [...item.data].reverse())].reverse(), pageParams: [...data.pageParams].reverse() };
-    },
-  });
-}
-
-export function useSetLastMessageRead() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationKey: ['setLastMessageRead'],
-    mutationFn: ({ direct_id, message_id }: { campaign_id: number; direct_id: number; message_id: number }) => DirectService.readMessage(direct_id, message_id),
-    onSuccess: (_, { campaign_id }) => {
-      queryClient.invalidateQueries({ queryKey: ['directs', campaign_id] });
-    },
-  });
-}
-
-export function useSendMessage() {
-  return useMutation({
-    mutationKey: ['sendMessage'],
-    mutationFn: ({ direct_id, msg }: { direct_id: number; msg: TChatSendMessage; campaign_id: number }) => DirectService.sendMessage(direct_id, msg),
-    onError: (error) => {
-      if (error instanceof AxiosError) {
-        if (error.status == 400) {
-          toast.error('Ошибка отправки. Возможно кампания не запущена или была запущена недавно.');
-        }
-      }
-    },
-  });
-}
-
-export function useDeleteDirect() {
-  return useMutation({
-    mutationKey: ['delete-direct'],
-    mutationFn: ({ direct_id }: { direct_id: number }) => DirectService.removeDirect(direct_id),
   });
 }

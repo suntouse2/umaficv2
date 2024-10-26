@@ -1,17 +1,12 @@
-import { useFetchDirectMessages } from '@api/queries';
 import Message from '@components/chat/Message';
 import { Virtuoso } from 'react-virtuoso';
-import { useParams } from 'react-router-dom';
+
+import { useChat } from '@context/chat/ChatContext';
 
 export default function Chat() {
-  const params = useParams();
-  const directId = Number(params.directId);
+  const { messages, fetchNextMessages } = useChat();
 
   const INITIAL_ITEM_COUNT = 10000;
-
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useFetchDirectMessages(directId);
-
-  const messages = data?.pages.flatMap((msg) => msg) || [];
 
   const firstItemIndex = INITIAL_ITEM_COUNT - messages.length;
 
@@ -24,9 +19,7 @@ export default function Chat() {
         firstItemIndex={firstItemIndex}
         itemContent={(_index, message) => <Message message={message} />}
         startReached={() => {
-          if (hasNextPage && !isFetchingNextPage) {
-            fetchNextPage();
-          }
+          fetchNextMessages();
         }}
         initialTopMostItemIndex={messages.length - 1}
         followOutput='auto'

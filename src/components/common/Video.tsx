@@ -34,7 +34,7 @@ export default memo(function Video({ blob }: VideoProps) {
   return (
     <div className='relative w-full h-full cursor-pointer'>
       <Dialog open={dialogState} onClose={() => setDialogState(false)}>
-        <video className='w-full max-h-[' src={blob} controls></video>
+        <video className='w-full h-full max-h-[700px]' autoPlay src={blob} controls></video>
       </Dialog>
       <div className='absolute w-full h-full flex items-center justify-center'>
         <IconButton onClick={() => setDialogState(true)} className='!text-white' size='large'>

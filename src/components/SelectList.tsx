@@ -20,6 +20,7 @@ export default function SelectList({ label, onChange, placeholder, options, valu
     setPopoverAnchor(null);
     setDialogState(false);
   };
+
   const openPopupOrDialog = (e: MouseEvent<HTMLButtonElement>) => {
     return window.innerWidth <= getBreakpoints(false).md ? setDialogState(true) : setPopoverAnchor(e.currentTarget);
   };

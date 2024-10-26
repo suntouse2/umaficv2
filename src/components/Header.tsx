@@ -3,11 +3,13 @@ import { Menu } from '@mui/icons-material';
 import AccountBalanceWalletSharpIcon from '@mui/icons-material/AccountBalanceWalletSharp';
 import { useAuth } from '@context/AuthContext';
 import formatBalance from '@helpers/formatBalance';
-import { useState } from 'react';
-import PaymentWindow from '@components/user/PaymentWindow';
+import { lazy, Suspense, useState } from 'react';
+
 type HeaderProps = {
   asideToggleCallback: () => void;
 };
+
+const PaymentWindow = lazy(() => import('@components/user/PaymentWindow'));
 
 export default function Header({ asideToggleCallback }: HeaderProps) {
   const { user } = useAuth();
@@ -16,7 +18,9 @@ export default function Header({ asideToggleCallback }: HeaderProps) {
   return (
     <>
       <Dialog open={paymentDialogState} onClose={() => setPaymentDialogState(false)}>
-        <PaymentWindow />
+        <Suspense>
+          <PaymentWindow />
+        </Suspense>
       </Dialog>
 
       <header className='flex py-2 px-3 items-center justify-between'>

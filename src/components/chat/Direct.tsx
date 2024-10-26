@@ -1,6 +1,7 @@
 import dateToString from '@helpers/dateToString';
 import mediaToText from '@helpers/mediaToText';
 import { stringAvatar } from '@helpers/stringAvatar';
+import { AccessTime } from '@mui/icons-material';
 import { Avatar, Button } from '@mui/material';
 import { useParams } from 'react-router-dom';
 
@@ -20,7 +21,7 @@ export default function Direct({ direct, onClick }: DirectProps) {
       <Avatar {...stringAvatar(direct.user.first_name)} />
       <div className='w-full overflow-hidden'>
         <p className='flex justify-between gap-5 w-full overflow-hidden'>
-          <b className={`whitespace-nowrap text-dark ${isUnRead && '!text-primary'}`}>{direct.user.first_name + ' ' + (direct.user.last_name ?? '')}</b> {direct.last_message && <span className='text-sm whitespace-nowrap text-softgray4'>{dateToString(new Date(direct.last_message.date))}</span>}
+          <b className={`whitespace-nowrap text-dark ${isUnRead && '!text-primary'}`}>{direct.user.first_name + ' ' + (direct.user.last_name ?? '')}</b> {direct.last_message && <span className='text-sm whitespace-nowrap text-softgray4'>{direct.last_message.date ? dateToString(new Date(direct.last_message.date)) : <AccessTime className='!text-sm' />}</span>}
         </p>
         <p className={`whitespace-nowrap ${isUnRead && '!text-primary'} text-dark w-full overflow-hidden text-ellipsis`}>
           {direct.last_message?.content?.message}

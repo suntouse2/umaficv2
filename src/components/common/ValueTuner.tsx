@@ -10,20 +10,10 @@ type ValueTunerProps = {
 
 export default memo(function ValueTuner({ value, onChange, type = 'string' }: ValueTunerProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
   const [inputValue, setInputValue] = useState<string>(value);
 
-  const openPopover = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const closePopover = () => {
-    setAnchorEl(null);
-  };
-
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (type === 'string') {
-      setInputValue(e.target.value);
-    }
+    if (type === 'string') setInputValue(e.target.value);
     if (type === 'number') {
       const numericValue = e.target.value.replace(/\D/g, '');
       setInputValue(numericValue);
@@ -34,7 +24,7 @@ export default memo(function ValueTuner({ value, onChange, type = 'string' }: Va
     if (e.key === 'Enter') {
       e.preventDefault();
       onChange(inputValue);
-      closePopover();
+      setAnchorEl(null);
     }
   };
 
@@ -43,7 +33,7 @@ export default memo(function ValueTuner({ value, onChange, type = 'string' }: Va
       <span className='flex items-center'>
         <div className='flex items-center'>
           {value}
-          <IconButton onClick={openPopover} size='small'>
+          <IconButton onClick={(e) => setAnchorEl(e.currentTarget)} size='small'>
             <Edit />
           </IconButton>
         </div>
@@ -51,7 +41,7 @@ export default memo(function ValueTuner({ value, onChange, type = 'string' }: Va
       <Popover
         open={Boolean(anchorEl)}
         anchorEl={anchorEl}
-        onClose={closePopover}
+        onClose={() => setAnchorEl(null)}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'left',
@@ -65,7 +55,7 @@ export default memo(function ValueTuner({ value, onChange, type = 'string' }: Va
           <IconButton
             onClick={() => {
               onChange(inputValue);
-              closePopover();
+              setAnchorEl(null);
             }}
             color='success'>
             <Check />

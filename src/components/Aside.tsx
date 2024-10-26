@@ -4,8 +4,6 @@ import Support from '@assets/support.svg?react';
 import Exit from '@assets/exit.svg?react';
 import { useAuth } from '@context/AuthContext';
 import { toast } from 'react-toastify';
-import { Button, Dialog } from '@mui/material';
-import { useCallback, useState } from 'react';
 import { ContentCopy } from '@mui/icons-material';
 import NavItem from '@components/NavItem';
 import { supportLink } from '@static/links';
@@ -17,11 +15,6 @@ type AsideProps = {
 
 export default function Aside({ asideState, onChange }: AsideProps) {
   const { user, exit } = useAuth();
-  const [quitDialogState, setQuitDialogState] = useState<boolean>(false);
-
-  const openQuitDialog = useCallback(() => {
-    setQuitDialogState(true);
-  }, []);
 
   const handleIdCopy = async () => {
     if (!user) return;
@@ -33,21 +26,12 @@ export default function Aside({ asideState, onChange }: AsideProps) {
     onChange(false);
   };
 
+  const handleExit = () => {
+    if (confirm('Вы точно хотите выйти?')) exit();
+  };
+
   return (
     <>
-      <Dialog open={quitDialogState} onClose={() => setQuitDialogState(false)}>
-        <div className='p-4'>
-          <h2 className='font-bold text-2xl'>Вы действительно хотите выйти?</h2>
-          <div className='flex w-full mt-2 gap-2'>
-            <Button onClick={() => setQuitDialogState(false)} className='!w-full' variant='outlined' color='secondary'>
-              Остаться
-            </Button>
-            <Button onClick={exit} className='!w-full' variant='outlined' color='error'>
-              Выйти
-            </Button>
-          </div>
-        </div>
-      </Dialog>
       <div className={`${asideState ? 'block' : 'hidden'} w-full fixed h-full bg-backdrop overflow-hidden   md:relative z-20`} onClick={handleClose}>
         <aside className={` bg-white border-r-[1px] h-dvh border-border overflow-auto w-48`} onClick={(e) => e.stopPropagation()}>
           <nav>
@@ -65,7 +49,7 @@ export default function Aside({ asideState, onChange }: AsideProps) {
             <hr className='h-[1px] border-none bg-border' />
             <NavItem type='a' Icon={Support} title='Поддержка' href={supportLink} />
             <hr className='h-[1px] border-none bg-border' />
-            <NavItem type='button' Icon={Exit} title='Выйти' onClick={openQuitDialog} />
+            <NavItem type='button' Icon={Exit} title='Выйти' onClick={handleExit} />
             <hr className='h-[1px] border-none bg-border' />
             <a href='/documents/Публичная_оферта.docx' className='min-h-12 border-none outline-none no-underline flex px-4 py-2 gap-4 items-center  whitespace-nowrap text-xs hover:bg-softgray'>
               <span className='block'>Публичная оферта</span>

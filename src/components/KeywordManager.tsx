@@ -1,9 +1,9 @@
 import TagInput from '@components/common/TagInput';
 import TagList from '@components/common/TagList';
-import { Button, Dialog, DialogTitle, Popover } from '@mui/material';
+import { Button, Dialog, Popover } from '@mui/material';
 import getBreakpoints from '@static/mediaBreakpoints';
 import { MouseEvent, useCallback, useMemo, useState } from 'react';
-import { addTag, addTagList, removeAllTags } from '@helpers/tagHelper';
+import { addTag, addTagList } from '@helpers/tagHelper';
 type KeywordManagerProps = {
   value: Set<string>;
   onChange: (value: Set<string>) => void;
@@ -12,7 +12,6 @@ type KeywordManagerProps = {
 export default function KeywordManager({ value, onChange }: KeywordManagerProps) {
   const [popoverAnchor, setPopoverAnchor] = useState<null | HTMLElement>(null);
   const [dialogState, setDialogState] = useState<boolean>(false);
-  const [deleteAllDialogState, setDeleteAllDialogState] = useState<boolean>(false);
 
   const closePopupAndDialog = useCallback(() => {
     setPopoverAnchor(null);
@@ -39,9 +38,9 @@ export default function KeywordManager({ value, onChange }: KeywordManagerProps)
     []
   );
 
-  const handleDeleteAllTags = useCallback(() => {
-    onChange(removeAllTags());
-  }, [onChange]);
+  const deleteAllTags = () => {
+    if (confirm('Вы уверены что хотите удалить все теги?')) onChange(new Set());
+  };
 
   return (
     <div>
@@ -50,38 +49,17 @@ export default function KeywordManager({ value, onChange }: KeywordManagerProps)
           <Button onClick={openPopupOrDialog} color='secondary' variant='outlined' className='!rounded-full '>
             Создать
           </Button>
-          <Popover {...popoverPosition} onClose={() => setPopoverAnchor(null)} open={Boolean(popoverAnchor)} anchorEl={popoverAnchor}>
-            <TagInput onClose={closePopupAndDialog} onAdd={handleAddTag} />
-          </Popover>
-          <Button onClick={() => setDeleteAllDialogState(true)} variant='outlined' color='error' className='!rounded-full'>
+          <Button onClick={deleteAllTags} variant='outlined' color='error' className='!rounded-full'>
             Удалить все
           </Button>
         </div>
+
+        <Popover {...popoverPosition} onClose={() => setPopoverAnchor(null)} open={Boolean(popoverAnchor)} anchorEl={popoverAnchor}>
+          <TagInput onClose={closePopupAndDialog} onAdd={handleAddTag} />
+        </Popover>
+
         <Dialog open={dialogState} onClose={() => setDialogState(false)}>
           <TagInput onClose={closePopupAndDialog} onAdd={handleAddTag} />
-        </Dialog>
-        <Dialog open={deleteAllDialogState} onClose={() => setDeleteAllDialogState(false)}>
-          <div className='p-2'>
-            <DialogTitle>
-              Вы уверены что хотите <br />
-              удалить все теги?
-            </DialogTitle>
-            <div className='flex gap-1'>
-              <Button onClick={() => setDeleteAllDialogState(false)} className='!w-full' variant='contained'>
-                Отменить
-              </Button>
-              <Button
-                onClick={() => {
-                  setDeleteAllDialogState(false);
-                  handleDeleteAllTags();
-                }}
-                className='!w-full'
-                variant='contained'
-                color='error'>
-                Удалить
-              </Button>
-            </div>
-          </div>
         </Dialog>
       </div>
       <TagList editable={true} value={value} onChange={onChange} />

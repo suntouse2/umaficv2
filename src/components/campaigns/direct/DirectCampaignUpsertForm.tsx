@@ -73,7 +73,7 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
     { name: 'Аудитория', disabled: Boolean(errors.settings?.profile) },
     { name: 'Таргет', disabled: Boolean(errors.settings?.profile) },
     { name: 'Сообщения', disabled: Boolean(errors.settings?.profile) || Boolean(errors.settings?.target) },
-    { name: 'Запуск', disabled: Boolean(errors.settings?.profile) || Boolean(watch('settings.auto_reply.funnel.funnel_type') == 'order' ? errors.settings?.auto_reply?.funnel?.order : errors.temporary?.first_message) },
+    { name: 'Запуск', disabled: Boolean(errors.settings?.profile) || Boolean(errors.temporary?.first_message) },
   ];
 
   const values = watch();
@@ -219,22 +219,28 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
 
             <div className={`block ${watch('settings.auto_reply.funnel.funnel_type') == 'keyword' && 'hidden'}`}>
               <Bubble className='mt-2 relative'>
-                <TipBox content={tips.orderMessage} />
-                <h2 className='text-lg font-bold'>Настройка диалога по порядку</h2>
-                <p className='text-sm mb-4'>Сообщения, которые будут отправляться, если не выбраны ключевые слова.</p>
+                <TipBox content={tips.firstMessage} />
+                <h2 className='text-lg font-bold'>Первое сообщение</h2>
+                <p className='text-sm mb-4'>Сообщение, которое будет отправлено в чат или в личные сообщения первым.</p>
                 <Controller
                   rules={{
                     validate: {
                       required: (e) => e && e.length > 0,
-                      lessThan5: (e) => (e && e[0] && e[0].messages.length >= 5) || 'Должно быть минимум 5 вариантов сообщения с порядком 1',
-                      hasLink: (e) => (e && e[0].messages.every((msg) => !containsLink(msg.message))) || 'В  сообщение по порядку 1 не должно быть ссылок',
+                      lessThan5: (e) => (e && e[0] && e[0].messages.length >= 5) || 'Должно быть минимум 5 вариантов первого сообщения',
+                      hasLink: (e) => (e && e[0].messages.every((msg) => !containsLink(msg.message))) || 'В первом сообщение не должно быть ссылок',
                     },
                   }}
                   defaultValue={[]}
                   control={control}
-                  name='settings.auto_reply.funnel.order'
-                  render={({ field: { value, onChange }, fieldState: { error } }) => <CampaignMessageManager error={error?.message} filter_type='order' value={value} onChange={onChange} />}
+                  name='temporary.first_message'
+                  render={({ field: { value, onChange }, fieldState: { error } }) => <CampaignMessageManager filter_type='none' value={value} onChange={onChange} maxMsgLength={150} error={error?.message} />}
                 />
+              </Bubble>
+              <Bubble className='mt-2 relative'>
+                <TipBox content={tips.orderMessage} />
+                <h2 className='text-lg font-bold'>Настройка диалога по порядку</h2>
+                <p className='text-sm mb-4'>Сообщения, которые будут отправляться по порядку возрастания.</p>
+                <Controller defaultValue={[]} control={control} name='settings.auto_reply.funnel.order' render={({ field: { value, onChange }, fieldState: { error } }) => <CampaignMessageManager error={error?.message} filter_type='order' value={value} onChange={onChange} />} />
               </Bubble>
             </div>
 
@@ -266,7 +272,7 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
               <Bubble className='mt-2 relative'>
                 <TipBox content={tips.anyMessage} />
                 <h2 className='text-lg font-bold'>Настройка диалога на любые фразы</h2>
-                <p className='text-sm mb-4'>Сообщения, которые будут отправляться, если не выбраны другие настройки.</p>
+                <p className='text-sm mb-4'>Сообщения, которые будут отправляться, если нет ключевых фраз.</p>
                 <Controller defaultValue={[]} control={control} name='temporary.any_message' render={({ field: { value, onChange } }) => <CampaignMessageManager filter_type='none' value={value} onChange={onChange} />} />
               </Bubble>
             </div>

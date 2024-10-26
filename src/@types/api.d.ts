@@ -154,7 +154,7 @@ type TChatDirect = {
         region: string;
         link: string;
       };
-    };
+    } | null;
     reply_to: number | null;
   };
   unread_count: number;
@@ -191,9 +191,9 @@ type TChatMessage = {
       region: string;
       link: string;
     };
-  };
+  } | null;
   catch_slug: string;
-  reply_to: number;
+  reply_to: number | null;
 };
 type TChatSendMessage = {
   content: TMessageContent;
@@ -234,7 +234,6 @@ type TUserResponse = {
   last_name: string;
   is_superuser: boolean;
   is_operator: boolean;
-  is_debug: boolean;
   balance: string;
   created_at: Date;
 };
