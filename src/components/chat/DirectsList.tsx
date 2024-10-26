@@ -3,16 +3,15 @@ import Direct from '@components/chat/Direct';
 import { Virtuoso } from 'react-virtuoso';
 import { useChat } from '@context/chat/ChatContext';
 import { ToggleButtonGroup, ToggleButton } from '@mui/material';
-import DirectService from '@api/http/services/chat/DirectService';
 
 export default function DirectsList() {
-  const { isFavorite, directs, setIsFavorite, fetchNextDirects, campaignId } = useChat();
+  const { isFavorite, directs, setIsFavorite, fetchNextDirects, campaignId, openDirect } = useChat();
 
   const navigate = useNavigate();
 
   const handleDirectClick = ({ id }: TChatDirect) => {
     if (directs.find((direct) => direct.id == id)?.is_open == false) {
-      DirectService.updateDirect(id, { is_open: true });
+      openDirect(id);
     }
     navigate(`/chat/${campaignId}/${id}`);
   };

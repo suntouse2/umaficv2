@@ -16,6 +16,7 @@ type TChatContext = {
   setIsFavorite: (isFavorite: boolean) => void;
   messages: TChatDirectMessagesResponse;
   directId: number | null;
+  openDirect: (direct_id: number) => Promise<void>;
   readMessage: (direct_id: number, msg_id: number) => Promise<void>;
   campaignId: number;
   sendMessage: (msg: TChatSendMessage) => Promise<{ catch_slug: string } | undefined>;
@@ -111,6 +112,15 @@ export function ChatProvider({ children, campaignId, directId }: PropsWithChildr
     if (!directId) return [];
     return messagesCache[directId] ?? [];
   }, [directId, messagesCache]);
+
+  const openDirect = useCallback(async (direct_id: number) => {
+    try {
+      await DirectService.updateDirect(direct_id, { is_open: true });
+      setDirects((directs) => directs.map((direct) => (direct.id === direct_id ? { ...direct, is_open: true } : direct)));
+    } catch {
+      //
+    }
+  }, []);
 
   const setDirectFavorite = useCallback(
     async (direct_id: number, isFavorite: boolean) => {
@@ -254,6 +264,7 @@ export function ChatProvider({ children, campaignId, directId }: PropsWithChildr
         setIsFavorite,
         sendMessage,
         directs,
+        openDirect,
         messages,
         campaignId,
         directId,
