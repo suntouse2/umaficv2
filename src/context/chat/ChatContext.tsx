@@ -1,7 +1,6 @@
 import DirectService from '@api/http/services/chat/DirectService';
 import { createContext, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState, useContext } from 'react';
 
-// Define the types for the context
 type ChatProviderProps = {
   directId: number | null;
   campaignId: number;
@@ -22,11 +21,15 @@ type TChatContext = {
   sendMessage: (msg: TChatSendMessage) => Promise<{ catch_slug: string } | undefined>;
 };
 
-// Create the context
 const chatContext = createContext<TChatContext | null>(null);
 
 export function ChatProvider({ children, campaignId, directId }: PropsWithChildren<ChatProviderProps>) {
   const wsRef = useRef<WebSocket | null>(null);
+  const directIdRef = useRef(directId);
+
+  useEffect(() => {
+    directIdRef.current = directId;
+  }, [directId]);
 
   useEffect(() => {
     const wsUrl = `${import.meta.env.VITE_WS_URL}/directs/messages?campaign_id=${campaignId}&token=${localStorage.getItem('access_token')}`;
@@ -35,68 +38,67 @@ export function ChatProvider({ children, campaignId, directId }: PropsWithChildr
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      {
-        if (data !== null) {
-          const wsMsg = data as TChatMessage & { direct_id: number };
+      const currentDirectId = directIdRef.current;
 
-          setDirects((directs) => {
-            const updatedDirects = directs.map((direct) => {
-              if (direct.id === wsMsg.direct_id) {
-                const updatedDirect = { ...direct, last_message: wsMsg };
-                if (direct.id !== directId) {
-                  updatedDirect.unread_count = (updatedDirect.unread_count ?? 0) + 1;
-                }
-                return updatedDirect;
+      if (data) {
+        const wsMsg = data as TChatMessage & { direct_id: number };
+
+        setDirects((directs) => {
+          const updatedDirects = directs.map((direct) => {
+            if (direct.id === wsMsg.direct_id) {
+              const updatedDirect = { ...direct, last_message: wsMsg };
+              if (direct.id !== currentDirectId && wsMsg.is_self == false) {
+                updatedDirect.unread_count = (updatedDirect.unread_count ?? 0) + 1;
               }
-              return direct;
-            });
-
-            const direct = updatedDirects.find((d) => d.id === wsMsg.direct_id);
-            if (direct) {
-              return [direct, ...updatedDirects.filter((d) => d.id !== wsMsg.direct_id)];
+              return updatedDirect;
             }
-            return updatedDirects;
+            return direct;
           });
 
-          setMessagesCache((currentMessages) => {
-            if (!currentMessages[wsMsg.direct_id]) {
-              console.log('Messages for this direct are not loaded yet');
-              return currentMessages;
-            }
+          const direct = updatedDirects.find((d) => d.id === wsMsg.direct_id);
+          if (direct) {
+            return [direct, ...updatedDirects.filter((d) => d.id !== wsMsg.direct_id)];
+          }
+          return updatedDirects;
+        });
 
-            const messages = currentMessages[wsMsg.direct_id];
-            if (wsMsg.is_self) {
-              const indexOfTempMessage = messages.findIndex((tempMessage) => tempMessage.catch_slug === wsMsg.catch_slug);
+        setMessagesCache((currentMessages) => {
+          if (!currentMessages[wsMsg.direct_id]) {
+            return currentMessages;
+          }
 
-              if (indexOfTempMessage !== -1) {
-                const updatedMessages = [...messages];
-                updatedMessages[indexOfTempMessage] = wsMsg;
-                return { ...currentMessages, [wsMsg.direct_id]: updatedMessages };
-              } else {
-                return { ...currentMessages, [wsMsg.direct_id]: [...messages, wsMsg] };
-              }
+          const messages = currentMessages[wsMsg.direct_id];
+          if (wsMsg.is_self) {
+            const indexOfTempMessage = messages.findIndex((tempMessage) => tempMessage.catch_slug === wsMsg.catch_slug);
+
+            if (indexOfTempMessage !== -1) {
+              const updatedMessages = [...messages];
+              updatedMessages[indexOfTempMessage] = wsMsg;
+              return { ...currentMessages, [wsMsg.direct_id]: updatedMessages };
             } else {
               return { ...currentMessages, [wsMsg.direct_id]: [...messages, wsMsg] };
             }
-          });
-        }
+          } else {
+            return { ...currentMessages, [wsMsg.direct_id]: [...messages, wsMsg] };
+          }
+        });
       }
-
-      ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
-      };
-
-      ws.onclose = () => {
-        console.log('WebSocket connection closed');
-      };
-
-      return () => {
-        if (wsRef.current) {
-          wsRef.current.close();
-        }
-      };
     };
-  }, [campaignId, directId]);
+
+    ws.onerror = (error) => {
+      console.error('WebSocket error:', error);
+    };
+
+    ws.onclose = () => {
+      console.log('WebSocket connection closed');
+    };
+
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+    };
+  }, [campaignId]);
 
   const [directsPage, setDirectsPage] = useState<number>(1);
   const [messagesPage, setMessagesPage] = useState<{ [key: number]: number }>({});
@@ -104,7 +106,7 @@ export function ChatProvider({ children, campaignId, directId }: PropsWithChildr
   const [messagesCache, setMessagesCache] = useState<{ [key: number]: TChatDirectMessagesResponse }>({});
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
   const [currentDirect, setCurrentDirect] = useState<TChatDirectResponse | null>(null);
-
+  const [hasNextDirectPage, setHasNextDirectPage] = useState<boolean>(true);
   const messages = useMemo(() => {
     if (!directId) return [];
     return messagesCache[directId] ?? [];
@@ -126,17 +128,21 @@ export function ChatProvider({ children, campaignId, directId }: PropsWithChildr
   );
 
   const fetchNextDirects = useCallback(async () => {
+    if (!hasNextDirectPage) return;
     const page = directsPage + 1;
     setDirectsPage(page);
     const params = isFavorite ? { is_favorite: true } : undefined;
     const { data } = await DirectService.getDirects(campaignId, page, params);
     if (data.length > 0) {
       setDirects((prevDirects) => [...prevDirects, ...data]);
+    } else {
+      setHasNextDirectPage(false);
     }
-  }, [directsPage, campaignId, isFavorite]);
+  }, [hasNextDirectPage, directsPage, isFavorite, campaignId]);
 
   const fetchDirects = useCallback(async () => {
     const page = 1;
+    setHasNextDirectPage(true);
     setDirectsPage(page);
     const params = isFavorite ? { is_favorite: true } : undefined;
     const { data } = await DirectService.getDirects(campaignId, page, params);
@@ -225,10 +231,6 @@ export function ChatProvider({ children, campaignId, directId }: PropsWithChildr
       }));
     }
   }, [directId, messagesCache]);
-
-  useEffect(() => {
-    fetchDirects();
-  }, [fetchDirects]);
 
   useEffect(() => {
     fetchMessages();
