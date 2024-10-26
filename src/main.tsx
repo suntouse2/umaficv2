@@ -1,4 +1,4 @@
-import { StrictMode, Suspense } from 'react';
+import { Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createHashRouter, RouterProvider } from 'react-router-dom';
 import { routes } from '@static/routes';
@@ -18,16 +18,14 @@ const router = createHashRouter(routes);
 const queryClient = new QueryClient();
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <ThemeProvider theme={THEME}>
-          <ToastContainer position='top-center' autoClose={2000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss pauseOnHover theme='colored' />
-          <Suspense fallback={<PageGate text='' loading={true} />}>
-            <RouterProvider router={router} />
-          </Suspense>
-        </ThemeProvider>
-      </AuthProvider>
-    </QueryClientProvider>
-  </StrictMode>
+  <QueryClientProvider client={queryClient}>
+    <AuthProvider>
+      <ThemeProvider theme={THEME}>
+        <ToastContainer position='top-center' autoClose={2000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss pauseOnHover theme='colored' />
+        <Suspense fallback={<PageGate text='' loading={true} />}>
+          <RouterProvider router={router} />
+        </Suspense>
+      </ThemeProvider>
+    </AuthProvider>
+  </QueryClientProvider>
 );

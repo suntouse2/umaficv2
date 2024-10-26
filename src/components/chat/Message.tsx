@@ -17,7 +17,7 @@ export default function Message({ message }: { message: TChatMessage }) {
       if (!directId) return;
       readMessage(directId, message.id);
     }
-  }, [campaignId, directId, message.id, message.is_read, readMessage]);
+  }, [campaignId, directId, message, message.id, message.is_read, readMessage]);
 
   const linkDecorator = (href: string, text: string, key?: React.Key | null) => (
     <a className={`underline ${message.is_self ? 'text-white' : 'text-primary'}`} href={href} key={key} target='_blank' rel='noopener noreferrer'>
