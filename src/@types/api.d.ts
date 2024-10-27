@@ -282,3 +282,5 @@ type TPaymentResponse = {
   acquiring_url: string;
   created_at: Date;
 };
+
+type TSpintaxResponse = string[];

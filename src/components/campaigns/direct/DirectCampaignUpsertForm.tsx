@@ -28,17 +28,15 @@ type UpsertFormType = TDirectCampaignSettings & {
 };
 
 export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType; id?: number }) {
-  const CampaignLocalStorageName = `${id}-direct_campaign_unsaved_settings`;
-
   const {
     control,
     watch,
     setValue,
     getValues,
-    formState: { errors, isDirty },
+    formState: { errors },
     trigger,
   } = useForm<UpsertFormType>({
-    defaultValues: localStorage.getItem(CampaignLocalStorageName) ? JSON.parse(localStorage.getItem(CampaignLocalStorageName) as string) : data,
+    defaultValues: data,
     mode: 'onChange',
     reValidateMode: 'onChange',
   });
@@ -76,17 +74,9 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
     { name: 'Запуск', disabled: Boolean(errors.settings?.profile) || Boolean(errors.temporary?.first_message) },
   ];
 
-  const values = watch();
-
   useEffect(() => {
     trigger();
   }, [trigger]);
-
-  useEffect(() => {
-    if (isDirty && id) {
-      localStorage.setItem(CampaignLocalStorageName, JSON.stringify(values));
-    }
-  }, [CampaignLocalStorageName, isDirty, id, values]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement> | MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -106,7 +96,6 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
     }
     if (data && id) {
       await editCampaign({ id: id, data: transposedData });
-      localStorage.removeItem(CampaignLocalStorageName);
       return navigate('/campaigns/direct');
     }
   };
@@ -115,7 +104,6 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
     <>
       <form onSubmit={handleSubmit} className='mx-auto w-full h-full max-w-[600px]'>
         <h1 className='text-2xl font-bold'>Поиск клиентов</h1>
-        {localStorage.getItem(CampaignLocalStorageName) && <p className='text-warning'>Настройки не сохранены</p>}
         <Link to='/campaigns/direct'>
           <Button color='secondary'>
             <ArrowBack />

@@ -1,10 +1,12 @@
 import CampaignMessageCreator from '@components/campaigns/CampaignMessageCreator';
 import { areEqualArrays } from '@helpers/areEqualArrays';
-import { Button, Dialog } from '@mui/material';
+import { Button, Dialog, IconButton } from '@mui/material';
 import { useState } from 'react';
 import MediaRenderer from '@components/MediaRenderer';
-import { Delete } from '@mui/icons-material';
+import { AutoAwesome, Delete, Edit } from '@mui/icons-material';
 import { toast } from 'react-toastify';
+import ValueTuner from '@components/common/ValueTuner';
+import SpintaxService from '@api/http/services/SpintaxService';
 
 type CampaignMessageProps = {
   value: {
@@ -26,7 +28,7 @@ type CurrentMessage = {
 };
 
 export default function CampaignMessageManager({ value, onChange, filter_type, error, maxMsgLength }: CampaignMessageProps) {
-  const initialData = () => ({
+  const initialData = {
     index: -1,
     message: {
       message: '',
@@ -34,9 +36,10 @@ export default function CampaignMessageManager({ value, onChange, filter_type, e
     },
     ...(filter_type === 'order' && { order: (value.slice(-1)[0]?.order ?? 1) + 1 }),
     ...(filter_type === 'keyword' && { keywords: [] }),
-  });
+  };
   const [dialogState, setDialogState] = useState<boolean>(false);
   const [currentMessage, setCurrentMessage] = useState<CurrentMessage>(initialData);
+  const [aiMaxVariant, setAIMaxVariant] = useState<number>(5);
 
   const updateMessage = (data: { message: TFunnelMessage; order?: number; keywords?: string[] }) => {
     const filterIndex = value.findIndex((o) => (filter_type === 'order' ? o.order === currentMessage.order : areEqualArrays(o.keywords, currentMessage.keywords)));
@@ -81,6 +84,19 @@ export default function CampaignMessageManager({ value, onChange, filter_type, e
     setDialogState(true);
   };
 
+  const handleAI = async (message: string, e: number, filter: { order?: number; keywords?: string[] }) => {
+    try {
+      setAIMaxVariant(e);
+      const { data } = await SpintaxService.spintax(message, e);
+      console.log(filter);
+
+      setCurrentMessage(initialData);
+      data.forEach((msg) => updateMessage({ message: { message: msg, media: null }, ...filter }));
+    } catch {
+      toast.error('Не получилось добавить еще вариантов через нейросеть.');
+    }
+  };
+
   const handleEditMessage = (filterIndex: number, messageIndex: number) => {
     setCurrentMessage({
       index: messageIndex,
@@ -111,15 +127,38 @@ export default function CampaignMessageManager({ value, onChange, filter_type, e
           value.length > 0 &&
           value.map((v, i) =>
             v.messages.map((m, i2) => (
-              <li className='bg-inputbg max-w-full p-4 rounded-sm overflow-hidden' key={`${i}-${i2}`} onClick={() => handleEditMessage(i, i2)} style={{ cursor: 'pointer' }}>
-                <div className='flex justify-end mb-2'>
-                  <Delete
+              <li
+                className='bg-inputbg max-w-full p-4 rounded-sm overflow-hidden'
+                key={`${i}-${i2}`}
+                onClick={(e) => {
+                  if (e.target === e.currentTarget) {
+                    handleEditMessage(i, i2);
+                  }
+                }}
+                style={{ cursor: 'pointer' }}>
+                <div className='flex justify-end items-center mb-2'>
+                  <ValueTuner
+                    icon={<AutoAwesome />}
+                    showNumber={false}
+                    type='number'
+                    onChange={(e) => {
+                      handleAI(m.message, Math.min(Number(e), 20), { keywords: v.keywords, order: v.order });
+                    }}
+                    value={aiMaxVariant.toString()}></ValueTuner>
+                  <IconButton
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEditMessage(i, i2);
+                    }}>
+                    <Edit />
+                  </IconButton>
+                  <IconButton
                     onClick={(e) => {
                       e.stopPropagation();
                       removeMessage(i, i2);
-                    }}
-                    className='hover:text-negative'
-                  />
+                    }}>
+                    <Delete />
+                  </IconButton>
                 </div>
                 <p className='break-words max-w-full mb-4'>{m.message}</p>
                 {m.media !== null && <MediaRenderer media={m.media} />}

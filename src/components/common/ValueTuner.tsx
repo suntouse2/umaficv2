@@ -1,14 +1,16 @@
 import { Check, Edit } from '@mui/icons-material';
 import { IconButton, Input, Popover } from '@mui/material';
-import { ChangeEvent, KeyboardEvent, memo, useState } from 'react';
+import { ChangeEvent, KeyboardEvent, memo, ReactElement, useState } from 'react';
 
 type ValueTunerProps = {
   value: string;
   type?: 'string' | 'number';
+  showNumber?: boolean;
+  icon?: ReactElement;
   onChange: (value: string) => void;
 };
 
-export default memo(function ValueTuner({ value, onChange, type = 'string' }: ValueTunerProps) {
+export default memo(function ValueTuner({ value, onChange, type = 'string', icon, showNumber = true }: ValueTunerProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [inputValue, setInputValue] = useState<string>(value);
 
@@ -32,9 +34,14 @@ export default memo(function ValueTuner({ value, onChange, type = 'string' }: Va
     <>
       <span className='flex items-center'>
         <div className='flex items-center'>
-          {value}
-          <IconButton onClick={(e) => setAnchorEl(e.currentTarget)} size='small'>
-            <Edit />
+          {showNumber && value}
+          <IconButton
+            onClick={(e) => {
+              e.stopPropagation();
+              setAnchorEl(e.currentTarget);
+            }}
+            size='small'>
+            {icon ? icon : <Edit />}
           </IconButton>
         </div>
       </span>
