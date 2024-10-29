@@ -93,7 +93,11 @@ type TDirectCampaignSettings = {
     target: TCampaignSettingsTarget;
     auto_reply: {
       funnel: TCampaignSettingsFunnel;
-      ai: null;
+      assistant: {
+        role: 'marketer' | 'user';
+        description: string;
+      } | null;
+      use_assistant: boolean;
     };
     profile: TCampaignSettingsProfile;
   };

@@ -9,9 +9,9 @@ import CampaignCheckSettings from '@components/campaigns/CampaignCheckSettings';
 import { FormEvent, MouseEvent, useEffect, useMemo, useState } from 'react';
 import CampaignMessageManager from '@components/campaigns/CampaignMessageManager';
 import Avatar from '@components/Avatar';
-import { ToggleButtonGroup, ToggleButton, Tabs, Tab, Button } from '@mui/material';
+import { ToggleButtonGroup, ToggleButton, Tabs, Tab, Button, Switch, MenuItem, Select } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { anyMessageTip, firstMessageTip, keywordMessageTip, keywordTip, locationTip, minusWordsTip, orderMessageTip, profileTip } from '@components/helpers/tips';
+import { aiMessageTip, anyMessageTip, firstMessageTip, keywordMessageTip, keywordTip, locationTip, minusWordsTip, orderMessageTip, profileTip } from '@components/helpers/tips';
 import formatBalance from '@helpers/formatBalance';
 import { toast } from 'react-toastify';
 import parseBudget from '@helpers/parseBudget';
@@ -60,6 +60,7 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
       keywordMessage: keywordMessageTip,
       orderMessage: orderMessageTip,
       anyMessage: anyMessageTip,
+      aiMessage: aiMessageTip,
     }),
     []
   );
@@ -71,7 +72,7 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
     { name: 'Аудитория', disabled: Boolean(errors.settings?.profile) },
     { name: 'Таргет', disabled: Boolean(errors.settings?.profile) },
     { name: 'Сообщения', disabled: Boolean(errors.settings?.profile) || Boolean(errors.settings?.target) },
-    { name: 'Запуск', disabled: Boolean(errors.settings?.profile) || Boolean(errors.temporary?.first_message) },
+    { name: 'Запуск', disabled: Boolean(errors.settings?.profile) || Boolean(errors.temporary?.first_message) || (watch('settings.auto_reply.use_assistant') ? Boolean(errors.settings?.auto_reply?.assistant?.description) : false) },
   ];
 
   useEffect(() => {
@@ -86,9 +87,15 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
     if (Number(getValues('budget_limit')) < 8) return toast.error('Бюджет кампании должен быть больше или равен 8₽');
 
     const requestData = getValues();
+    console.log(requestData);
+
     const transposedData = mapDirectCampaignSettingsToResponse(requestData);
 
     if (transposedData == undefined) return;
+
+    if (transposedData.settings.auto_reply.use_assistant == false) {
+      transposedData.settings.auto_reply.assistant = null;
+    }
 
     if (data == undefined) {
       await createCampaign({ data: transposedData });
@@ -264,6 +271,78 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
                 <Controller defaultValue={[]} control={control} name='temporary.any_message' render={({ field: { value, onChange } }) => <CampaignMessageManager filter_type='none' value={value} onChange={onChange} />} />
               </Bubble>
             </div>
+            <Bubble className='mt-2 relative'>
+              <TipBox content={tips.aiMessage} />
+              <h2 className='text-lg font-bold'>Настройка диалога с искусственным интеллектом</h2>
+              <p className='text-sm mb-4'>Настройка искусственного интеллекта для продолжения общения.</p>
+              <div>
+                <span>Включить искусственный интеллект </span>
+                <Controller
+                  defaultValue={false}
+                  control={control}
+                  name='settings.auto_reply.use_assistant'
+                  render={({ field: { value, onChange } }) => {
+                    return (
+                      <>
+                        <Switch checked={value} onChange={(_v, v) => onChange(v)} size='small' />
+                      </>
+                    );
+                  }}
+                />
+              </div>
+              <div className={`block ${watch('settings.auto_reply.use_assistant') == false && 'hidden'}`}>
+                <Controller
+                  defaultValue='user'
+                  control={control}
+                  name='settings.auto_reply.assistant.role'
+                  render={({ field: { value, onChange } }) => {
+                    return (
+                      <>
+                        <Select
+                          labelId='demo-simple-select-label'
+                          id='demo-simple-select'
+                          className='mt-2'
+                          value={value}
+                          onChange={(e) => {
+                            onChange(e.target.value);
+                          }}>
+                          <MenuItem value='marketer'>Маркетолог</MenuItem>
+                          <MenuItem value='user'>Пользователь</MenuItem>
+                        </Select>
+                      </>
+                    );
+                  }}
+                />
+                <Controller
+                  defaultValue=''
+                  control={control}
+                  rules={{
+                    required: {
+                      value: true,
+                      message: 'Описание не может быть пустым.',
+                    },
+                  }}
+                  name='settings.auto_reply.assistant.description'
+                  render={({ field: { value, onChange }, fieldState: { error } }) => {
+                    return (
+                      <div className='mt-2 w-full'>
+                        <p>Описание (задача) для искусственного интеллекта:</p>
+                        <Input
+                          max={2048}
+                          error={error?.message}
+                          className='w-full'
+                          resize
+                          value={value ?? ''}
+                          onChange={(v) => {
+                            onChange(v);
+                          }}
+                        />
+                      </div>
+                    );
+                  }}
+                />
+              </div>
+            </Bubble>
           </div>
           <div className={`block ${currentStep !== 4 && 'hidden'}`}>
             <Bubble>

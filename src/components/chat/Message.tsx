@@ -1,7 +1,6 @@
 import MediaRenderer from '@components/MediaRenderer';
 import dateToString from '@helpers/dateToString';
 import React, { useEffect } from 'react';
-import './chat.css';
 import ReactLinkify from 'react-linkify';
 import { AccessTime } from '@mui/icons-material';
 import { useChat } from '@context/chat/ChatContext';

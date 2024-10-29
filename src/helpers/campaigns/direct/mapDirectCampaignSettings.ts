@@ -9,6 +9,7 @@ export function mapDirectCampaignSettingsToResponse(
   const transposedData = { ...data };
   const firstMessages = transposedData?.temporary?.first_message[0]?.messages;
   const firstOrderIndex = transposedData.settings.auto_reply.funnel.order.findIndex((order) => order.order == 1);
+
   if (!firstMessages || firstMessages.length == 0) return;
 
   if (firstOrderIndex === -1) {
