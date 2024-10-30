@@ -31,6 +31,13 @@ export function useToggleDirectCampaign() {
   return useMutation({
     mutationKey: ['toggle-campaign'],
     mutationFn: ({ id, campaignState }: { id: number; campaignState: TDirectCampaign['state'] }) => (campaignState == 'active' ? DirectCampaignService.stopCampaign(id) : DirectCampaignService.startCampaign(id)),
+    onError: (e) => {
+      if (e instanceof AxiosError) {
+        if (e.response?.data.detail && typeof e.response?.data.detail == 'string') {
+          toast.error(e.response?.data.detail);
+        }
+      }
+    },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['get-direct-campaigns'] });
     },

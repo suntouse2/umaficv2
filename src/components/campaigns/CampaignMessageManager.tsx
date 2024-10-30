@@ -5,8 +5,7 @@ import { useState } from 'react';
 import MediaRenderer from '@components/MediaRenderer';
 import { AutoAwesome, Delete, Edit } from '@mui/icons-material';
 import { toast } from 'react-toastify';
-import ValueTuner from '@components/common/ValueTuner';
-import SpintaxService from '@api/http/services/SpintaxService';
+import UtilsService from '@api/http/services/UtilsService';
 
 type CampaignMessageProps = {
   value: {
@@ -39,7 +38,6 @@ export default function CampaignMessageManager({ value, onChange, filter_type, e
   };
   const [dialogState, setDialogState] = useState<boolean>(false);
   const [currentMessage, setCurrentMessage] = useState<CurrentMessage>(initialData);
-  const [aiMaxVariant, setAIMaxVariant] = useState<number>(5);
 
   const updateMessage = (data: { message: TFunnelMessage; order?: number; keywords?: string[] }) => {
     const filterIndex = value.findIndex((o) => (filter_type === 'order' ? o.order === currentMessage.order : areEqualArrays(o.keywords, currentMessage.keywords)));
@@ -84,12 +82,10 @@ export default function CampaignMessageManager({ value, onChange, filter_type, e
     setDialogState(true);
   };
 
-  const handleAI = async (message: string, e: number, filter: { order?: number; keywords?: string[] }) => {
+  const handleAI = async (message: string, filter: { order?: number; keywords?: string[] }) => {
     try {
-      setAIMaxVariant(e);
-      const { data } = await SpintaxService.spintax(message, e);
-      console.log(filter);
-
+      toast.info('Генерация вариантов...');
+      const { data } = await UtilsService.spintax(message, 5);
       setCurrentMessage(initialData);
       data.forEach((msg) => updateMessage({ message: { message: msg, media: null }, ...filter }));
     } catch {
@@ -137,14 +133,13 @@ export default function CampaignMessageManager({ value, onChange, filter_type, e
                 }}
                 style={{ cursor: 'pointer' }}>
                 <div className='flex justify-end items-center mb-2'>
-                  <ValueTuner
-                    icon={<AutoAwesome />}
-                    showNumber={false}
-                    type='number'
-                    onChange={(e) => {
-                      handleAI(m.message, Math.min(Number(e), 20), { keywords: v.keywords, order: v.order });
-                    }}
-                    value={aiMaxVariant.toString()}></ValueTuner>
+                  <IconButton
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAI(m.message, { keywords: v.keywords, order: v.order });
+                    }}>
+                    <AutoAwesome />
+                  </IconButton>
                   <IconButton
                     onClick={(e) => {
                       e.stopPropagation();

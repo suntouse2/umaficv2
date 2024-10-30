@@ -23,6 +23,12 @@ export default function Direct({ direct, onClick }: DirectProps) {
         <p className='flex justify-between gap-5 w-full overflow-hidden'>
           <b className={`whitespace-nowrap text-dark ${isUnRead && '!text-primary'}`}>{direct.user.first_name + ' ' + (direct.user.last_name ?? '')}</b> {direct.last_message && <span className='text-sm whitespace-nowrap text-softgray4'>{direct.last_message.date ? dateToString(new Date(direct.last_message.date)) : <AccessTime className='!text-sm' />}</span>}
         </p>
+        {(!direct.last_message?.content?.message || !direct.last_message?.content?.media) && (
+          <p className={`whitespace-nowrap ${isUnRead && '!text-primary'} text-dark w-full overflow-hidden text-ellipsis`}>
+            {direct.last_message?.forwarded_message?.content?.message}
+            {direct.last_message?.forwarded_message?.content?.media && mediaToText(direct.last_message.forwarded_message.content.media.type)}
+          </p>
+        )}
         <p className={`whitespace-nowrap ${isUnRead && '!text-primary'} text-dark w-full overflow-hidden text-ellipsis`}>
           {direct.last_message?.content?.message}
           {direct.last_message?.content?.media && mediaToText(direct.last_message.content.media.type)}

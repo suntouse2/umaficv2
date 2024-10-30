@@ -1,5 +1,5 @@
 import { changeTag, deleteTag } from '@helpers/tagHelper';
-import { Close, Delete, TaskAlt } from '@mui/icons-material';
+import { Check, Close, Delete } from '@mui/icons-material';
 import { IconButton, Input, Popover } from '@mui/material';
 import { useState, KeyboardEvent } from 'react';
 
@@ -82,7 +82,7 @@ export default function TagList(props: TagListProps) {
               <Delete color='error' />
             </IconButton>
             <IconButton onClick={handleChangeTag}>
-              <TaskAlt color='success' />
+              <Check color='success' />
             </IconButton>
           </div>
         </Popover>

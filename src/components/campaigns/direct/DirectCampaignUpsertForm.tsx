@@ -306,8 +306,32 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
                           onChange={(e) => {
                             onChange(e.target.value);
                           }}>
-                          <MenuItem value='marketer'>Маркетолог</MenuItem>
+                          <MenuItem value='marketer'>Продажник</MenuItem>
                           <MenuItem value='user'>Пользователь</MenuItem>
+                        </Select>
+                      </>
+                    );
+                  }}
+                />
+                <div></div>
+                <Controller
+                  defaultValue={'male'}
+                  control={control}
+                  name='settings.auto_reply.assistant.gender'
+                  render={({ field: { value, onChange } }) => {
+                    return (
+                      <>
+                        <Select
+                          labelId='demo-simple-select-label'
+                          id='demo-simple-select'
+                          className='mt-2'
+                          value={value}
+                          displayEmpty
+                          onChange={(e) => {
+                            onChange(e.target.value);
+                          }}>
+                          <MenuItem value='male'>Мужчина</MenuItem>
+                          <MenuItem value='female'>Женщина</MenuItem>
                         </Select>
                       </>
                     );
@@ -326,11 +350,11 @@ export default function CampaignUpsertForm({ data, id }: { data?: UpsertFormType
                   render={({ field: { value, onChange }, fieldState: { error } }) => {
                     return (
                       <div className='mt-2 w-full'>
-                        <p>Описание (задача) для искусственного интеллекта:</p>
+                        <p>Информация для ИИ (контакты, детали, описание продукта):</p>
                         <Input
                           max={2048}
                           error={error?.message}
-                          className='w-full'
+                          className='w-full h-[200px]'
                           resize
                           value={value ?? ''}
                           onChange={(v) => {

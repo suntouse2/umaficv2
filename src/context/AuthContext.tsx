@@ -20,7 +20,6 @@ const REDIRECT_URL = 'https://t.me/UmaficTargetBot';
 export function AuthProvider({ children }: PropsWithChildren) {
   const [user, setUser] = useState<TUser | null>(null);
   const [authState, setAuthState] = useState<TLoginStatus>('pending');
-  const [token, setToken] = useState<string | null>(localStorage.getItem('access_token'));
 
   const removeAccessLinkParam = () => {
     const url = new URL(window.location.href);
@@ -30,7 +29,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   const logout = useCallback(() => {
     setUser(null);
-    setToken(null);
     localStorage.removeItem('access_token');
   }, []);
 
@@ -44,7 +42,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
       const { data: user } = await AuthService.get_user();
       setUser(user);
       setAuthState('logged');
-      removeAccessLinkParam();
     } catch (error) {
       if (error instanceof AxiosError) {
         if (!error.response) {
@@ -57,41 +54,37 @@ export function AuthProvider({ children }: PropsWithChildren) {
     }
   }, [logout]);
 
-  const loginByLink = useCallback(async () => {
+  const loginByLink = useCallback(async (access_link: string) => {
     try {
-      const access_link = searchParams('access_link');
-      if (!access_link) {
-        setAuthState('logged-out');
-        return logout();
-      }
       const { data: token } = await AuthService.get_access_token(access_link);
       localStorage.setItem('access_token', token.access_token);
-      setToken(token.access_token);
       const { data: user } = await AuthService.get_user();
       setUser(user);
       setAuthState('logged');
-      removeAccessLinkParam();
     } catch (error) {
       if (error instanceof AxiosError) {
         if (!error.response) {
           setAuthState('server error');
         } else {
           setAuthState('expired link');
-          logout();
         }
       }
     }
-  }, [logout]);
+  }, []);
 
   const login = useCallback(async () => {
     try {
-      if (token) await loginByToken();
-      if (!token) await loginByLink();
+      const access_link = searchParams('access_link');
+      removeAccessLinkParam();
+      if (access_link) {
+        await loginByLink(access_link);
+      }
+      await loginByToken();
     } catch {
       setAuthState('logged-out');
       logout();
     }
-  }, [token, loginByToken, loginByLink, logout]);
+  }, [loginByToken, loginByLink, logout]);
 
   const redirect = useCallback(() => {
     window.location.href = REDIRECT_URL;

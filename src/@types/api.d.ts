@@ -95,6 +95,7 @@ type TDirectCampaignSettings = {
       funnel: TCampaignSettingsFunnel;
       assistant: {
         role: 'marketer' | 'user';
+        gender: 'female' | 'male' | null;
         description: string;
       } | null;
       use_assistant: boolean;

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite --host --port 5434",
     "build": "tsc -b && vite build",
+    "build:dev": "tsc -b && vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
     "prepare": "husky"

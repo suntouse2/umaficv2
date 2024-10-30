@@ -42,7 +42,7 @@ export default memo(function FileViewer({ file, mediaType }: FileViewerProps) {
       content = <Voice audioFile={file} blob={blobUrl} />;
     } else if (mediaType === 'round') {
       content = <RoundVideo blob={blobUrl} />;
-    } else if (file.type === 'application/octet-stream') {
+    } else if (file.type === 'application/octet-stream' || type == 'image') {
       content = <img className='w-full h-full object-cover' src={blobUrl} alt={file.name} />;
     } else if (file.type === 'video/webm') {
       content = <video loop autoPlay muted className='w-full h-full overflow-hidden' src={blobUrl}></video>;

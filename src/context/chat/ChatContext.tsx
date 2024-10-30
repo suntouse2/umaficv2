@@ -48,7 +48,7 @@ export function ChatProvider({ children, campaignId, directId }: PropsWithChildr
           const updatedDirects = directs.map((direct) => {
             if (direct.id === wsMsg.direct_id) {
               const updatedDirect = { ...direct, last_message: wsMsg };
-              if (direct.id !== currentDirectId && wsMsg.is_self == false) {
+              if (direct.id !== currentDirectId && wsMsg.is_read == false) {
                 updatedDirect.unread_count = (updatedDirect.unread_count ?? 0) + 1;
               }
               return updatedDirect;
@@ -69,12 +69,15 @@ export function ChatProvider({ children, campaignId, directId }: PropsWithChildr
           }
 
           const messages = currentMessages[wsMsg.direct_id];
+
           if (wsMsg.is_self) {
             const indexOfTempMessage = messages.findIndex((tempMessage) => tempMessage.catch_slug === wsMsg.catch_slug);
 
-            if (indexOfTempMessage !== -1) {
+            if (indexOfTempMessage !== -1 && wsMsg.catch_slug !== null) {
+              console.log(indexOfTempMessage);
+
               const updatedMessages = [...messages];
-              updatedMessages[indexOfTempMessage] = wsMsg;
+              updatedMessages[indexOfTempMessage] = { ...wsMsg, catch_slug: 'ai' };
               return { ...currentMessages, [wsMsg.direct_id]: updatedMessages };
             } else {
               return { ...currentMessages, [wsMsg.direct_id]: [...messages, wsMsg] };
