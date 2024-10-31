@@ -266,6 +266,7 @@ type TCampaignSettingsCheckFoundMessagesResponse = {
 }[];
 type TCampaignSettingsCheckStatisticsResponse = {
   unique_users: number;
+  messages: number;
   average_unique_users_per_day: number;
   recommended_daily_budget_limit: number;
   recommended_weekly_budget_limit: number;

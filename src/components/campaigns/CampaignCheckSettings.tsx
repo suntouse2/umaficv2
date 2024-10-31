@@ -91,7 +91,8 @@ export default function CampaignCheckSettings({ value, onChange }: CampaignCheck
           open={dialogState}
           onClose={() => setDialogState(false)}>
           <div className='p-3'>
-            <p className='text-lg'>Всего найденных сообщений: {statsData?.data.unique_users}</p>
+            <p className='text-lg'>Всего сообщений: {statsData?.data.messages}</p>
+            <p className='text-lg'>Всего потенциальных клиентов: {statsData?.data.unique_users}</p>
             <p className='text-lg'>Рекомендуемый суточный бюджет: {formatBalance(statsData?.data.recommended_daily_budget_limit)}</p>
             <Tabs variant='scrollable' scrollButtons='auto' allowScrollButtonsMobile indicatorColor='secondary' textColor='secondary' value={selectedTab} onChange={handleTabChange} aria-label='tabs for settings'>
               {value.search.include.map((item, index) => (
