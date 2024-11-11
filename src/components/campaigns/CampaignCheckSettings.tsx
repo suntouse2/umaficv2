@@ -1,139 +1,204 @@
-import { useFetchSettingsCheckMsg, useFetchSettingsCheckStats } from '@api/queries';
-import dateToString from '@helpers/dateToString';
-import formatBalance from '@helpers/formatBalance';
-import { Button, ButtonGroup, Dialog, LinearProgress, Popover, Tab, Tabs, TextField } from '@mui/material';
-import { useEffect, useState } from 'react';
-import { useInView } from 'react-intersection-observer';
-import { toast } from 'react-toastify';
+import {
+	useFetchSettingsCheckMsg,
+	useFetchSettingsCheckStats,
+} from '@api/queries'
+import dateToRelativeString from '@helpers/dateToRelativeString'
+import formatBalance from '@helpers/formatBalance'
+import {
+	Button,
+	ButtonGroup,
+	Dialog,
+	LinearProgress,
+	Popover,
+	Tab,
+	Tabs,
+	TextField,
+} from '@mui/material'
+import { useEffect, useState } from 'react'
+import { useInView } from 'react-intersection-observer'
+import { toast } from 'react-toastify'
 
 type CampaignCheckSettingsProps = {
-  value: TCampaignSettingsTarget;
-  onChange: (value: TCampaignSettingsTarget) => void;
-};
+	value: TCampaignSettingsTarget
+	onChange: (value: TCampaignSettingsTarget) => void
+}
 
-export default function CampaignCheckSettings({ value, onChange }: CampaignCheckSettingsProps) {
-  const [dialogState, setDialogState] = useState<boolean>(false);
-  const [selectedTab, setSelectedTab] = useState<number>(0);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [editingKeyword, setEditingKeyword] = useState<string | null>(null);
-  const { ref, inView } = useInView();
+export default function CampaignCheckSettings({
+	value,
+	onChange,
+}: CampaignCheckSettingsProps) {
+	const [dialogState, setDialogState] = useState<boolean>(false)
+	const [selectedTab, setSelectedTab] = useState<number>(0)
+	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+	const [editingKeyword, setEditingKeyword] = useState<string | null>(null)
+	const { ref, inView } = useInView()
 
-  const keyword = value.search.include[selectedTab];
+	const keyword = value.search.include[selectedTab]
 
-  const {
-    data: msgData,
-    isFetching: isMsgFetching,
-    fetchNextPage: fetchNextMsg,
-    refetch: refetchMsg,
-  } = useFetchSettingsCheckMsg({
-    ...value,
-    search: {
-      ...value.search,
-      include: keyword ? [keyword] : [],
-    },
-  });
+	const {
+		data: msgData,
+		isFetching: isMsgFetching,
+		fetchNextPage: fetchNextMsg,
+		refetch: refetchMsg,
+	} = useFetchSettingsCheckMsg({
+		...value,
+		search: {
+			...value.search,
+			include: keyword ? [keyword] : [],
+		},
+	})
 
-  const { data: statsData } = useFetchSettingsCheckStats(value);
+	const { data: statsData } = useFetchSettingsCheckStats(value)
 
-  const handleWordClick = (event: React.MouseEvent<HTMLElement>, word: string) => {
-    setAnchorEl(event.currentTarget);
-    setEditingKeyword(word);
-  };
+	const handleWordClick = (
+		event: React.MouseEvent<HTMLElement>,
+		word: string
+	) => {
+		setAnchorEl(event.currentTarget)
+		setEditingKeyword(word)
+	}
 
-  useEffect(() => {
-    if (inView) {
-      fetchNextMsg();
-    }
-  }, [fetchNextMsg, inView]);
+	useEffect(() => {
+		if (inView) {
+			fetchNextMsg()
+		}
+	}, [fetchNextMsg, inView])
 
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
-    setSelectedTab(newValue);
-  };
+	const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
+		setSelectedTab(newValue)
+	}
 
-  const handleIncludeKeyword = () => {
-    if (!editingKeyword) return;
-    onChange({
-      ...value,
-      search: {
-        ...value.search,
-        include: Array.from(new Set([...value.search.include, editingKeyword])),
-      },
-    });
-    setAnchorEl(null);
-  };
-  const handleExcludeKeyword = () => {
-    if (!editingKeyword) return;
-    onChange({
-      ...value,
-      search: {
-        ...value.search,
-        exclude: Array.from(new Set(value.search.exclude ? [...value.search.exclude, editingKeyword] : [editingKeyword])),
-      },
-    });
-    setAnchorEl(null);
-    toast.info('Чтобы увидеть изменения, откройте проверку заново.');
-  };
+	const handleIncludeKeyword = () => {
+		if (!editingKeyword) return
+		onChange({
+			...value,
+			search: {
+				...value.search,
+				include: Array.from(new Set([...value.search.include, editingKeyword])),
+			},
+		})
+		setAnchorEl(null)
+	}
+	const handleExcludeKeyword = () => {
+		if (!editingKeyword) return
+		onChange({
+			...value,
+			search: {
+				...value.search,
+				exclude: Array.from(
+					new Set(
+						value.search.exclude
+							? [...value.search.exclude, editingKeyword]
+							: [editingKeyword]
+					)
+				),
+			},
+		})
+		setAnchorEl(null)
+		toast.info('Чтобы увидеть изменения, откройте проверку заново.')
+	}
 
-  useEffect(() => {
-    if (!dialogState) refetchMsg();
-  }, [dialogState, value.search.include, value.search.exclude, refetchMsg]);
+	useEffect(() => {
+		if (!dialogState) refetchMsg()
+	}, [dialogState, value.search.include, value.search.exclude, refetchMsg])
 
-  return (
-    <div className='mt-4'>
-      <div>
-        <Button onClick={() => setDialogState(true)} variant='outlined' color='secondary' className='!rounded-full'>
-          Проверить настройки
-        </Button>
-        <Dialog
-          PaperProps={{
-            style: { height: '100%', width: '100%' },
-          }}
-          open={dialogState}
-          onClose={() => setDialogState(false)}>
-          <div className='p-3'>
-            <p className='text-lg'>Всего сообщений: {statsData?.data.messages}</p>
-            <p className='text-lg'>Всего потенциальных клиентов: {statsData?.data.unique_users}</p>
-            <p className='text-lg'>Рекомендуемый суточный бюджет: {formatBalance(statsData?.data.recommended_daily_budget_limit)}</p>
-            <Tabs variant='scrollable' scrollButtons='auto' allowScrollButtonsMobile indicatorColor='secondary' textColor='secondary' value={selectedTab} onChange={handleTabChange} aria-label='tabs for settings'>
-              {value.search.include.map((item, index) => (
-                <Tab key={index} label={item} />
-              ))}
-            </Tabs>
-            <ul className='w-full flex flex-col gap-5 py-2'>
-              {isMsgFetching && <LinearProgress color='secondary' />}
-              {msgData?.pages.map((messages) =>
-                messages.data.map((msg) => (
-                  <li className='w-full  text-sm bg-inputbg rounded-md p-2' key={msg.id}>
-                    {msg.content.message.split(' ').map((word, index) => (
-                      <span key={index} onClick={(e) => handleWordClick(e, word)} className='cursor-pointer'>
-                        {word}{' '}
-                      </span>
-                    ))}
-                    <div className='w-full flex justify-end'>
-                      <span className='text-xs mt-2 text-softgray4'>{dateToString(new Date(msg.date))}</span>
-                    </div>
-                  </li>
-                ))
-              )}
-              {msgData?.pages[0].data.length == 0 && <p>Сообщений не найдено</p>}
-            </ul>
-            <div ref={ref}></div>
-          </div>
-          <Popover onClose={() => setAnchorEl(null)} open={Boolean(anchorEl)} anchorEl={anchorEl}>
-            <div className='bg-white p-5 flex flex-col gap-2'>
-              <TextField variant='standard' value={editingKeyword} onChange={(e) => setEditingKeyword(e.target.value)} />
-              <ButtonGroup>
-                <Button onClick={handleIncludeKeyword} color='success'>
-                  Добавить
-                </Button>
-                <Button onClick={handleExcludeKeyword} color='error'>
-                  Исключить
-                </Button>
-              </ButtonGroup>
-            </div>
-          </Popover>
-        </Dialog>
-      </div>
-    </div>
-  );
+	return (
+		<div className='mt-4'>
+			<div>
+				<Button
+					onClick={() => setDialogState(true)}
+					variant='outlined'
+					color='secondary'
+					className='!rounded-full'
+				>
+					Проверить настройки
+				</Button>
+				<Dialog
+					PaperProps={{
+						style: { height: '100%', width: '100%' },
+					}}
+					open={dialogState}
+					onClose={() => setDialogState(false)}
+				>
+					<div className='p-3'>
+						<p className='text-lg'>
+							Всего сообщений: {statsData?.data.messages}
+						</p>
+						<p className='text-lg'>
+							Всего потенциальных клиентов: {statsData?.data.unique_users}
+						</p>
+						<p className='text-lg'>
+							Рекомендуемый суточный бюджет:{' '}
+							{formatBalance(statsData?.data.recommended_daily_budget_limit)}
+						</p>
+						<Tabs
+							variant='scrollable'
+							scrollButtons='auto'
+							allowScrollButtonsMobile
+							indicatorColor='secondary'
+							textColor='secondary'
+							value={selectedTab}
+							onChange={handleTabChange}
+							aria-label='tabs for settings'
+						>
+							{value.search.include.map((item, index) => (
+								<Tab key={index} label={item} />
+							))}
+						</Tabs>
+						<ul className='w-full flex flex-col gap-5 py-2'>
+							{isMsgFetching && <LinearProgress color='secondary' />}
+							{msgData?.pages.map(messages =>
+								messages.data.map(msg => (
+									<li
+										className='w-full  text-sm bg-inputbg rounded-md p-2'
+										key={msg.id}
+									>
+										{msg.content.message.split(' ').map((word, index) => (
+											<span
+												key={index}
+												onClick={e => handleWordClick(e, word)}
+												className='cursor-pointer'
+											>
+												{word}{' '}
+											</span>
+										))}
+										<div className='w-full flex justify-end'>
+											<span className='text-xs mt-2 text-softgray4'>
+												{dateToRelativeString(new Date(msg.date))}
+											</span>
+										</div>
+									</li>
+								))
+							)}
+							{msgData?.pages[0].data.length == 0 && (
+								<p>Сообщений не найдено</p>
+							)}
+						</ul>
+						<div ref={ref}></div>
+					</div>
+					<Popover
+						onClose={() => setAnchorEl(null)}
+						open={Boolean(anchorEl)}
+						anchorEl={anchorEl}
+					>
+						<div className='bg-white p-5 flex flex-col gap-2'>
+							<TextField
+								variant='standard'
+								value={editingKeyword}
+								onChange={e => setEditingKeyword(e.target.value)}
+							/>
+							<ButtonGroup>
+								<Button onClick={handleIncludeKeyword} color='success'>
+									Добавить
+								</Button>
+								<Button onClick={handleExcludeKeyword} color='error'>
+									Исключить
+								</Button>
+							</ButtonGroup>
+						</div>
+					</Popover>
+				</Dialog>
+			</div>
+		</div>
+	)
 }
