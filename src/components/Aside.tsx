@@ -36,7 +36,7 @@ export default function Aside({ asideState, onChange }: AsideProps) {
         <aside className={` bg-white border-r-[1px] h-dvh border-border overflow-auto w-48`} onClick={(e) => e.stopPropagation()}>
           <nav>
             <button className='w-full min-h-12 border-none outline-none no-underline text-sm flex px-4 py-2 gap-4 items-center hover:bg-softgray' onClick={handleIdCopy} type='button'>
-              <img className='w-5' src='/img/umafic.jpg' alt='umafic logo' />
+              <img src='/img/umafic.svg' className='w-4' />
               <p className='flex gap-2 items-center'>
                 <span>#{user?.id}</span>
                 <ContentCopy className='!text-[15px]' />

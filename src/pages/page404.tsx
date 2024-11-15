@@ -5,7 +5,7 @@ export default function PageNotFound() {
   const navigate = useNavigate();
   const location = useLocation();
   return (
-    <section className='flex items-center justify-center w-dvw h-dvh'>
+    <section className='flex gap-10 items-center justify-center w-dvw h-dvh'>
       <div>
         <h1 className='text-3xl font-bold'>404. Ошибочка</h1>
         <p>
@@ -21,7 +21,7 @@ export default function PageNotFound() {
           <div className='w-10 h-4 bg-dark rounded-full'></div>
           <div className='w-10 h-4 bg-dark rounded-full'></div>
         </div>
-        <img className='w-40 outline-none border-none rotate-180' src='/img/umafic.jpg' alt='umafic logo' />
+        <img src='/img/umafic.svg' className='w-16 mt-6' />
       </div>
     </section>
   );

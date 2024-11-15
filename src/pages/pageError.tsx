@@ -27,7 +27,7 @@ export default function PageError() {
           <div className='w-10 h-4 bg-dark rounded-full'></div>
           <div className='w-10 h-4 bg-dark rounded-full'></div>
         </div>
-        <img className='w-40 outline-none border-none rotate-180' src='/img/umafic.jpg' alt='umafic logo' />
+        <img src='/img/umafic.svg' className='w-16 mt-6' />
       </div>
       <div>
         <h1 className='text-3xl font-bold'>Ошибка</h1>
