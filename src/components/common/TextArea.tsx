@@ -1,6 +1,7 @@
 import { ChangeEvent, KeyboardEvent } from 'react'
 
-type InputProps = {
+type TextAreaProps = {
+	resize?: boolean
 	value: string
 	onChange: (value: string) => void
 	onKeyDown?: (
@@ -11,52 +12,41 @@ type InputProps = {
 	placeholder?: string
 	error?: string
 	maxLength?: number
-	onlyDigits?: boolean
-	minNumber?: number
-	maxNumber?: number
 }
 
-export function Input({
-	minNumber,
-	maxNumber,
+export function TextArea({
 	maxLength,
 	value,
+	resize = false,
 	onChange,
 	onKeyDown,
 	onBlur,
 	error,
 	placeholder = '',
-	onlyDigits = false,
 	className = '',
-}: InputProps) {
-	const handleBlur = (e: ChangeEvent<HTMLInputElement>) => {
-		if (onlyDigits) {
-			let value = parseInt(e.target.value)
-			if (minNumber !== undefined) value = Math.max(value, minNumber)
-			if (maxNumber !== undefined) value = Math.min(maxNumber, value)
-			onChange(value.toString())
-		}
+}: TextAreaProps) {
+	const handleBlur = (e: ChangeEvent<HTMLTextAreaElement>) => {
 		if (onBlur) onBlur(e)
 	}
 
-	const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+	const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
 		let value = e.target.value
-		if (onlyDigits) value = value.replace(/\D/g, '')
 		if (maxLength) value = value.slice(0, maxLength)
 		return onChange(value)
 	}
 
-	const inputProps = {
+	const textareaProps = {
 		className: `bg-inputbg text-sm p-2 font-normal leading-7 rounded-lg outline-none ${className}`,
 		value: value || '',
 		onChange: handleChange,
 		onBlur: handleBlur,
 		onKeyDown,
 		placeholder,
+		resize,
 	}
 	return (
 		<div>
-			<input {...inputProps} />
+			<textarea {...textareaProps} />
 			{error && <p className='text-sm text-negative'>{error}</p>}
 		</div>
 	)

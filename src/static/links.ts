@@ -1,1 +1,1 @@
-export const supportLink = 'https://t.me/Umafic_support';
+export const supportLink = 'https://t.me/Umafic_support'
