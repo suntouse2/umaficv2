@@ -30,7 +30,7 @@ export function Input({
 	className = '',
 }: InputProps) {
 	const handleBlur = (e: ChangeEvent<HTMLInputElement>) => {
-		if (onlyDigits) {
+		if (onlyDigits && e.target.value.length > 0) {
 			let value = parseInt(e.target.value)
 			if (minNumber !== undefined) value = Math.max(value, minNumber)
 			if (maxNumber !== undefined) value = Math.min(maxNumber, value)
@@ -47,7 +47,7 @@ export function Input({
 	}
 
 	const inputProps = {
-		className: `bg-inputbg text-sm p-2 font-normal leading-7 rounded-lg outline-none ${className}`,
+		className: `bg-inputbg w-full text-sm p-2 font-normal leading-7 rounded-lg outline-none ${className}`,
 		value: value || '',
 		onChange: handleChange,
 		onBlur: handleBlur,
@@ -55,7 +55,7 @@ export function Input({
 		placeholder,
 	}
 	return (
-		<div>
+		<div className='w-full'>
 			<input {...inputProps} />
 			{error && <p className='text-sm text-negative'>{error}</p>}
 		</div>

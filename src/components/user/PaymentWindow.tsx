@@ -2,14 +2,15 @@ import PaymentService from '@api/http/services/PaymentService'
 import { Input } from '@components/common/Input'
 import { Button } from '@mui/material'
 import * as EmailValidator from 'email-validator'
-import { useState } from 'react'
+import { FormEvent, useState } from 'react'
 import { toast } from 'react-toastify'
 
 export default function PaymentWindow() {
 	const [email, setEmail] = useState<string>('')
 	const [sum, setSum] = useState<string>('500')
 
-	const handlePayment = async () => {
+	const handleSubmit = async (e: FormEvent) => {
+		e.preventDefault()
 		if (!EmailValidator.validate(email))
 			return toast.error('Неправильный формат почты')
 		const response = await PaymentService.sendPayment({
@@ -20,7 +21,7 @@ export default function PaymentWindow() {
 	}
 
 	return (
-		<form className='flex flex-col gap-4 p-4'>
+		<form onSubmit={handleSubmit} className='flex flex-col gap-4 p-4'>
 			<h2 className='text-lg font-bold'>Введите вашу почту и сумму в ₽</h2>
 			<Input placeholder='Почта' value={email} onChange={setEmail} />
 			<Input
@@ -30,7 +31,7 @@ export default function PaymentWindow() {
 				value={sum}
 				onChange={v => setSum(v)}
 			/>
-			<Button color='success' onClick={handlePayment} variant='contained'>
+			<Button type='submit' color='success' variant='contained'>
 				Перейти к оплате
 			</Button>
 		</form>

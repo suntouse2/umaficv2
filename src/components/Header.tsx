@@ -34,6 +34,7 @@ export default function Header({ asideToggleCallback }: HeaderProps) {
 					<Button
 						onClick={() => setPaymentDialogState(true)}
 						variant='outlined'
+						className='!rounded-full'
 					>
 						Пополнить
 					</Button>

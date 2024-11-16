@@ -8,7 +8,7 @@ const Dashboard = lazy(() => import('@pages/pageDashboard'))
 const Balance = lazy(() => import('@pages/pageBalance'))
 const DirectCampaign = lazy(() => import('@pages/pageDirectCampaign'))
 const ComposeDirectCampaign = lazy(
-	() => import('@pages/pageComposeDirectCampaign')
+	() => import('@pages/pageUpsertDirectCampaign')
 )
 const Chat = lazy(() => import('@pages/pageChat'))
 const Spam = lazy(() => import('@pages/pageAntiSpam'))

@@ -36,7 +36,7 @@ export function TextArea({
 	}
 
 	const textareaProps = {
-		className: `bg-inputbg text-sm p-2 font-normal leading-7 rounded-lg outline-none ${className}`,
+		className: `bg-inputbg  w-full text-sm p-2 font-normal leading-7 rounded-lg outline-none ${className}`,
 		value: value || '',
 		onChange: handleChange,
 		onBlur: handleBlur,
@@ -45,7 +45,7 @@ export function TextArea({
 		resize,
 	}
 	return (
-		<div>
+		<div className='w-full'>
 			<textarea {...textareaProps} />
 			{error && <p className='text-sm text-negative'>{error}</p>}
 		</div>

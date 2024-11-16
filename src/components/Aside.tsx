@@ -19,16 +19,14 @@ export default function Aside({ asideState, onChange }: AsideProps) {
 	const handleIdCopy = async () => {
 		if (!user) return
 		await navigator.clipboard.writeText(user.id.toString())
-		toast.info('ID Скопирован!')
+		return toast.info('ID Скопирован!')
 	}
 
 	const handleClose = () => {
-		onChange(false)
+		return onChange(false)
 	}
 
-	const handleExit = () => {
-		if (confirm('Вы точно хотите выйти?')) exit()
-	}
+	const handleExit = () => confirm('Вы точно хотите выйти?') && exit()
 
 	return (
 		<>
@@ -55,40 +53,26 @@ export default function Aside({ asideState, onChange }: AsideProps) {
 							</p>
 						</button>
 						<hr className='h-[1px] border-none bg-border' />
-						<NavItem type='link' to='/' Icon={Book} title='Главная' />
+						<NavItem to='/' Icon={<Book />} title='Главная' />
 						<hr className='h-[1px] border-none bg-border' />
-						<NavItem type='link' to='/balance' Icon={Balance} title='Баланс' />
+						<NavItem to='/balance' Icon={<Balance />} title='Баланс' />
 						<hr className='h-[1px] border-none bg-border' />
-						<NavItem
-							type='a'
-							Icon={Support}
-							title='Поддержка'
-							href={supportLink}
-						/>
+						<NavItem Icon={<Support />} title='Поддержка' href={supportLink} />
+						<hr className='h-[1px] border-none bg-border' />
+						<NavItem Icon={<Exit />} title='Выйти' onClick={handleExit} />
 						<hr className='h-[1px] border-none bg-border' />
 						<NavItem
-							type='button'
-							Icon={Exit}
-							title='Выйти'
-							onClick={handleExit}
-						/>
-						<hr className='h-[1px] border-none bg-border' />
-						<a
 							href='/documents/Публичная_оферта.docx'
-							className='min-h-12 border-none outline-none no-underline flex px-4 py-2 gap-4 items-center  whitespace-nowrap text-xs hover:bg-softgray'
-						>
-							<span className='block'>Публичная оферта</span>
-						</a>
-						<a
+							title={<span className='text-xs'>Публичная оферта</span>}
+						/>
+						<NavItem
 							href='/documents/Пользовательское_соглашение.docx'
-							download
-							className='min-h-12 border-none outline-none no-underline text-xs flex px-4 py-2 gap-4 hover:bg-softgray'
-						>
-							<span className='block'>
-								Пользовательское <br />
-								соглашение
-							</span>
-						</a>
+							title={
+								<span className='text-xs text-left'>
+									Пользовательское соглашение
+								</span>
+							}
+						/>
 					</nav>
 				</aside>
 			</div>
