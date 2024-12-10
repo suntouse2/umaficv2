@@ -1,20 +1,17 @@
-import DirectCampaignService from '@api/http/services/campaigns/DirectCampaignService'
-import SettingsCheckService from '@api/http/services/campaigns/SettingsCheckService'
 import GeoService from '@api/http/services/GeoService'
 import {
+	keepPreviousData,
 	useInfiniteQuery,
 	useMutation,
 	useQuery,
 	useQueryClient,
 } from '@tanstack/react-query'
-import { AxiosError } from 'axios'
-import { toast } from 'react-toastify'
+import DirectCampaignService from './http/services/campaigns/direct/DirectCampaignService'
 
 export function useFetchDirectCampaigns() {
 	return useInfiniteQuery({
-		queryKey: ['get-direct-campaigns'],
-		queryFn: ({ pageParam }) =>
-			DirectCampaignService.getDirectCampaigns(pageParam),
+		queryKey: ['fetch-direct-campaigns'],
+		queryFn: ({ pageParam }) => DirectCampaignService.getDirectCampaigns(pageParam),
 		staleTime: Infinity,
 		initialPageParam: 1,
 		getNextPageParam: (lastPage, _allPages, lastPageParam) => {
@@ -27,9 +24,7 @@ export function useFetchDirectCampaigns() {
 			if (!data) return false
 			if (!data.state.data) return false
 			const hasPendingCampaigns = data.state.data.pages.some(page =>
-				page.data.some(campaign =>
-					['preparing', 'pending'].includes(campaign.state)
-				)
+				page.data.some(campaign => ['preparing', 'pending'].includes(campaign.state))
 			)
 			return hasPendingCampaigns ? 2000 : 60 * 1000
 		},
@@ -39,141 +34,38 @@ export function useFetchDirectCampaigns() {
 export function useToggleDirectCampaign() {
 	const queryClient = useQueryClient()
 	return useMutation({
-		mutationKey: ['toggle-campaign'],
-		mutationFn: ({
-			id,
-			campaignState,
-		}: {
-			id: number
-			campaignState: TDirectCampaign['state']
-		}) =>
-			campaignState == 'active'
-				? DirectCampaignService.stopCampaign(id)
-				: DirectCampaignService.startCampaign(id),
-		onError: e => {
-			if (e instanceof AxiosError) {
-				if (
-					e.response?.data.detail &&
-					typeof e.response?.data.detail == 'string'
-				) {
-					toast.error(e.response?.data.detail)
-				}
-			}
-		},
+		mutationFn: ({ id, action }: { id: number; action: 'start' | 'stop' }) =>
+			action == 'start'
+				? DirectCampaignService.startCampaign(id)
+				: DirectCampaignService.stopCampaign(id),
 		onSettled: () => {
-			queryClient.invalidateQueries({ queryKey: ['get-direct-campaigns'] })
+			queryClient.invalidateQueries({ queryKey: ['fetch-direct-campaigns'] })
 		},
 	})
 }
-
-export function useFetchLanguages() {
-	return useQuery({
-		queryKey: ['geo-languages'],
-		queryFn: () => GeoService.getLanguages(),
-		select: data => data.data,
-		staleTime: Infinity,
-	})
-}
-
-export function useFetchCountries(languages: string[]) {
-	return useQuery({
-		queryKey: ['geo-countries', ...languages],
-		queryFn: () => GeoService.getCountries(languages),
-		select: data => data.data,
-		staleTime: Infinity,
-	})
-}
-
-export function useFetchRegions(countries: string[]) {
-	return useQuery({
-		queryKey: ['geo-regions', ...countries],
-		queryFn: () => GeoService.getRegions(countries),
-		select: data => data.data,
-		staleTime: Infinity,
-	})
-}
-
-export function useFetchCities(regions: string[]) {
-	return useQuery({
-		queryKey: ['geo-cities', ...regions],
-		queryFn: () => GeoService.getCities(regions),
-		select: data => data.data,
-		staleTime: Infinity,
-	})
-}
-
-export function useFetchSettingsCheckMsg(target: TCampaignSettingsTarget) {
-	return useInfiniteQuery({
-		queryKey: ['check-settings-msg', target.search.include, target.geo],
-		queryFn: ({ pageParam }) =>
-			SettingsCheckService.getMessages(target, pageParam),
-		staleTime: 60 * 1000 * 3,
-		initialPageParam: 1,
-		getNextPageParam: (lastPage, _allPages, lastPageParam) => {
-			if (lastPage.data.length == 0) {
-				return undefined
-			}
-			return lastPageParam + 1
-		},
-	})
-}
-export function useFetchSettingsCheckStats(target: TCampaignSettingsTarget) {
-	return useQuery({
-		queryKey: ['check-settings-stats', target],
-		queryFn: () => SettingsCheckService.getStatistic(target),
-		staleTime: 60 * 1000 * 5,
-		retry: false,
-	})
-}
-
 export function useCreateDirectCampaign() {
 	const queryClient = useQueryClient()
 	return useMutation({
-		mutationKey: ['createCampaign'],
-		mutationFn: ({ data }: { data: TDirectCampaignSettings }) =>
-			DirectCampaignService.createDirectCampaign(data),
-		gcTime: 0,
-		onError: error => {
-			if (error instanceof AxiosError) {
-				const status = error.status
-				return toast.error(`${status}: Не удалось создать кампанию`)
-			}
-			toast.error('Не удалось создать кампанию')
-		},
+		mutationFn: ({ settings }: { settings: TDirectCampaignSettings }) =>
+			DirectCampaignService.createDirectCampaign(settings),
 		onSuccess: () => {
-			toast.success('Кампания создана')
-			setTimeout(() => {
-				queryClient.invalidateQueries({ queryKey: ['get-direct-campaigns'] })
-			}, 2000)
+			queryClient.invalidateQueries({ queryKey: ['fetch-direct-campaigns'] })
 		},
 	})
 }
-
 export function useEditDirectCampaign() {
 	const queryClient = useQueryClient()
 	return useMutation({
-		mutationKey: ['editCampaign'],
 		mutationFn: ({
 			id,
-			data,
+			settings,
 		}: {
 			id: number
-			data: TPartialDirectCampaignSettings
-		}) => DirectCampaignService.editDirectCampaign(id, data),
-		gcTime: 0,
-		onError: error => {
-			console.log(error)
-			if (error instanceof AxiosError) {
-				const status = error.status
-				return toast.error(`${status}: Не удалось изменить кампанию`)
-			}
-			toast.error('Не удалось изменить кампанию')
-		},
+			settings: Partial<TDirectCampaignSettings>
+		}) => DirectCampaignService.editDirectCampaign(id, settings),
+
 		onSuccess: () => {
-			toast.success('Кампания изменена')
-			setTimeout(() => {
-				queryClient.invalidateQueries({ queryKey: ['get-direct-campaigns'] })
-			}, 2000)
+			queryClient.invalidateQueries({ queryKey: ['fetch-direct-campaigns'] })
 		},
 	})
 }
@@ -181,18 +73,89 @@ export function useEditDirectCampaign() {
 export function useDeleteDirectCampaign() {
 	const queryClient = useQueryClient()
 	return useMutation({
-		mutationKey: ['deleteCampaign'],
+		mutationKey: ['delete-direct-campaign'],
 		mutationFn: ({ id }: { id: number }) =>
 			DirectCampaignService.deleteDirectCampaign(id),
-		gcTime: 0,
 		onSettled: () => {
-			queryClient.invalidateQueries({ queryKey: ['get-direct-campaigns'] })
+			queryClient.invalidateQueries({ queryKey: ['fetch-direct-campaigns'] })
 		},
-		onSuccess: () => {
-			toast.success('Кампания удалена')
+	})
+}
+
+export function useFetchDirectCampaignSettingsMessages(
+	target: TDirectCampaignSettingsTarget,
+	keywordIndex?: number
+) {
+	return useInfiniteQuery({
+		queryKey: ['check-settings-msg', target, keywordIndex],
+		queryFn: ({ pageParam }) =>
+			DirectCampaignService.getMessages(
+				keywordIndex === undefined
+					? target
+					: {
+							...target,
+							search: {
+								...target.search,
+								include: [target.search.include[keywordIndex]],
+							},
+					  },
+				pageParam
+			),
+		staleTime: 60 * 1000 * 3,
+		placeholderData: keepPreviousData,
+		initialPageParam: 1,
+		getNextPageParam: (lastPage, _allPages, lastPageParam) => {
+			if (lastPage.data.length == 0) {
+				return undefined
+			}
+			return lastPageParam + 1
 		},
-		onError: () => {
-			toast.error('Не удалось удалить кампанию')
-		},
+		retry: false,
+	})
+}
+export function useFetchDirectCampaignSettingsStats(
+	target: TDirectCampaignSettingsTarget
+) {
+	return useQuery({
+		queryKey: ['check-settings-stats', target],
+		queryFn: () => DirectCampaignService.getStatistic(target),
+		staleTime: 60 * 1000 * 5,
+		select: data => data.data,
+		retry: false,
+	})
+}
+export function useFetchGeoLanguages() {
+	return useQuery({
+		queryKey: ['geo-languages'],
+		queryFn: () => GeoService.getLanguages(),
+		select: data => new Map(Object.entries(data.data)),
+		staleTime: Infinity,
+	})
+}
+
+export function useFetchGeoCountries(languages?: string[]) {
+	return useQuery({
+		queryKey: ['geo-countries', languages],
+		queryFn: () => GeoService.getCountries(languages),
+		select: data => new Map(Object.entries(data.data)),
+		staleTime: Infinity,
+	})
+}
+
+export function useFetchGeoRegions(countries?: string[]) {
+	return useQuery({
+		queryKey: ['geo-regions', countries],
+		queryFn: () => GeoService.getRegions(countries),
+		select: data => new Map(Object.entries(data.data)),
+		staleTime: Infinity,
+	})
+}
+
+export function useFetchGeoCities(regions?: string[]) {
+	return useQuery({
+		queryKey: ['geo-cities', regions],
+		queryFn: () => GeoService.getCities(regions),
+		select: data => new Map(Object.entries(data.data)),
+		staleTime: Infinity,
 	})
 }

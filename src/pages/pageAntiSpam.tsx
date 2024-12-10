@@ -1,7 +1,7 @@
 import { Send } from '@mui/icons-material'
 import { Button } from '@mui/material'
 
-export default function pageAntiSpam() {
+export default function PageAntiSpam() {
 	return (
 		<section className='py-12 bg-gray-50 overflow-auto'>
 			<div className='text-center max-w-3xl mx-auto px-4'>

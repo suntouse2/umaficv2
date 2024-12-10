@@ -1,43 +1,36 @@
-import DirectCampaignService from '@api/http/services/campaigns/DirectCampaignService'
-import DirectCampaignUpsertForm from '@components/campaigns/direct/DirectCampaignUpsertForm'
-import Container from '@components/wrappers/layouts/Container'
-import { mapDirectCampaignSettingsFromResponse } from '@helpers/campaigns/direct/mapDirectCampaignSettings'
-import { useCallback, useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import Container from '@components/ui/Container'
+import { ArrowBack } from '@mui/icons-material'
+import { Button, CircularProgress } from '@mui/material'
+import { lazy, Suspense } from 'react'
+import { Link, useParams } from 'react-router-dom'
+
+const DirectCampaignSettingsWrapper = lazy(
+	() => import('@components/wrappers/DirectCampaignSettingsWrapper')
+)
+const DirectCampaignSettingsForm = lazy(
+	() => import('@components/campaigns/direct/DirectCampaignSettingsForm')
+)
 
 export default function PageUpsertDirectCampaign() {
-	const location = useLocation()
-	const navigate = useNavigate()
-	const path = location.pathname
-	const { id } = location.state || {}
-	const [data, setData] = useState<
-		| (TDirectCampaignSettings & {
-				temporary: {
-					first_message: { messages: TFunnelMessage[] }[]
-					any_message: { messages: TFunnelMessage[] }[]
-				}
-		  })
-		| null
-	>(null)
-
-	const fetchCampaign = useCallback(async (id: number) => {
-		const { data } = await DirectCampaignService.getDirectCampaign(id)
-		setData(mapDirectCampaignSettingsFromResponse(data))
-	}, [])
-
-	useEffect(() => {
-		if (path.split('/')[3] === 'edit' && !id) {
-			return navigate('/campaigns/direct')
-		}
-		if (path.split('/')[3] === 'edit' && id) fetchCampaign(id)
-	}, [fetchCampaign, id, navigate, path])
+	const { id } = useParams()
+	const campaignId = id ? parseInt(id) : null
 
 	return (
 		<Container>
-			{path.split('/')[3] === 'edit' && data && (
-				<DirectCampaignUpsertForm id={id} data={data} />
-			)}
-			{path.split('/')[3] === 'create' && <DirectCampaignUpsertForm />}
+			<h1 className='text-2xl font-bold'>Поиск клиентов</h1>
+			<Link className='block' to='/campaigns/direct'>
+				<Button color='primary'>
+					<ArrowBack />
+					Назад
+				</Button>
+			</Link>
+			<div className='mx-auto w-full h-full max-w-[600px]'>
+				<Suspense fallback={<CircularProgress color='inherit' />}>
+					<DirectCampaignSettingsWrapper campaignId={campaignId}>
+						<DirectCampaignSettingsForm />
+					</DirectCampaignSettingsWrapper>
+				</Suspense>
+			</div>
 		</Container>
 	)
 }

@@ -1,12 +1,127 @@
-@import './styles/base/reset.css';
-@import './styles/base/fonts.css';
-@import './styles/global.css';
+@import url('https://fonts.googleapis.com/css2?family=Mulish:wght@200..1000&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  body {
-    @apply bg-bg;
-  }
+html {
+	max-width: 100dvw;
+}
+body {
+	max-width: 100dvw;
+	overflow-x: hidden;
+	font-family: 'Mulish', 'Roboto', sans-serif;
+}
+
+*,
+*::after,
+*::before {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+ul,
+ol {
+	list-style: none;
+}
+
+::-webkit-scrollbar {
+	width: 10px;
+}
+
+::-webkit-scrollbar-track-piece {
+	background-color: #fff;
+}
+
+::-webkit-scrollbar-thumb {
+	background-color: #cbcbcb;
+	outline: 2px solid #fff;
+	outline-offset: -2px;
+	border: 0.1px solid #b7b7b7;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background-color: #909090;
+}
+
+.chatScroll::-webkit-scrollbar-track-piece {
+	background-color: transparent;
+}
+.chatScroll::-webkit-scrollbar-thumb {
+	background-color: #183d795b;
+	border-radius: 10px;
+	outline: none;
+}
+.chatScroll::-webkit-scrollbar {
+	width: 3px;
+	border-radius: 10px;
+}
+.chatScroll::-webkit-scrollbar-thumb:hover {
+	background-color: #909090;
+}
+
+.rainbowBorderGlow {
+	position: relative;
+	z-index: 1;
+	border: double 1px transparent !important;
+	background-image: linear-gradient(white, white),
+		radial-gradient(circle at top left, #f00, #3020ff, #ff20de) !important;
+	background-origin: border-box !important;
+	background-clip: padding-box, border-box !important;
+}
+.rainbowBorderGlow::after {
+	position: absolute;
+	content: '';
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	z-index: -1;
+	border: double 2px transparent;
+	background-image: linear-gradient(white, white),
+		radial-gradient(circle at top left, #f00, #3020ff, #ff20de);
+	background-origin: border-box;
+	background-clip: padding-box, border-box;
+	border-radius: inherit;
+	filter: blur(2.5px);
+	opacity: 1;
+	animation: animatedOpacity 1s linear infinite;
+}
+.rainbowBorder {
+	position: relative;
+	z-index: 1;
+	border: double 1px transparent !important;
+	background-image: linear-gradient(white, white),
+		radial-gradient(circle at top left, #f00, #3020ff, #ff20de) !important;
+	background-origin: border-box !important;
+	background-clip: padding-box, border-box !important;
+}
+.rainbowBorder::after {
+	position: absolute;
+	content: '';
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	z-index: -1;
+	border: double 1px transparent;
+	background-image: linear-gradient(white, white),
+		radial-gradient(circle at top left, #f00, #3020ff, #ff20de);
+	background-origin: border-box;
+	background-clip: padding-box, border-box;
+	border-radius: inherit;
+	filter: blur(1px);
+	opacity: 0.2;
+}
+@keyframes animatedOpacity {
+	0% {
+		opacity: 0.2;
+	}
+	50% {
+		opacity: 0.8;
+	}
+	100% {
+		opacity: 0.2;
+	}
 }

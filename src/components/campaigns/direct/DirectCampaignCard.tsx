@@ -3,21 +3,20 @@ import {
 	useEditDirectCampaign,
 	useToggleDirectCampaign,
 } from '@api/queries'
-import Bubble from '@components/common/Bubble'
 import ValueTuner from '@components/common/ValueTuner'
+import Bubble from '@components/ui/Bubble'
 import formatBalance from '@helpers/formatBalance'
 import { Delete, SettingsOutlined, TextsmsOutlined } from '@mui/icons-material'
 import { Badge, IconButton, Switch } from '@mui/material'
-import { useCallback } from 'react'
+import { motion } from 'motion/react'
 import { useNavigate } from 'react-router-dom'
+import DirectCampaignStatistics from './DirectCampaignStatistics'
 
 type DirectCampaignCardProps = {
 	campaign: TDirectCampaign
 }
 
-export default function DirectCampaignCard({
-	campaign,
-}: DirectCampaignCardProps) {
+export default function DirectCampaignCard({ campaign }: DirectCampaignCardProps) {
 	const { mutate: toggleCampaign, isPending } = useToggleDirectCampaign()
 	const { mutate: editCampaign } = useEditDirectCampaign()
 	const { mutate: deleteDirectCampaign } = useDeleteDirectCampaign()
@@ -30,32 +29,24 @@ export default function DirectCampaignCard({
 
 	const handleToggleCampaign = () =>
 		!isPending &&
-		toggleCampaign({ id: campaign.id, campaignState: campaign.state })
+		toggleCampaign({
+			id: campaign.id,
+			action: campaign.state == 'active' ? 'stop' : 'start',
+		})
 
-	const handleUpdateBudget = useCallback(
-		(new_budget: string) => {
-			editCampaign({
-				id: campaign.id,
-				data: {
-					budget_limit: new_budget,
-				},
-			})
-		},
-		[campaign.id, editCampaign]
-	)
-
-	const handleEditCampaign = () => {
-		navigate('/campaigns/direct/edit', {
-			state: { id: campaign.id },
+	const handleUpdateBudget = (new_budget: string) => {
+		editCampaign({
+			id: campaign.id,
+			settings: {
+				budget_limit: new_budget,
+			},
 		})
 	}
-
-	const handleOpenChat = () => {
-		navigate(`/chat/${campaign.id}`)
-	}
+	const handleEditCampaign = () => navigate(`/campaigns/direct/edit/${campaign.id}`)
+	const handleOpenChat = () => navigate(`/chat/${campaign.id}`)
 
 	return (
-		<>
+		<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
 			<Bubble className='p-4'>
 				<div className='flex items-center justify-between'>
 					<h2 className='text-lg font-bold'>{campaign.name}</h2>
@@ -68,9 +59,7 @@ export default function DirectCampaignCard({
 						</IconButton>
 						<IconButton onClick={handleOpenChat} color='success'>
 							<Badge
-								badgeContent={
-									campaign.numeric_statistics.incoming_messages_unread
-								}
+								badgeContent={campaign.numeric_statistics.incoming_messages_unread}
 								color='secondary'
 							>
 								<TextsmsOutlined />
@@ -81,18 +70,23 @@ export default function DirectCampaignCard({
 				<hr className='my-2 h-[1px] border-none bg-softgray' />
 				{campaign.is_moderated ? (
 					<div className='flex items-center justify-between'>
-						<span className='text-md'>
-							{campaign.state == 'inactive' && 'Не запущен'}
-							{campaign.state == 'pending' && 'Ожидание...'}
-							{campaign.state == 'preparing' && 'Подготовка..'}
-							{campaign.state == 'active' && 'Запущен'}
+						<span className='text-md font-bold'>
+							<span className='text-softgray4'>
+								{campaign.state == 'inactive' && 'Не запущен'}
+							</span>
+							<span className='text-softgray3'>
+								{campaign.state == 'pending' && 'Ожидание'}
+								{campaign.state == 'preparing' && 'Подготовка'}
+							</span>
+							<span className='text-success'>
+								{campaign.state == 'active' && 'Запущен'}
+							</span>
 						</span>
 						{
 							<Switch
-								disabled={
-									campaign.state == 'pending' || campaign.state == 'preparing'
-								}
+								disabled={campaign.state == 'pending' || campaign.state == 'preparing'}
 								size='small'
+								color='success'
 								checked={campaign.state == 'active'}
 								onChange={handleToggleCampaign}
 							/>
@@ -100,111 +94,22 @@ export default function DirectCampaignCard({
 					</div>
 				) : (
 					<div className='flex items-center justify-between'>
-						<span className='text-warning'>Ожидает модерации</span>
+						<span className='text-warning font-bold'>На модерации</span>
 					</div>
 				)}
 				<div className='flex mt-2 items-center justify-between'>
 					<span>Бюджет кампании</span>
 					<ValueTuner
-						type='number'
-						value={formatBalance(campaign.budget_limit) ?? ''}
+						onlyDigits={true}
+						minNumber={24}
+						render={formatBalance(campaign.budget_limit)}
+						value={campaign.budget_limit.toString()}
 						onChange={handleUpdateBudget}
 					/>
 				</div>
 				<hr className='my-2 h-[1px] border-none bg-softgray' />
-				<div className='flex flex-col gap-2'>
-					<div className='flex items-center justify-between'>
-						<span className='text-sm'>
-							Отправленных сообщений (первое касание)
-						</span>
-						<span className='text-sm'>
-							{campaign.numeric_statistics.directs}
-							<span
-								title='Отправленных в сутки'
-								className='ml-1 bg-positive whitespace-nowrap px-1 text-sm rounded-sm bg-opacity-20'
-							>
-								+ {campaign.numeric_statistics.directs_by_day}
-							</span>
-						</span>
-					</div>
-					<div className='flex items-center justify-between'>
-						<span className='text-sm'>
-							Состоялось диалогов (второе касание)
-						</span>
-						<span className='text-sm'>
-							{campaign.numeric_statistics.directs_interacted}{' '}
-							<span
-								title='Входящих в сутки'
-								className='ml-1 whitespace-nowrap bg-positive px-1 text-sm rounded-sm bg-opacity-20'
-							>
-								+ {campaign.numeric_statistics.directs_interacted_by_day}
-							</span>
-						</span>
-					</div>
-					<div className='flex items-center justify-between'>
-						<span className='text-sm'>Непрочитанных входящих сообщений</span>
-						<span className='text-sm'>
-							{campaign.numeric_statistics.incoming_messages_unread}
-						</span>
-					</div>
-					<div className='flex items-center justify-between'>
-						<span className='text-sm'>Избранных диалогов</span>
-						<span className='text-sm'>
-							{campaign.numeric_statistics.directs_favorite}
-						</span>
-					</div>
-					<div className='flex items-center justify-between'>
-						<span className='text-sm'>Общий расход</span>
-						<span className='text-sm'>
-							{formatBalance(campaign.numeric_statistics.spending)}
-							<span
-								title='Входящих в сутки'
-								className='ml-1 whitespace-nowrap bg-positive px-1 text-sm rounded-sm bg-opacity-20'
-							>
-								+ {campaign.numeric_statistics.spending_by_day}
-							</span>
-						</span>
-					</div>
-					<div className='flex items-center justify-between'>
-						<span className='text-sm'>Общий возврат средств</span>
-						<span className='text-sm'>
-							{formatBalance(campaign.numeric_statistics.repayment)}
-							<span
-								title='Входящих в сутки'
-								className='ml-1 whitespace-nowrap bg-positive px-1 text-sm rounded-sm bg-opacity-20'
-							>
-								+ {campaign.numeric_statistics.repayment_by_day}
-							</span>
-						</span>
-					</div>
-					<div className='flex items-center justify-between'>
-						<span className='text-sm'>Средняя цена одного избранного/лида</span>
-						<span className='text-sm'>
-							{campaign.numeric_statistics.directs_favorite < 1
-								? '―'
-								: formatBalance(
-										(
-											parseFloat(campaign.numeric_statistics.spending) /
-											(campaign.numeric_statistics.directs_favorite || 1)
-										).toFixed(0)
-								  )}
-						</span>
-					</div>
-					<div className='flex items-center justify-between'>
-						<span className='text-sm'>Средняя цена одного диалога</span>
-						<span className='text-sm'>
-							{campaign.numeric_statistics.directs_interacted < 1
-								? '―'
-								: formatBalance(
-										(
-											parseFloat(campaign.numeric_statistics.spending) /
-											campaign.numeric_statistics.directs_interacted
-										).toFixed(0)
-								  )}
-						</span>
-					</div>
-				</div>
+				<DirectCampaignStatistics statistics={campaign.numeric_statistics} />
 			</Bubble>
-		</>
+		</motion.div>
 	)
 }

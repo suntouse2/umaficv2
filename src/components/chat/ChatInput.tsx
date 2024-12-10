@@ -1,5 +1,5 @@
-import FileSelectMenu from '@components/FileSelectMenu'
 import MediaRenderer from '@components/MediaRenderer'
+import FileSelectMenu from '@components/MediaSelectMenu'
 import { useChat } from '@context/chat/ChatContext'
 import InputAcceptByMediaType from '@helpers/setInputAttributeByFileType'
 import useMediaService from '@hooks/useMediaService'

@@ -1,12 +1,17 @@
-import PaymentWindow from '@components/user/PaymentWindow';
-import Container from '@components/wrappers/layouts/Container';
+import Container from '@components/ui/Container'
+import { CircularProgress } from '@mui/material'
+import { lazy, Suspense } from 'react'
 
-export default function pageBalance() {
-  return (
-    <section>
-      <Container>
-        <PaymentWindow />
-      </Container>
-    </section>
-  );
+const PaymentWindow = lazy(() => import('@components/user/PaymentWindow'))
+
+export default function PageBalance() {
+	return (
+		<section>
+			<Container>
+				<Suspense fallback={<CircularProgress />}>
+					<PaymentWindow />
+				</Suspense>
+			</Container>
+		</section>
+	)
 }

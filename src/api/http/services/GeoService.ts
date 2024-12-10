@@ -1,31 +1,44 @@
-import { AxiosResponse } from 'axios';
-import { $api } from '../axios';
+import { AxiosResponse } from 'axios'
+import { $api } from '../axios'
 
 class GeoService {
-  async getLanguages(): Promise<AxiosResponse<TSettingsLanguageResponse>> {
-    return $api.get('/settings/geo/languages');
-  }
+	async getLanguages(): Promise<AxiosResponse<{ [key: string]: string }>> {
+		return $api.get('/geo/languages')
+	}
 
-  async getCountries(languages: string[]): Promise<AxiosResponse<TSettingsCountriesResponse>> {
-    return $api.get('/settings/geo/countries', {
-      params: {
-        languages: [languages],
-      },
-    });
-  }
-  async getRegions(countries: string[]): Promise<AxiosResponse<TSettingsRegionsResponse>> {
-    return $api.get('/settings/geo/regions', {
-      params: {
-        countries: countries,
-      },
-    });
-  }
-  async getCities(regions: string[]): Promise<AxiosResponse<TSettingsCitiesResponse>> {
-    return $api.get('/settings/geo/cities', {
-      params: {
-        regions: regions,
-      },
-    });
-  }
+	async getCountries(
+		languages?: string[]
+	): Promise<AxiosResponse<{ [key: string]: string }>> {
+		return $api.get('/geo/countries', {
+			params: {
+				languages,
+			},
+			paramsSerializer: {
+				indexes: null,
+			},
+		})
+	}
+	async getRegions(
+		countries?: string[]
+	): Promise<AxiosResponse<{ [key: string]: string }>> {
+		return $api.get('/geo/regions', {
+			params: {
+				countries,
+			},
+			paramsSerializer: {
+				indexes: null,
+			},
+		})
+	}
+	async getCities(regions?: string[]): Promise<AxiosResponse<{ [key: string]: string }>> {
+		return $api.get('/geo/cities', {
+			params: {
+				regions,
+			},
+			paramsSerializer: {
+				indexes: null,
+			},
+		})
+	}
 }
-export default new GeoService();
+export default new GeoService()

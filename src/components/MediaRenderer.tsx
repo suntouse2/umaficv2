@@ -1,34 +1,54 @@
-import { memo, useCallback, useEffect, useState } from 'react';
-import FileViewer from '@components/FileViewer';
-import useMediaService from '@hooks/useMediaService';
-import { CircularProgress } from '@mui/material';
+import useMediaService from '@hooks/useMediaService'
+import { Close } from '@mui/icons-material'
+import { Skeleton } from '@mui/material'
+import { motion } from 'motion/react'
+import { memo, useEffect, useState } from 'react'
+import FileViewer from './ui/FileViewer'
 
-export default memo(function MediaRenderer({ media }: { media: TFunnelMessage['media'] }) {
-  const [file, setFile] = useState<File | null>(null);
-  const { getFile } = useMediaService();
-  const [loading, setLoading] = useState<boolean>(true);
+export default memo(function MediaRenderer({
+	media,
+	onRemove,
+}: {
+	media: TFunnelMessage['media']
+	onRemove?: () => void
+}) {
+	const [file, setFile] = useState<File | null>(null)
+	const { getFile } = useMediaService()
 
-  const fetchFile = useCallback(async () => {
-    try {
-      setLoading(true);
-      if (!media) throw new Error('no media');
-      const file = await getFile(media?.filepath);
-      setFile(file);
-    } catch {
-      //
-    } finally {
-      setLoading(false);
-    }
-  }, [getFile, media]);
+	useEffect(() => {
+		const fetchFile = async () => {
+			if (!media) return
+			setFile(null)
+			const file = await getFile(media.filepath)
+			setFile(file)
+		}
+		fetchFile()
+	}, [getFile, media])
 
-  useEffect(() => {
-    fetchFile();
-  }, [fetchFile]);
+	if (!media) return
 
-  return (
-    <>
-      {media && loading && <CircularProgress className='mt-10' color='primary' />}
-      {media && !loading && file && <FileViewer file={file} mediaType={media.type} />}
-    </>
-  );
-});
+	return (
+		<div className='relative flex group items-start gap-2'>
+			{!file && media.type == 'round' && (
+				<Skeleton animation='wave' variant='circular' width={190} height={190} />
+			)}
+			{file && (
+				<motion.div
+					initial={{ scale: 0.9, opacity: 0 }}
+					animate={{ scale: 1, opacity: 1 }}
+					onClick={e => e.stopPropagation()}
+				>
+					<FileViewer file={file} mediaType={media.type} />
+				</motion.div>
+			)}
+			{onRemove && (
+				<div
+					onClick={onRemove}
+					className='bg-[#000] bg-opacity-50 text-xs font-sans font-light !rounded-md cursor-pointer'
+				>
+					<Close fontSize='small' className='text-white' />
+				</div>
+			)}
+		</div>
+	)
+})

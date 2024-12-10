@@ -4,7 +4,6 @@ import {
 	differenceInMinutes,
 	differenceInWeeks,
 	format,
-	formatDistance,
 } from 'date-fns'
 import { ru } from 'date-fns/locale'
 
@@ -16,16 +15,48 @@ export default function dateToRelativeString(date: Date): string {
 	const weeksAgo = differenceInWeeks(now, date)
 
 	if (minutesAgo < 1) {
-		return 'Только что..'
+		return 'Только что'
 	} else if (minutesAgo < 60) {
-		return formatDistance(date, now, { locale: ru, addSuffix: true })
+		return `${minutesAgo} ${getPlural(
+			minutesAgo,
+			'минута',
+			'минуты',
+			'минут'
+		)} назад`
 	} else if (hoursAgo < 24) {
-		return formatDistance(date, now, { locale: ru, addSuffix: true })
+		return `${hoursAgo} ${getPlural(hoursAgo, 'час', 'часа', 'часов')} назад`
 	} else if (daysAgo < 7) {
-		return formatDistance(date, now, { locale: ru, addSuffix: true })
+		return `${daysAgo} ${getPlural(daysAgo, 'день', 'дня', 'дней')} назад`
 	} else if (weeksAgo < 4) {
-		return formatDistance(date, now, { locale: ru, addSuffix: true })
+		return `${weeksAgo} ${getPlural(
+			weeksAgo,
+			'неделя',
+			'недели',
+			'недель'
+		)} назад`
 	} else {
 		return format(date, 'd MMMM yyyy', { locale: ru })
 	}
+}
+
+// Функция для правильного склонения
+function getPlural(
+	n: number,
+	singular: string,
+	few: string,
+	many: string
+): string {
+	const mod10 = n % 10
+	const mod100 = n % 100
+
+	if (mod100 >= 11 && mod100 <= 19) {
+		return many
+	}
+	if (mod10 === 1) {
+		return singular
+	}
+	if (mod10 >= 2 && mod10 <= 4) {
+		return few
+	}
+	return many
 }

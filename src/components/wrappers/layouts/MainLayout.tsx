@@ -1,30 +1,36 @@
-import { PropsWithChildren, useCallback, useState } from 'react';
-import Aside from '@components/Aside';
-import Header from '@components/Header';
-import getBreakpoints from '@static/mediaBreakpoints';
+import Aside from '@components/Aside'
+import Header from '@components/Header'
+import { Drawer, useMediaQuery, useTheme } from '@mui/material'
+import { PropsWithChildren, useState } from 'react'
 
 type MainLayoutProps = {
-  isNeedHeader?: boolean;
-  isNeedAside?: boolean;
-} & PropsWithChildren;
+	isNeedHeader?: boolean
+	isNeedAside?: boolean
+} & PropsWithChildren
 
-export default function MainLayout({ isNeedAside = true, isNeedHeader = true, children }: MainLayoutProps) {
-  const [asideState, setAsideState] = useState<boolean>(window.innerWidth < getBreakpoints(false)?.md ? false : true);
+export default function MainLayout({ children }: MainLayoutProps) {
+	const theme = useTheme()
+	const isDesktopScreen = useMediaQuery(theme.breakpoints.up('md'))
+	const [asideState, setAsideState] = useState<boolean>(isDesktopScreen)
+	const asideSpace = asideState && isDesktopScreen ? 'ml-48' : ''
 
-  const switchAsideState = useCallback(() => setAsideState((prev) => !prev), []);
-  const changeAsideState = useCallback((state: boolean) => setAsideState(state), []);
+	const toggleAside = () => setAsideState(state => !state)
 
-  return (
-    <div className={`grid w-dvw h-dvh overflow-hidden  grid-cols-[1fr] ${!asideState ? 'md:grid-cols-[0fr,1fr]' : 'md:grid-cols-[max-content,1fr]'}`}>
-      {isNeedAside && (
-        <div className='overflow-hidden'>
-          <Aside asideState={asideState} onChange={changeAsideState} />
-        </div>
-      )}
-      <div className='grid h-dvh w-full overflow-hidden grid-rows-[max-content,1fr]'>
-        {isNeedHeader && <Header asideToggleCallback={switchAsideState} />}
-        {children}
-      </div>
-    </div>
-  );
+	return (
+		<main>
+			{isDesktopScreen && asideState && <Aside />}
+			{!isDesktopScreen && (
+				<Drawer
+					keepMounted
+					transitionDuration={0}
+					open={asideState}
+					onClose={toggleAside}
+				>
+					<Aside />
+				</Drawer>
+			)}
+			<Header className={asideSpace} onMenuClick={toggleAside} />
+			<div className={asideSpace}>{children}</div>
+		</main>
+	)
 }

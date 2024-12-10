@@ -3,7 +3,6 @@ import axios, {
 	AxiosResponse,
 	InternalAxiosRequestConfig,
 } from 'axios'
-import { toast } from 'react-toastify'
 
 const BASE_URL = import.meta.env.VITE_API_URL
 
@@ -33,20 +32,47 @@ $api.interceptors.response.use(
 	async (error: AxiosError) => {
 		const originalRequest = error.config
 
-		if (error.response?.status === NO_BALANCE_STATUS) {
-			toast.error('У вас недостаточно баланса!')
-		}
+		switch (error.response?.status) {
+			case NO_BALANCE_STATUS:
+				console.log('no balance status')
+				break
+			case AUTH_ERROR_STATUS:
+				try {
+					const response = await axios.get<{ access_token: string }>(
+						`${BASE_URL}/auth/refresh`,
+						{
+							withCredentials: true,
+						}
+					)
+					localStorage.setItem('access_token', response.data.access_token)
+					return originalRequest ? $api.request(originalRequest) : undefined
+				} catch {
+					console.log('не удалось обновить сессию')
+				}
+				break
+			default:
+				if (error instanceof AxiosError) {
+					const requestPath = error.config?.url || 'Неизвестный путь'
+					const requestMethod =
+						error.config?.method?.toUpperCase() || 'Неизвестный метод'
+					const requestData = error.config?.data
+						? JSON.parse(error.config.data)
+						: null
 
-		if (error.response?.status === AUTH_ERROR_STATUS) {
-			try {
-				const response = await axios.get(`${BASE_URL}/auth/refresh`, {
-					withCredentials: true,
-				})
-				localStorage.setItem('access_token', response.data.access_token)
-				return originalRequest ? $api.request(originalRequest) : undefined
-			} catch {
-				console.log('Не удалось обновить сессию через refresh_token')
-			}
+					console.error('Axios Error:', {
+						status: error.response?.status,
+						data: error.response?.data,
+						headers: error.response?.headers,
+						request: {
+							path: requestPath,
+							method: requestMethod,
+							data: requestData,
+						},
+					})
+				} else {
+					console.error('Unknown Error:', error)
+				}
+				break
 		}
 		throw error
 	}

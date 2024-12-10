@@ -1,36 +1,33 @@
 import { useAuth } from '@context/AuthContext'
 import formatBalance from '@helpers/formatBalance'
-import { Menu } from '@mui/icons-material'
-import AccountBalanceWalletSharpIcon from '@mui/icons-material/AccountBalanceWalletSharp'
-import { Avatar, Button, Dialog, IconButton } from '@mui/material'
+import { AccountBalanceWalletRounded, MenuRounded } from '@mui/icons-material'
+import { Button, IconButton } from '@mui/material'
 import { lazy, Suspense, useState } from 'react'
 
-type HeaderProps = {
-	asideToggleCallback: () => void
-}
-
+const Dialog = lazy(() => import('@mui/material/Dialog'))
 const PaymentWindow = lazy(() => import('@components/user/PaymentWindow'))
 
-export default function Header({ asideToggleCallback }: HeaderProps) {
+type HeaderProps = {
+	onMenuClick: () => void
+	className?: string
+}
+
+export default function Header({ onMenuClick, className }: HeaderProps) {
 	const { user } = useAuth()
 	const [paymentDialogState, setPaymentDialogState] = useState<boolean>(false)
 
 	return (
 		<>
-			<Dialog
-				open={paymentDialogState}
-				onClose={() => setPaymentDialogState(false)}
-			>
-				<Suspense>
+			<Suspense>
+				<Dialog open={paymentDialogState} onClose={() => setPaymentDialogState(false)}>
 					<PaymentWindow />
-				</Suspense>
-			</Dialog>
-
-			<header className='flex py-2 px-3 items-center justify-between'>
-				<IconButton onClick={asideToggleCallback}>
-					<Menu />
+				</Dialog>
+			</Suspense>
+			<header className={`flex justify-between items-center py-2 px-3 ${className}`}>
+				<IconButton onClick={onMenuClick}>
+					<MenuRounded />
 				</IconButton>
-				<article className='flex justify-between gap-2 items-center'>
+				<div className='flex gap-2 items-center'>
 					<Button
 						onClick={() => setPaymentDialogState(true)}
 						variant='outlined'
@@ -38,13 +35,14 @@ export default function Header({ asideToggleCallback }: HeaderProps) {
 					>
 						Пополнить
 					</Button>
-					<Avatar sx={{ width: 35, height: 35 }} className='!bg-secondary'>
-						<AccountBalanceWalletSharpIcon sx={{ width: 20, height: 20 }} />
-					</Avatar>
+					<AccountBalanceWalletRounded
+						className='bg-secondary rounded-full text-white p-2'
+						sx={{ width: 35, height: 35 }}
+					/>
 					<span className='font-medium text-lg'>
 						{formatBalance(Number(user?.balance ?? 0))}
 					</span>
-				</article>
+				</div>
 			</header>
 		</>
 	)

@@ -1,62 +1,84 @@
 /* eslint-disable react-refresh/only-export-components */
-import PageLayout from '@components/wrappers/layouts/PageLayout'
-import PageError from '@pages/pageError'
-import { lazy } from 'react'
+import AuthWrapper from '@components/wrappers/AuthWrapper'
+import MainLayout from '@components/wrappers/layouts/MainLayout'
+import PageAddChat from '@pages/pageAddChat'
+import PageAntiSpam from '@pages/pageAntiSpam'
+import PageBalance from '@pages/pageBalance'
+import PageChat from '@pages/pageChat'
+import PageDashboard from '@pages/pageDashboard'
+import PageDirectCampaigns from '@pages/pageDirectCampaigns'
+import PageUpsertDirectCampaign from '@pages/pageUpsertDirectCampaign'
+import { lazy, Suspense } from 'react'
+import { Outlet } from 'react-router-dom'
 
-const NotFound = lazy(() => import('@pages/page404'))
-const Dashboard = lazy(() => import('@pages/pageDashboard'))
-const Balance = lazy(() => import('@pages/pageBalance'))
-const DirectCampaign = lazy(() => import('@pages/pageDirectCampaign'))
-const ComposeDirectCampaign = lazy(
-	() => import('@pages/pageUpsertDirectCampaign')
-)
-const Chat = lazy(() => import('@pages/pageChat'))
-const Spam = lazy(() => import('@pages/pageAntiSpam'))
+const PageError = lazy(() => import('@pages/pageError'))
+const PageNotFound = lazy(() => import('@pages/pageNotFound'))
 
 export const routes = [
 	{
 		path: '*',
-		element: <NotFound />,
+		element: (
+			<Suspense>
+				<PageNotFound />
+			</Suspense>
+		),
 	},
 	{
 		path: '/',
-		element: <PageLayout />,
-		errorElement: <PageError />,
+		element: (
+			<>
+				<AuthWrapper>
+					<MainLayout>
+						<Outlet />
+					</MainLayout>
+				</AuthWrapper>
+			</>
+		),
+		errorElement: (
+			<Suspense>
+				<PageError />
+			</Suspense>
+		),
 		children: [
 			{
 				name: 'dashboard',
 				path: '',
-				element: <Dashboard />,
+				element: <PageDashboard />,
+			},
+			{
+				name: 'chat',
+				path: 'chat/:id',
+				element: <PageChat />,
 			},
 			{
 				name: 'payment page',
 				path: 'balance',
-				element: <Balance />,
+				element: <PageBalance />,
 			},
 			{
 				name: 'direct campaign',
 				path: 'campaigns/direct',
-				element: <DirectCampaign />,
+				element: <PageDirectCampaigns />,
 			},
 			{
 				name: 'direct campaign create',
 				path: 'campaigns/direct/create',
-				element: <ComposeDirectCampaign />,
+				element: <PageUpsertDirectCampaign />,
 			},
 			{
 				name: 'direct campaign edit',
-				path: 'campaigns/direct/edit',
-				element: <ComposeDirectCampaign />,
-			},
-			{
-				name: 'chat',
-				path: 'chat/:campaignId/:directId?',
-				element: <Chat />,
+				path: 'campaigns/direct/edit/:id',
+				element: <PageUpsertDirectCampaign />,
 			},
 			{
 				name: 'antispam',
 				path: 'antispam',
-				element: <Spam />,
+				element: <PageAntiSpam />,
+			},
+			{
+				name: 'Add Chat',
+				path: 'addChat',
+				element: <PageAddChat />,
 			},
 		],
 	},

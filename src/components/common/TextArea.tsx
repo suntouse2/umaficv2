@@ -1,23 +1,21 @@
+import { ErrorOutline } from '@mui/icons-material'
 import { ChangeEvent, KeyboardEvent } from 'react'
 
 type TextAreaProps = {
-	resize?: boolean
 	value: string
 	onChange: (value: string) => void
-	onKeyDown?: (
-		event: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>
-	) => void
-	onBlur?: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
+	onKeyDown?: (event: KeyboardEvent<HTMLTextAreaElement>) => void
+	onBlur?: (event: ChangeEvent<HTMLTextAreaElement>) => void
 	className?: string
 	placeholder?: string
 	error?: string
+	minLength?: number
 	maxLength?: number
 }
 
-export function TextArea({
+export default function TextArea({
 	maxLength,
 	value,
-	resize = false,
 	onChange,
 	onKeyDown,
 	onBlur,
@@ -35,19 +33,22 @@ export function TextArea({
 		return onChange(value)
 	}
 
-	const textareaProps = {
-		className: `bg-inputbg  w-full text-sm p-2 font-normal leading-7 rounded-lg outline-none ${className}`,
-		value: value || '',
-		onChange: handleChange,
-		onBlur: handleBlur,
-		onKeyDown,
-		placeholder,
-		resize,
-	}
 	return (
 		<div className='w-full'>
-			<textarea {...textareaProps} />
-			{error && <p className='text-sm text-negative'>{error}</p>}
+			<textarea
+				className={`bg-inputbg  w-full text-sm p-2 font-normal leading-7 rounded-lg outline-none ${className}`}
+				value={value || ''}
+				onChange={handleChange}
+				onBlur={handleBlur}
+				onKeyDown={onKeyDown}
+				placeholder={placeholder}
+			/>
+			{error && (
+				<p className='flex items-center gap-1 mt-2 text-sm text-negative'>
+					<ErrorOutline />
+					{error}
+				</p>
+			)}
 		</div>
 	)
 }

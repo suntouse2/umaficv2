@@ -53,11 +53,16 @@ function readAudioFile(file: File): Promise<ArrayBuffer> {
 	})
 }
 
-async function decodeAudioData(arrayBuffer: ArrayBuffer): Promise<AudioBuffer> {
+function decodeAudioData(arrayBuffer: ArrayBuffer): Promise<AudioBuffer> {
 	const audioContext = new (window.AudioContext || window.AudioContext)()
-	return await audioContext.decodeAudioData(arrayBuffer)
+	return new Promise((resolve, reject) => {
+		audioContext.decodeAudioData(
+			arrayBuffer,
+			buffer => resolve(buffer),
+			error => reject(error)
+		)
+	})
 }
-
 function extractChannelData(decodedAudio: AudioBuffer): Float32Array {
 	return decodedAudio.getChannelData(0)
 }

@@ -5,7 +5,6 @@ import { DBConfig } from '@static/DBConfig'
 import { THEME } from '@static/MIUItheme'
 import { routes } from '@static/routes'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import { initDB } from 'react-indexed-db-hook'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
@@ -16,6 +15,13 @@ import './main.css'
 initDB(DBConfig)
 const router = createHashRouter(routes)
 const queryClient = new QueryClient()
+
+const removePreloader = () => {
+	const preloader = document.getElementById('preloader')
+	if (preloader) {
+		preloader.style.display = 'none'
+	}
+}
 
 createRoot(document.getElementById('root')!).render(
 	<QueryClientProvider client={queryClient}>
@@ -32,10 +38,9 @@ createRoot(document.getElementById('root')!).render(
 					pauseOnHover
 					theme='colored'
 				/>
-				<Suspense fallback={<PageGate text='' loading={true} />}>
-					<RouterProvider router={router} />
-				</Suspense>
+				<RouterProvider fallbackElement={<PageGate loading={true} />} router={router} />
 			</ThemeProvider>
 		</AuthProvider>
 	</QueryClientProvider>
 )
+removePreloader()

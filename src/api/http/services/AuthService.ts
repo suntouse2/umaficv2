@@ -1,17 +1,18 @@
-import { AxiosResponse } from 'axios';
-import { $api } from '../axios';
+import { AxiosResponse } from 'axios'
+import { $api } from '../axios'
 
 class AuthService {
-  async get_access_token(access_link: string): Promise<AxiosResponse<TAuthResponse>> {
-    return $api.get(`/auth`, {
-      params: {
-        access_link,
-      },
-    });
-  }
-  async get_user(): Promise<AxiosResponse<TUserResponse>> {
-    return $api.get('/clients/me');
-  }
+	async getAccessToken({
+		access_link,
+	}: {
+		access_link: string
+	}): Promise<AxiosResponse<TAuth>> {
+		return $api.get(`/auth`, {
+			params: {
+				access_link,
+			},
+		})
+	}
 }
 
-export default new AuthService();
+export default new AuthService()
