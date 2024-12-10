@@ -18,7 +18,9 @@ export default function DirectCampaignSettingsWrapper({
 	const stateCampaignId = useDirectCampaignSettingsStore(s => s.campaignId)
 	const getStore = useDirectCampaignSettingsStore(s => s.getStore)
 	const setStore = useDirectCampaignSettingsStore(s => s.setStore)
-	const [cachedStore, setCachedStore] = useState<ReturnType<typeof getStore> | null>(null)
+	const [cachedStore, setCachedStore] = useState<ReturnType<
+		typeof getStore
+	> | null>(null)
 
 	const localStorageCacheName = (id: number | null) => 'directCampaign-' + id
 
@@ -27,7 +29,9 @@ export default function DirectCampaignSettingsWrapper({
 		let cachedStore: ReturnType<typeof getStore> | null = null
 
 		try {
-			const localStore = localStorage.getItem(localStorageCacheName(store.campaignId))
+			const localStore = localStorage.getItem(
+				localStorageCacheName(store.campaignId)
+			)
 			if (localStore) {
 				cachedStore = JSON.parse(localStore)
 			}
@@ -53,6 +57,7 @@ export default function DirectCampaignSettingsWrapper({
 			}
 			if (campaignId === stateCampaignId) {
 				restoreCache()
+				return
 			}
 			const { data } = await DirectCampaignService.getDirectCampaign(campaignId)
 			setSettings(campaignId, data)

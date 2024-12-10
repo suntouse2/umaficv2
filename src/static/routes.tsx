@@ -47,7 +47,7 @@ export const routes = [
 			},
 			{
 				name: 'chat',
-				path: 'chat/:id',
+				path: 'chat/:campaignId/:directId?',
 				element: <PageChat />,
 			},
 			{

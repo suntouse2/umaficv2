@@ -18,7 +18,7 @@ export default memo(function Avatar({ value, onChange }: AvatarProps) {
 			setFile(serverFile)
 		}
 		fetchFile()
-	}, [value, getFile, file])
+	}, [value, getFile])
 
 	const handleFileChange = async (file: File | null) => {
 		if (!file) return onChange(null)

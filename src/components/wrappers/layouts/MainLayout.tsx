@@ -17,7 +17,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
 	const toggleAside = () => setAsideState(state => !state)
 
 	return (
-		<main>
+		<main className=''>
 			{isDesktopScreen && asideState && <Aside />}
 			{!isDesktopScreen && (
 				<Drawer
