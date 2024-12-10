@@ -109,7 +109,8 @@ type TDirectCampaignSettingsAI = {
 	role: 'marketer' | 'user'
 	gender: 'female' | 'male'
 	description: string
-}
+} | null
+
 type TDirectCampaignSettingsProfile = {
 	first_name: string
 	last_name: string

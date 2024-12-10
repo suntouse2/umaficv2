@@ -68,11 +68,19 @@ export function transformSettingsToStore(settings: TDirectCampaignSettings) {
 				messages: [],
 			},
 			use_assistant: settings.settings.auto_reply.use_assistant,
-			assistant: {
-				description: settings.settings.auto_reply.assistant.description,
-				role: settings.settings.auto_reply.assistant.role,
-				gender: settings.settings.auto_reply.assistant.gender,
-			},
+			assistant:
+				settings.settings.auto_reply.assistant !== null
+					? {
+							description:
+								settings.settings.auto_reply.assistant.description ?? '',
+							role: settings.settings.auto_reply.assistant.role,
+							gender: settings.settings.auto_reply.assistant.gender,
+					  }
+					: {
+							description: '',
+							role: 'marketer',
+							gender: 'female',
+					  },
 		},
 	}
 
@@ -106,7 +114,9 @@ export function transformSettingsToStore(settings: TDirectCampaignSettings) {
 	return storeSettings
 }
 
-export function transformStoreToSettings(state: Store): TDirectCampaignSettings {
+export function transformStoreToSettings(
+	state: Store
+): TDirectCampaignSettings {
 	const funnelMessages = state.settings.auto_reply.funnel.messages
 	const orderMessages = funnelMessages.filter(
 		m => m.type === 'first' || m.type === 'any' || m.type === 'order'
@@ -114,7 +124,11 @@ export function transformStoreToSettings(state: Store): TDirectCampaignSettings 
 	const orderMap = new Map<number, TMessageContent[]>()
 	orderMessages.forEach(msg => {
 		const orderNumber =
-			msg.type === 'first' ? 1 : msg.type === 'any' ? 99 : (msg.filter as number)
+			msg.type === 'first'
+				? 1
+				: msg.type === 'any'
+				? 99
+				: (msg.filter as number)
 		if (!orderMap.has(orderNumber)) {
 			orderMap.set(orderNumber, [])
 		}
@@ -169,11 +183,14 @@ export function transformStoreToSettings(state: Store): TDirectCampaignSettings 
 					})),
 				},
 				use_assistant: state.settings.auto_reply.use_assistant,
-				assistant: {
-					role: state.settings.auto_reply.assistant.role,
-					gender: state.settings.auto_reply.assistant.gender,
-					description: state.settings.auto_reply.assistant.description,
-				},
+				assistant:
+					state.settings.auto_reply.assistant !== null
+						? {
+								role: state.settings.auto_reply.assistant.role,
+								gender: state.settings.auto_reply.assistant.gender,
+								description: state.settings.auto_reply.assistant.description,
+						  }
+						: null,
 			},
 		},
 	}
