@@ -31,7 +31,7 @@ export default function PaymentWindow() {
 			<Input className='mb-2' placeholder='Почта' value={email} onChange={setEmail} />
 			<Input
 				className='mb-4'
-				minNumber={500}
+				minNumber={3000}
 				onlyDigits
 				placeholder='Сумма в ₽'
 				value={amount}
