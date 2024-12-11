@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import useMediaService from '../hooks/useMediaService'
 import AvatarInput from './common/AvatarInput'
 
@@ -7,7 +7,7 @@ type AvatarProps = {
 	onChange: (value: string | null) => void
 }
 
-export default memo(function Avatar({ value, onChange }: AvatarProps) {
+export default function Avatar({ value, onChange }: AvatarProps) {
 	const [file, setFile] = useState<File | null>(null)
 	const { getFile, uploadFile } = useMediaService()
 
@@ -29,4 +29,4 @@ export default memo(function Avatar({ value, onChange }: AvatarProps) {
 	}
 
 	return <AvatarInput file={file} onChange={handleFileChange} />
-})
+}

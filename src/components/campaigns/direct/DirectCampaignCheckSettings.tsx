@@ -18,11 +18,7 @@ export default function DirectCampaignCheckSettings() {
 	const [tabIndex, setTabIndex] = useState<number>(0)
 
 	const [geo, keywords, setKeyword] = useDirectCampaignSettingsStore(
-		useShallow(state => [
-			state.settings.geo,
-			state.settings.keywords,
-			state.setKeyword,
-		])
+		useShallow(state => [state.settings.geo, state.settings.keywords, state.setKeyword])
 	)
 	const transposedTarget = useMemo(() => {
 		return {
@@ -36,22 +32,14 @@ export default function DirectCampaignCheckSettings() {
 
 	const statsQuery = useFetchDirectCampaignSettingsStats(transposedTarget)
 
-	const msgQuery = useFetchDirectCampaignSettingsMessages(
-		transposedTarget,
-		tabIndex
-	)
+	const msgQuery = useFetchDirectCampaignSettingsMessages(transposedTarget, tabIndex)
 	const fetchNextMessages = msgQuery.fetchNextPage
-	const messages = msgQuery.data
-		? msgQuery.data.pages.flatMap(msg => msg.data)
-		: []
+	const messages = msgQuery.data ? msgQuery.data.pages.flatMap(msg => msg.data) : []
 	const isMessagesFetching = msgQuery.isPending
 
 	const noKeywords = keywords.include.length == 0
 
-	const handleManageKeywords = (
-		type: 'include' | 'exclude',
-		keyword: string
-	) => {
+	const handleManageKeywords = (type: 'include' | 'exclude', keyword: string) => {
 		const filter = keyword.trim().toLowerCase()
 		if (filter && !keywords[type].some(key => key.value === filter)) {
 			setKeyword(type, [...keywords[type], { id: nanoid(), value: keyword }])
@@ -61,17 +49,15 @@ export default function DirectCampaignCheckSettings() {
 	return (
 		<Bubble className='relative mt-4'>
 			<p className='text-sm'>
-				Перед запуском Umafic Таргет рекомендуем проверить настройки поисковых
-				фраз. <br />
+				Перед запуском Umafic Таргет рекомендуем проверить настройки поисковых фраз.{' '}
+				<br />
 				<br /> Для этого используем кнопку "Проверить Настройки".
 				<br />
-				<br /> При этом система в режиме реального времени покажет, на какие
-				сообщения будет реагировать. Благодаря этому инструменту вы сможете
-				решить, какие фразы нужно добавить или исключить из "Поисковых фраз", а
-				также "Минус-фраз". <br />
-				<br /> Для добавления, нажмите на слово в найденном сообщении, при
-				необходимости измените его и добавьте в "Поисковые фразы" или
-				"Минус-фразы"
+				<br /> При этом система в режиме реального времени покажет, на какие сообщения
+				будет реагировать. Благодаря этому инструменту вы сможете решить, какие фразы
+				нужно добавить или исключить из "Поисковых фраз", а также "Минус-фраз". <br />
+				<br /> Для добавления, нажмите на слово в найденном сообщении, при необходимости
+				измените его и добавьте в "Поисковые фразы" или "Минус-фразы"
 			</p>
 			<Button
 				onClick={() => setDialog(true)}
@@ -104,17 +90,13 @@ export default function DirectCampaignCheckSettings() {
 								exit={{ opacity: 0, y: 5 }}
 								className='p-2'
 							>
-								<p className='text-lg'>
-									Всего сообщений: {statsQuery.data?.messages}
-								</p>
+								<p className='text-lg'>Всего сообщений: {statsQuery.data?.messages}</p>
 								<p className='text-lg'>
 									Всего потенциальных клиентов: {statsQuery.data.unique_users}
 								</p>
 								<p className='text-lg'>
 									Рекомендуемый суточный бюджет:{' '}
-									{formatBalance(
-										statsQuery.data.recommended_daily_budget_limit
-									)}
+									{formatBalance(statsQuery.data.recommended_daily_budget_limit)}
 								</p>
 							</motion.div>
 						)}
@@ -146,7 +128,7 @@ export default function DirectCampaignCheckSettings() {
 								/>
 							)}
 							endReached={() => fetchNextMessages()}
-							increaseViewportBy={{ top: 0, bottom: 800 }}
+							increaseViewportBy={{ top: 0, bottom: 1000 }}
 						/>
 					)}
 				</article>
