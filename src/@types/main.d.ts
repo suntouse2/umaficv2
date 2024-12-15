@@ -226,7 +226,7 @@ type TChatMessage = {
 			link: string
 		}
 	} | null
-	catch_slug: string
+	catch_slug?: string
 	reply_to: number | null
 }
 type TChatSendMessage = {
@@ -279,9 +279,7 @@ type TAddChannelForm = {
 		city: string | null
 	}
 }
-type TChatDirectResponse = TChatDirect
-type TChatDirectsResponse = TChatDirect[]
-type TChatDirectMessagesResponse = TChatMessage[]
+
 type TChatDirect = {
 	id: number
 	bot: {
@@ -377,6 +375,11 @@ type TChatMessage = {
 	catch_slug: string
 	reply_to: number | null
 }
+
+type TWSIncomingMessage = TChatMessage & {
+	direct_id: number
+}
+
 type TChatSendMessage = {
 	content: TMessageContent
 	reply_to: number | null

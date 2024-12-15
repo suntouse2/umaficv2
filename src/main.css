@@ -10,6 +10,7 @@ html {
 body {
 	max-width: 100dvw;
 	overflow-x: hidden;
+	overflow-y: hidden;
 	font-family: 'Mulish', 'Roboto', sans-serif;
 }
 

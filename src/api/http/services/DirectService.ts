@@ -6,7 +6,7 @@ class DirectService {
 		campaign_id: number,
 		page: number,
 		filter?: { is_open?: boolean; is_favorite?: boolean }
-	): Promise<AxiosResponse<TChatDirectsResponse>> {
+	): Promise<AxiosResponse<TChatDirect[]>> {
 		return $api.get('/directs', {
 			params: {
 				...filter,
@@ -15,7 +15,7 @@ class DirectService {
 			},
 		})
 	}
-	async getDirect(direct_id: number): Promise<AxiosResponse<TChatDirectResponse>> {
+	async getDirect(direct_id: number): Promise<AxiosResponse<TChatDirect>> {
 		return $api.get(`/directs/${direct_id}`, {})
 	}
 	async updateDirect(
@@ -30,7 +30,7 @@ class DirectService {
 	async getDirectMessages(
 		direct_id: number,
 		page: number = 1
-	): Promise<AxiosResponse<TChatDirectMessagesResponse>> {
+	): Promise<AxiosResponse<TChatMessage[]>> {
 		return $api.get(`/directs/${direct_id}/messages`, {
 			params: {
 				page,

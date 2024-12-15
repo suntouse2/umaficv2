@@ -1,12 +1,16 @@
 import { useFetchDirectCampaigns } from '@api/queries'
 import DirectCampaignCard from '@components/campaigns/direct/DirectCampaignCard'
 import { CircularProgress } from '@mui/material'
-import { memo, useEffect } from 'react'
+import { memo, useEffect, useRef } from 'react'
 import { useInView } from 'react-intersection-observer'
 
 export default memo(function DirectCampaignsList() {
 	const { data, isPending, fetchNextPage } = useFetchDirectCampaigns()
-	const { ref, inView } = useInView()
+	const listRef = useRef<HTMLUListElement | null>(null)
+	const { ref, inView } = useInView({
+		root: listRef.current,
+		rootMargin: '100px',
+	})
 	const campaigns = data ? data.pages.flatMap(campaigns => campaigns.data) : []
 
 	useEffect(() => {

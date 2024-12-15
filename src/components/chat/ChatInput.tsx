@@ -1,159 +1,94 @@
+import AudioRecorder from '@components/AudioRecorder'
+import TextArea from '@components/common/TextArea'
 import MediaRenderer from '@components/MediaRenderer'
-import FileSelectMenu from '@components/MediaSelectMenu'
-import { useChat } from '@context/chat/ChatContext'
-import InputAcceptByMediaType from '@helpers/setInputAttributeByFileType'
+import MediaUploader from '@components/MediaUploader'
 import useMediaService from '@hooks/useMediaService'
-import { AttachFile, Delete, Send } from '@mui/icons-material'
-import { Button, IconButton, TextField } from '@mui/material'
-import {
-	ChangeEvent,
-	ClipboardEvent,
-	DragEvent,
-	KeyboardEvent,
-	memo,
-	useCallback,
-	useRef,
-	useState,
-} from 'react'
-import { toast } from 'react-toastify'
+import { SendOutlined } from '@mui/icons-material'
+import { Dialog } from '@mui/material'
+import { nanoid } from 'nanoid'
+import { KeyboardEvent, memo, useState } from 'react'
 
-// type SendedMessage = { direct_id: number; content: TMessageContent; catch_slug: string };
+type ChatInputProps = {
+	onSend: (content: TMessageContent) => void
+}
 
-// type ChatInputProps = {
-//   onMessageSended?: (msg: SendedMessage) => void;
-// };
-
-export default memo(function ChatInput() {
-	const { sendMessage } = useChat()
-
-	const [message, setMessage] = useState<string>('')
+export default memo(function ChatInput({ onSend }: ChatInputProps) {
+	const [text, setText] = useState<string>('')
 	const [media, setMedia] = useState<TMessageContent['media']>(null)
-	const [lastType, setLastType] = useState<TMediaTypes>('auto')
-	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-	const fileInputRef = useRef<HTMLInputElement>(null)
 	const { uploadFile } = useMediaService()
-
-	const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
-		setAnchorEl(event.currentTarget)
-	}
-	const handleMenuClose = useCallback(() => setAnchorEl(null), [])
-
-	const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
-		const file = e.target.files?.[0]
-		if (!file) return
-		const filepath = await uploadFile(file)
-		setMedia({ filepath, type: lastType })
-		e.target.value = ''
-	}
-
-	const handlePaste = async (e: ClipboardEvent<HTMLDivElement>) => {
-		const items = e.clipboardData.items
-		for (let i = 0; i < items.length; i++) {
-			const item = items[i]
-			if (item.kind === 'file') {
-				const file = item.getAsFile()
-				if (file) {
-					const filepath = await uploadFile(file)
-					setMedia({ filepath, type: 'auto' })
-				}
-			}
+	const handleInputEnter = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+		if (!e.shiftKey && e.key == 'Enter') {
+			e.preventDefault()
+			handleSend()
 		}
 	}
 
-	const handleDrop = async (e: DragEvent<HTMLDivElement>) => {
-		e.preventDefault()
-		const file = e.dataTransfer.files?.[0]
-		if (!file) return
+	const handleSend = () => {
+		onSend({
+			message: text,
+			media: media,
+		})
+		setText('')
+		setMedia(null)
+	}
+
+	const handleAudioUpload = async (blob: Blob) => {
+		const file = new File([blob], `audio_${nanoid()}`)
 		const filepath = await uploadFile(file)
-		setMedia({ filepath, type: 'auto' })
+		setMedia({
+			filepath,
+			type: 'voice',
+		})
 	}
 
-	const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
-		e.preventDefault()
-	}
-
-	const handleMediaUpdate = useCallback(
-		(type: TMediaTypes) => {
-			if (!fileInputRef.current) return
-			fileInputRef.current.accept = InputAcceptByMediaType(type)
-			setLastType(type)
-			fileInputRef.current.click()
-			handleMenuClose()
-		},
-		[handleMenuClose]
+	const Input = (
+		<TextArea
+			value={text}
+			autoHeight={true}
+			onKeyDown={handleInputEnter}
+			className='bg-white p-0'
+			placeholder='Введите сообщение...'
+			onChange={setText}
+			maxLength={4096}
+		/>
 	)
 
-	const handleEnter = (e: KeyboardEvent<HTMLDivElement>) => {
-		if (e.key === 'Enter' && !e.shiftKey) {
-			e.preventDefault()
-			handleSendMessage()
-		}
-	}
-
-	const handleSendMessage = async () => {
-		try {
-			if (!message && !media) {
-				toast.error('Сообщение должно содержать текст или медиа.')
-				return
-			}
-			const msg = await sendMessage({
-				content: {
-					message,
-					media,
-				},
-				reply_to: null,
-			})
-			console.log(msg)
-
-			setMessage('')
-			setMedia(null)
-		} catch {
-			/* empty */
-		}
-	}
+	const Submit = (
+		<button
+			onClick={handleSend}
+			type='button'
+			className='border-none active:scale-[0.8] transition-transform'
+		>
+			<SendOutlined color='primary' />
+		</button>
+	)
 
 	return (
-		<div onDrop={handleDrop} onDragOver={handleDragOver} onPaste={handlePaste}>
-			<div className=' w-full flex p-4 gap-2 items-center'>
-				<IconButton
-					onClick={handleMenuClick}
-					sx={{ width: '50px', height: '50px' }}
-				>
-					<AttachFile />
-				</IconButton>
-				<FileSelectMenu
-					anchorEl={anchorEl}
-					onClose={handleMenuClose}
-					onClick={handleMediaUpdate}
-				/>
-				<TextField
-					multiline
-					fullWidth
-					slotProps={{ htmlInput: { maxLength: 4096 } }}
-					onKeyDown={handleEnter}
-					variant='standard'
-					value={message}
-					onChange={v => setMessage(v.target.value)}
-				/>
-				<Button onClick={handleSendMessage} variant='text' className='!h-full'>
-					<Send />
-				</Button>
-				<input
-					ref={fileInputRef}
-					type='file'
-					hidden
-					onChange={handleFileChange}
-				/>
-			</div>
-			<div className='relative group'>
-				{media && (
-					<div className='absolute top-0 right-0'>
-						<IconButton onClick={() => setMedia(null)}>
-							<Delete className='hover:text-negative cursor-pointer' />
-						</IconButton>
+		<div
+			onSubmit={e => {
+				e.preventDefault()
+			}}
+			className='flex items-center px-2 pt-2 pb-1 bg-white border-t-[1px] border-border'
+		>
+			<div>
+				<Dialog open={Boolean(media)} onClose={() => setMedia(null)}>
+					<div className=''>
+						<div className='p-4'>
+							<MediaRenderer media={media} />
+						</div>
+						<hr className='border-border h-0' />
+						<div className='px-2 py-1 flex items-center'>
+							{Input}
+							{Submit}
+						</div>
 					</div>
-				)}
-				<MediaRenderer media={media} />
+				</Dialog>
+			</div>
+			{Input}
+			<AudioRecorder onRecorded={handleAudioUpload} />
+			<div className='flex gap-2 items-center'>
+				<MediaUploader onMediaUploaded={setMedia} />
+				{Submit}
 			</div>
 		</div>
 	)

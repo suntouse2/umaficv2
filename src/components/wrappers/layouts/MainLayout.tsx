@@ -13,11 +13,10 @@ export default function MainLayout({ children }: MainLayoutProps) {
 	const isDesktopScreen = useMediaQuery(theme.breakpoints.up('md'))
 	const [asideState, setAsideState] = useState<boolean>(isDesktopScreen)
 	const asideSpace = asideState && isDesktopScreen ? 'ml-48' : ''
-
 	const toggleAside = () => setAsideState(state => !state)
 
 	return (
-		<main className=''>
+		<main className='flex overflow-hidden flex-col w-dvw h-dvh relative'>
 			{isDesktopScreen && asideState && <Aside />}
 			{!isDesktopScreen && (
 				<Drawer
@@ -30,7 +29,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
 				</Drawer>
 			)}
 			<Header className={asideSpace} onMenuClick={toggleAside} />
-			<div className={asideSpace}>{children}</div>
+			<div className={`${asideSpace} overflow-hidden h-full`}>{children}</div>
 		</main>
 	)
 }

@@ -28,9 +28,7 @@ type TChatContext = {
 	openDirect: (direct_id: number) => Promise<void>
 	readMessage: (direct_id: number, msg_id: number) => Promise<void>
 	campaignId: number
-	sendMessage: (
-		msg: TChatSendMessage
-	) => Promise<{ catch_slug: string } | undefined>
+	sendMessage: (msg: TChatSendMessage) => Promise<{ catch_slug: string } | undefined>
 }
 
 const chatContext = createContext<TChatContext | null>(null)
@@ -68,8 +66,7 @@ export function ChatProvider({
 						if (direct.id === wsMsg.direct_id) {
 							const updatedDirect = { ...direct, last_message: wsMsg }
 							if (direct.id !== currentDirectId && wsMsg.is_read == false) {
-								updatedDirect.unread_count =
-									(updatedDirect.unread_count ?? 0) + 1
+								updatedDirect.unread_count = (updatedDirect.unread_count ?? 0) + 1
 							}
 							return updatedDirect
 						}
@@ -78,10 +75,7 @@ export function ChatProvider({
 
 					const direct = updatedDirects.find(d => d.id === wsMsg.direct_id)
 					if (direct) {
-						return [
-							direct,
-							...updatedDirects.filter(d => d.id !== wsMsg.direct_id),
-						]
+						return [direct, ...updatedDirects.filter(d => d.id !== wsMsg.direct_id)]
 					}
 					return updatedDirects
 				})
@@ -139,16 +133,13 @@ export function ChatProvider({
 	}, [campaignId])
 
 	const [directsPage, setDirectsPage] = useState<number>(1)
-	const [messagesPage, setMessagesPage] = useState<{ [key: number]: number }>(
-		{}
-	)
+	const [messagesPage, setMessagesPage] = useState<{ [key: number]: number }>({})
 	const [directs, setDirects] = useState<TChatDirectsResponse>([])
 	const [messagesCache, setMessagesCache] = useState<{
 		[key: number]: TChatDirectMessagesResponse
 	}>({})
 	const [isFavorite, setIsFavorite] = useState<boolean>(false)
-	const [currentDirect, setCurrentDirect] =
-		useState<TChatDirectResponse | null>(null)
+	const [currentDirect, setCurrentDirect] = useState<TChatDirectResponse | null>(null)
 	const [hasNextDirectPage, setHasNextDirectPage] = useState<boolean>(true)
 	const messages = useMemo(() => {
 		if (!directId) return []
@@ -179,9 +170,7 @@ export function ChatProvider({
 				}
 				setDirects(directs =>
 					directs.map(direct =>
-						direct.id === direct_id
-							? { ...direct, is_favorite: isFavorite }
-							: direct
+						direct.id === direct_id ? { ...direct, is_favorite: isFavorite } : direct
 					)
 				)
 			} catch (error) {
@@ -257,9 +246,7 @@ export function ChatProvider({
 
 				setDirects(directs => {
 					const updatedDirects = directs.map(direct =>
-						direct.id === directId
-							? { ...direct, last_message: sendingMessage }
-							: direct
+						direct.id === directId ? { ...direct, last_message: sendingMessage } : direct
 					)
 					const direct = updatedDirects.find(d => d.id === directId)
 					if (direct) {
@@ -320,9 +307,7 @@ export function ChatProvider({
 			setCurrentDirect(null)
 			return
 		}
-		DirectService.getDirect(directId).then(direct =>
-			setCurrentDirect(direct.data)
-		)
+		DirectService.getDirect(directId).then(direct => setCurrentDirect(direct.data))
 		fetchMessages()
 	}, [directId, fetchMessages])
 

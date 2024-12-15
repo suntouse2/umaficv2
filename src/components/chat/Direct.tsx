@@ -1,44 +1,61 @@
-import dateToString from '@helpers/dateToString';
-import mediaToText from '@helpers/mediaToText';
-import { stringAvatar } from '@helpers/stringAvatar';
-import { AccessTime } from '@mui/icons-material';
-import { Avatar, Button } from '@mui/material';
-import { useParams } from 'react-router-dom';
+import dateToRelativeString from '@helpers/dateToRelativeString'
+import mediaTypeToText from '@helpers/mediaToText'
+import { stringAvatar } from '@helpers/stringAvatar'
+import { Avatar } from '@mui/material'
+import { AnimatePresence, motion } from 'motion/react'
+import { memo } from 'react'
+import { useChatStore } from '../../store/chatStore'
 
 type DirectProps = {
-  direct: TChatDirect;
-  onClick: () => void;
-};
-
-export default function Direct({ direct, onClick }: DirectProps) {
-  const params = useParams();
-  const directId = Number(params.directId);
-
-  const isUnRead = direct.unread_count > 0;
-
-  return (
-    <Button onClick={onClick} key={direct.id} className={`flex text-left gap-3 p-2 w-full min-h-20 max-h-20  hover:bg-softgray cursor-pointer ${Number(directId) == direct.id && '!bg-primary !bg-opacity-10'}`}>
-      <Avatar {...stringAvatar(direct.user.first_name)} />
-      <div className='w-full overflow-hidden'>
-        <p className='flex justify-between gap-5 w-full overflow-hidden'>
-          <b className={`whitespace-nowrap text-dark ${isUnRead && '!text-primary'}`}>{direct.user.first_name + ' ' + (direct.user.last_name ?? '')}</b> {direct.last_message && <span className='text-sm whitespace-nowrap text-softgray4'>{direct.last_message.date ? dateToString(new Date(direct.last_message.date)) : <AccessTime className='!text-sm' />}</span>}
-        </p>
-        {(!direct.last_message?.content?.message || !direct.last_message?.content?.media) && (
-          <p className={`whitespace-nowrap ${isUnRead && '!text-primary'} text-dark w-full overflow-hidden text-ellipsis`}>
-            {direct.last_message?.forwarded_message?.content?.message}
-            {direct.last_message?.forwarded_message?.content?.media && mediaToText(direct.last_message.forwarded_message.content.media.type)}
-          </p>
-        )}
-        <p className={`whitespace-nowrap ${isUnRead && '!text-primary'} text-dark w-full overflow-hidden text-ellipsis`}>
-          {direct.last_message?.content?.message}
-          {direct.last_message?.content?.media && mediaToText(direct.last_message.content.media.type)}
-        </p>
-      </div>
-      {isUnRead && (
-        <div className='flex h-full items-center'>
-          <div className='bg-primary min-w-6 w-auto h-6 p-1 text-sm rounded-full flex justify-center items-center text-white '>{direct.unread_count}</div>
-        </div>
-      )}
-    </Button>
-  );
+	direct: TChatDirect
+	onClick: () => void
 }
+export default memo(function Direct({ direct, onClick }: DirectProps) {
+	const directId = useChatStore(state => state.direct?.id)
+	const message = direct.last_message.content.message
+	const media = direct.last_message.content.media
+	const user = `${direct.user.first_name ?? ''} ${direct.user.last_name ?? ''}`.slice(
+		0,
+		20
+	)
+	const isUnRead = direct.unread_count > 0
+	const date = dateToRelativeString(new Date(direct.last_message.date ?? ''))
+	return (
+		<div>
+			<div
+				onClick={onClick}
+				className={`relative cursor-pointer border-b border-border flex gap-2 items-start overflow-hidden px-2 py-2 w-full h-20 transition-[background]  ${
+					direct.id == directId && 'bg-softgray'
+				}`}
+			>
+				<Avatar {...stringAvatar(direct.user.first_name)} />
+				<div className='flex flex-col w-full h-full overflow-hidden'>
+					<div className='flex gap-2  justify-between text-softgray4'>
+						<b className='text-sm text-nowrap'>{user}</b>
+						<span className='text-xs text-nowrap'>{date}</span>
+					</div>
+					<div className='flex gap-2 w-full h-full overflow-hidden'>
+						<p className='w-full h-full  overflow-hidden text-ellipsis text-sm'>
+							{message}
+							{!message && media && mediaTypeToText(media.type)}
+						</p>
+						<AnimatePresence>
+							{isUnRead && (
+								<div className='flex h-full items-center'>
+									<motion.div
+										initial={{ scale: 0 }}
+										animate={{ scale: 1 }}
+										exit={{ scale: 0 }}
+										className='bg-primary bg-opacity-20 min-w-6 w-auto h-6 p-2 rounded-full flex justify-center items-center text-xs text-softgray4 '
+									>
+										{direct.unread_count}
+									</motion.div>
+								</div>
+							)}
+						</AnimatePresence>
+					</div>
+				</div>
+			</div>
+		</div>
+	)
+})

@@ -2,37 +2,25 @@ import { useAuth } from '@context/AuthContext'
 import {
 	AccountBalanceWalletRounded,
 	ChatRounded,
-	ContentCopyRounded,
 	ExitToAppRounded,
 	SpaceDashboardRounded,
 	SupportAgentRounded,
 } from '@mui/icons-material'
 import { supportLink } from '@static/links'
-import { toast } from 'react-toastify'
 import Logo from './ui/AnimatedLogo'
 import NavItem from './ui/NavItem'
+import Id from './user/Id'
 
 export default function Aside() {
-	const { user, exit } = useAuth()
-
-	const handleCopyId = async () => {
-		if (!user) return
-		await navigator.clipboard.writeText(user.id.toString())
-		return toast.dark('ID Скопирован!')
-	}
+	const { exit } = useAuth()
 
 	return (
 		<aside className='fixed w-48 h-full bg-white border-r-[1px] border-border'>
 			<nav>
-				<button
-					title='Нажмите чтобы скопировать ID'
-					className='w-full min-h-12 outline-none text-sm flex px-4 py-2 gap-4 items-center hover:bg-softgray'
-					onClick={handleCopyId}
-				>
+				<div className='flex items-center px-4 py-2 min-h-12 gap-2'>
 					<Logo size='20' />
-					<span>#{user?.id}</span>
-					<ContentCopyRounded className='!text-[15px]' />
-				</button>
+					<Id />
+				</div>
 				<hr className='h-[1px] border-none bg-border' />
 				<NavItem to='/' Icon={<SpaceDashboardRounded />} title='Главная' />
 				<hr className='h-[1px] border-none bg-border' />

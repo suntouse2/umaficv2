@@ -18,7 +18,11 @@ export const THEME = createTheme({
 			},
 		},
 		MuiDialog: {
-			styleOverrides: {},
+			styleOverrides: {
+				paper: {
+					borderRadius: 5,
+				},
+			},
 		},
 		MuiTooltip: {
 			styleOverrides: {

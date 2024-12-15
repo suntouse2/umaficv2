@@ -11,8 +11,12 @@ type VoiceProps = {
 export default memo(function Voice({ audioFile, blob }: VoiceProps) {
 	const theme = useTheme()
 
-	const blobBlob = useMemo(() => new Blob([audioFile], { type: audioFile.type }), [audioFile])
-	const { audioRef, handlePlay, currentTime, remainingTime, isPlaying } = usePlayableAudio()
+	const blobBlob = useMemo(
+		() => new Blob([audioFile], { type: audioFile.type }),
+		[audioFile]
+	)
+	const { audioRef, handlePlay, currentTime, remainingTime, isPlaying } =
+		usePlayableAudio()
 
 	const formatTime = (time: number) => {
 		const minutes = Math.floor(time / 60)
@@ -44,7 +48,9 @@ export default memo(function Voice({ audioFile, blob }: VoiceProps) {
 				/>
 				<audio src={blob} ref={audioRef} style={{ display: 'none' }}></audio>
 				<span className=' text-primary text-xs font-sans font-lights absolute bottom-[-10px]'>
-					{formatTime(remainingTime)}
+					{!isNaN(remainingTime) &&
+						remainingTime !== Infinity &&
+						formatTime(remainingTime)}
 				</span>
 			</div>
 		</div>

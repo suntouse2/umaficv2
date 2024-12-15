@@ -10,8 +10,6 @@ export default function DirectCampaignUserSettings() {
 	const profile = useDirectCampaignSettingsStore(state => state.settings.profile)
 	const setProfile = useDirectCampaignSettingsStore(state => state.setProfile)
 
-	console.log(profile)
-
 	return (
 		<Bubble className='relative mt-4'>
 			<div className='grid grid-cols-1 sm:grid-cols-2 p-4 gap-5'>
