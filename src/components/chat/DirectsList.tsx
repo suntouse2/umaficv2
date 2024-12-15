@@ -1,6 +1,12 @@
-import { ArrowBack, Done, MoodBad } from '@mui/icons-material'
-import { Button } from '@mui/material'
-import { useCallback, useEffect, useRef } from 'react'
+import {
+	ArrowBack,
+	ArrowBackIosNewRounded,
+	ArrowForwardIosRounded,
+	Done,
+	MoodBad,
+} from '@mui/icons-material'
+import { Button, IconButton } from '@mui/material'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { useNavigate } from 'react-router-dom'
 import { useChatStore } from '../../store/chatStore'
@@ -15,6 +21,7 @@ export default function DirectsList() {
 	const fetchDirect = useChatStore(state => state.fetchDirect)
 	const directsFilter = useChatStore(state => state.directsFilter)
 	const setDirectsFilter = useChatStore(state => state.setDirectsFilter)
+	const [isOpen, setIsOpen] = useState<boolean>(true)
 	const handleDirectClick = useCallback(
 		(directId: number) => {
 			fetchDirect(directId)
@@ -44,6 +51,21 @@ export default function DirectsList() {
 		if (inView) fetchDirects()
 	}, [inView, fetchDirects])
 
+	if (!isOpen)
+		return (
+			<div className='w-max h-full border-r border-border'>
+				<div className='w-10 flex items-center justify-center border-t h-[50px] border-border border-b'>
+					<IconButton
+						size='small'
+						className='!mb-1 !p-0 !text-xs'
+						onClick={() => setIsOpen(true)}
+					>
+						<ArrowForwardIosRounded />
+					</IconButton>
+				</div>
+			</div>
+		)
+
 	return (
 		<article className='border-t border-r py-2 border-border overflow-hidden w-[480px] h-full'>
 			<div className='flex items-center px-2 border-b border-border justify-between py-1'>
@@ -54,14 +76,19 @@ export default function DirectsList() {
 				>
 					<ArrowBack /> Назад
 				</Button>
-				<Button
-					onClick={handleSwitchFilter}
-					variant='contained'
-					color={directsFilter == 'favorite' ? 'primary' : 'inherit'}
-					className='!shadow-none !py-1 !px-2 !mb-1 !text-xs !rounded-full'
-				>
-					{directsFilter == 'favorite' && <Done fontSize='small' />} Только избранные
-				</Button>
+				<div className='flex items-center gap-2'>
+					<IconButton onClick={() => setIsOpen(false)} size='small' className='!mb-1'>
+						<ArrowBackIosNewRounded fontSize='small' />
+					</IconButton>
+					<Button
+						onClick={handleSwitchFilter}
+						variant='contained'
+						color={directsFilter == 'favorite' ? 'primary' : 'inherit'}
+						className='!shadow-none !py-1 !px-2 !mb-1 !text-xs !rounded-full'
+					>
+						{directsFilter == 'favorite' && <Done fontSize='small' />} Только избранные
+					</Button>
+				</div>
 			</div>
 			{!isDirectsFetching && directs.length == 0 && (
 				<div className='flex flex-col items-center justify-center'>

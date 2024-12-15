@@ -25,7 +25,7 @@ export default function ForwardedMessage({ message }: ForwardedMessageProps) {
 					<b className='text-sm'>{author}</b>
 					<span className='text-xs text-softgray3'>{date}</span>
 				</div>
-				<p className='w-full break-all'>{text}</p>
+				<p className='w-full break-words'>{text}</p>
 				<MediaRenderer media={media} />
 			</div>
 		</div>

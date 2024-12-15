@@ -15,10 +15,6 @@ type MessageProps = {
 
 export default function Message({ message, onReply }: MessageProps) {
 	const readMessage = useChatStore(state => state.readMessage)
-	const directName = useChatStore(state => state.direct?.user)
-	const author = message.is_self
-		? 'Вы'
-		: (directName?.first_name ?? '') + ' ' + (directName?.last_name ?? '')
 	const text = message.content.message
 	const media = message.content.media
 	const isSending = Boolean(message.catch_slug)
@@ -39,23 +35,24 @@ export default function Message({ message, onReply }: MessageProps) {
 
 	return (
 		<>
-			<motion.div
-				onContextMenu={handleContextOpen}
-				className={`flex flex-col w-full p-2`}
-				initial={{ opacity: 0 }}
-				animate={{ opacity: 1 }}
-			>
-				<div className='w-full flex justify-between items-center'>
-					<b className={`${message.is_self && 'text-secondary'}`}>{author}</b>
-					<div className='flex items-center gap-2'>
-						{isSending && <SmallLoader className='fill-softgray text-softgray3' />}
-						{!isSending && <span className='text-xs text-softgray3'>{date}</span>}
+			<div className={`w-full flex ${message.is_self ? 'justify-end' : 'justify-start'}`}>
+				<motion.div
+					onContextMenu={handleContextOpen}
+					className={`w-max max-w-80 ${
+						message.is_self ? 'bg-primary bg-opacity-20' : 'bg-softgray'
+					} rounded-xl px-4 py-2`}
+					initial={{ opacity: 0 }}
+					animate={{ opacity: 1 }}
+				>
+					<ForwardedMessage message={message.forwarded_message} />
+					<p className={`w-full break-words`}>{text}</p>
+					<div className='flex justify-end mt-2'>
+						{isSending && <SmallLoader className='fill-softgray white text-softgray3' />}
+						{!isSending && <span className={`text-xs text-softgray3`}>{date}</span>}
 					</div>
-				</div>
-				<ForwardedMessage message={message.forwarded_message} />
-				<p className='w-full break-all'>{text}</p>
-				<MediaRenderer media={media} />
-			</motion.div>
+					<MediaRenderer media={media} />
+				</motion.div>
+			</div>
 			<Popover
 				open={Boolean(anchorEl)}
 				anchorEl={anchorEl}

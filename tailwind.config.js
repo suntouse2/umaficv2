@@ -10,7 +10,7 @@ export default {
 			primary: '#568ce1',
 			secondary: '#26a69a',
 			secondaryHigh: '#2CCAA1',
-			accent: '#9c27b0',
+			accent: '#d140ea',
 			success: '#47a42b',
 			positive: '#22ce36',
 			negative: '#d6152c',

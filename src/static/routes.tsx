@@ -3,7 +3,6 @@ import AuthWrapper from '@components/wrappers/AuthWrapper'
 import MainLayout from '@components/wrappers/layouts/MainLayout'
 import { CircularProgress } from '@mui/material'
 import PageAddChat from '@pages/pageAddChat'
-import PageBalance from '@pages/pageBalance'
 import PageChat from '@pages/pageChat'
 import PageDashboard from '@pages/pageDashboard'
 import PageDirectCampaigns from '@pages/pageDirectCampaigns'
@@ -49,11 +48,6 @@ export const routes = [
 				name: 'chat',
 				path: 'chat/:campaignId/:directId?',
 				element: <PageChat />,
-			},
-			{
-				name: 'payment page',
-				path: 'balance',
-				element: <PageBalance />,
 			},
 			{
 				name: 'direct campaign',

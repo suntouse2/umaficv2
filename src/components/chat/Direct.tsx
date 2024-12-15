@@ -32,7 +32,7 @@ export default memo(function Direct({ direct, onClick }: DirectProps) {
 				<div className='flex flex-col w-full h-full overflow-hidden'>
 					<div className='flex gap-2  justify-between text-softgray4'>
 						<b className='text-sm text-nowrap'>{user}</b>
-						<span className='text-xs text-nowrap'>{date}</span>
+						<span className='text-[12px] text-nowrap'>{date}</span>
 					</div>
 					<div className='flex gap-2 w-full h-full overflow-hidden'>
 						<p className='w-full h-full  overflow-hidden text-ellipsis text-sm'>

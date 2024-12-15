@@ -6,7 +6,7 @@ import {
 import ValueTuner from '@components/common/ValueTuner'
 import Bubble from '@components/ui/Bubble'
 import formatBalance from '@helpers/formatBalance'
-import { Delete, SettingsOutlined, TextsmsOutlined } from '@mui/icons-material'
+import { DeleteRounded, SettingsOutlined, TextsmsOutlined } from '@mui/icons-material'
 import { Badge, IconButton, Switch } from '@mui/material'
 import { motion } from 'motion/react'
 import { useNavigate } from 'react-router-dom'
@@ -49,10 +49,15 @@ export default function DirectCampaignCard({ campaign }: DirectCampaignCardProps
 		<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
 			<Bubble className='p-4'>
 				<div className='flex items-center justify-between'>
-					<h2 className='text-lg font-bold'>{campaign.name}</h2>
+					<h2 className='flex items-center gap-2 text-lg font-bold'>
+						{campaign.name}{' '}
+						<span className='text-sm bg-softgray px-2 py-1 rounded-full'>
+							#{campaign.id}
+						</span>
+					</h2>
 					<div className='flex items-center'>
 						<IconButton onClick={handleDeleteCampaign} color='success'>
-							<Delete />
+							<DeleteRounded />
 						</IconButton>
 						<IconButton onClick={handleEditCampaign} color='success'>
 							<SettingsOutlined />
