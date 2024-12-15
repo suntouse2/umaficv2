@@ -1,8 +1,8 @@
 /* eslint-disable react-refresh/only-export-components */
 import AuthWrapper from '@components/wrappers/AuthWrapper'
 import MainLayout from '@components/wrappers/layouts/MainLayout'
+import { CircularProgress } from '@mui/material'
 import PageAddChat from '@pages/pageAddChat'
-import PageAntiSpam from '@pages/pageAntiSpam'
 import PageBalance from '@pages/pageBalance'
 import PageChat from '@pages/pageChat'
 import PageDashboard from '@pages/pageDashboard'
@@ -13,7 +13,7 @@ import { Outlet } from 'react-router-dom'
 
 const PageError = lazy(() => import('@pages/pageError'))
 const PageNotFound = lazy(() => import('@pages/pageNotFound'))
-
+const PageAntiSpam = lazy(() => import('@pages/pageAntiSpam'))
 export const routes = [
 	{
 		path: '*',
@@ -73,7 +73,11 @@ export const routes = [
 			{
 				name: 'antispam',
 				path: 'antispam',
-				element: <PageAntiSpam />,
+				element: (
+					<Suspense fallback={<CircularProgress />}>
+						<PageAntiSpam />
+					</Suspense>
+				),
 			},
 			{
 				name: 'Add Chat',

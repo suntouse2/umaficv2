@@ -1,8 +1,11 @@
-import ChatScreen from '@components/chat/ChatScreen'
-import DirectsList from '@components/chat/DirectsList'
-import ChatWrapper from '@components/wrappers/ChatWrapper'
+import { CircularProgress } from '@mui/material'
 import { motion } from 'motion/react'
+import { lazy, Suspense } from 'react'
 import { useParams } from 'react-router-dom'
+
+const DirectsList = lazy(() => import('@components/chat/DirectsList'))
+const ChatScreen = lazy(() => import('@components/chat/ChatScreen'))
+const ChatWrapper = lazy(() => import('@components/wrappers/ChatWrapper'))
 
 export default function PageChat() {
 	const params = useParams()
@@ -15,10 +18,12 @@ export default function PageChat() {
 			animate={{ opacity: 1 }}
 			className='flex w-full h-full'
 		>
-			<ChatWrapper directId={directId} campaignId={campaignId}>
-				<DirectsList />
-				<ChatScreen />
-			</ChatWrapper>
+			<Suspense fallback={<CircularProgress />}>
+				<ChatWrapper directId={directId} campaignId={campaignId}>
+					<DirectsList />
+					<ChatScreen />
+				</ChatWrapper>
+			</Suspense>
 		</motion.section>
 	)
 }
