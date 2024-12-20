@@ -12,16 +12,6 @@ type TagList = {
 	value: string
 }[]
 
-type TaggerProps = {
-	activeTags: TagList
-	onChange: (value: TagList) => void
-	className?: string
-	tagClassName?: string
-	title?: string
-	placeholder?: string
-	selectable?: boolean
-	inputVariant?: 'button' | 'hide' | 'visible'
-}
 const animation = {
 	initial: {
 		opacity: 0,
@@ -36,6 +26,18 @@ const animation = {
 		scale: 0.8,
 	},
 }
+type TaggerProps = {
+	activeTags: TagList
+	onChange: (value: TagList) => void
+	className?: string
+	tagClassName?: string
+	title?: string
+	placeholder?: string
+	selectable?: boolean
+	useAI?: boolean
+	inputVariant?: 'button' | 'hide' | 'visible'
+	tagParser?: (value: string) => string
+}
 
 export default function Tagger({
 	activeTags,
@@ -44,8 +46,10 @@ export default function Tagger({
 	title,
 	placeholder,
 	onChange,
+	useAI = true,
 	selectable = true,
 	className,
+	tagParser,
 }: TaggerProps) {
 	const [tagInputValue, setTagInputValue] = useState<string>('')
 	const [isList, setIsList] = useState<boolean>(false)
@@ -53,12 +57,14 @@ export default function Tagger({
 	const [selectedIds, setSelectedIds] = useState<string[]>([])
 
 	const handleAddTags = (newTags: string[]) => {
+		const processedTags = tagParser ? newTags.map(tag => tagParser(tag)) : newTags
+
 		const filtered = [
 			...new Set(
-				newTags
+				processedTags
 					.map(t => t.trim().toLowerCase())
 					.filter(Boolean)
-					.filter(tag => !activeTags.some(kw => kw.value == tag))
+					.filter(tag => !activeTags.some(kw => kw.value === tag))
 			),
 		]
 		if (filtered.length === 0) return
@@ -71,18 +77,24 @@ export default function Tagger({
 		onChange([...activeTags, ...newItems])
 		setTagInputValue('')
 	}
+
 	const handleDeleteTags = (tagsId: string[]) => {
 		onChange(activeTags.filter(tag => !tagsId.includes(tag.id)))
 	}
+
 	const handleChangeTag = (tagId: string, newValue: string) => {
-		if (activeTags.some(kw => kw.value === newValue.toLowerCase()))
+		const processedValue = tagParser ? tagParser(newValue) : newValue
+		if (activeTags.some(kw => kw.value === processedValue.toLowerCase()))
 			return handleDeleteTags([tagId])
 		onChange(
 			activeTags.map(tag =>
-				tag.id == tagId ? { ...tag, value: newValue.toLowerCase(), ai: false } : tag
+				tag.id === tagId
+					? { ...tag, value: processedValue.toLowerCase(), ai: false }
+					: tag
 			)
 		)
 	}
+
 	const handleClear = () => {
 		if (selectedIds.length) {
 			handleDeleteTags(selectedIds)
@@ -101,27 +113,35 @@ export default function Tagger({
 			})
 		}
 	}
+
 	const handleAwesome = async (prompt: string) => {
 		const tags = await magicWithAI(prompt)
 		handleAddTags(tags)
 	}
+
 	const handleTagInputKeyDown = (e: KeyboardEvent<HTMLElement>) => {
-		if (e.key == 'Enter' && !isList) handleAddTags([tagInputValue])
+		if (e.key === 'Enter' && !isList) {
+			e.stopPropagation()
+			e.preventDefault()
+			handleAddTags([tagInputValue])
+		}
 	}
 
 	const tagInput = (
 		<div
 			onClick={e => e.stopPropagation()}
-			className={`flex px-3 items-start rounded-md  min-w-60 w-max ${className}`}
+			className={`flex px-3 items-start rounded-md min-w-60 w-max ${className}`}
 		>
 			<Input
 				value={tagInputValue}
 				onKeyDown={handleTagInputKeyDown}
 				onChange={e => setTagInputValue(e.target.value)}
-				className={`w-full mt-[9px] bg-[inherit] outline-none text-sm  ${
+				className={`w-full mt-[9px] bg-[inherit] outline-none text-sm ${
 					isList && 'min-h-40'
 				}`}
-				placeholder={placeholder ?? isList ? 'вставьте список' : 'введите фразу'}
+				placeholder={
+					placeholder ? placeholder : isList ? 'вставьте список' : 'введите фразу'
+				}
 			/>
 			<IconButton onClick={() => handleAddTags(tagInputValue.split('\n'))}>
 				<Add />
@@ -129,19 +149,22 @@ export default function Tagger({
 			<IconButton onClick={() => setIsList(list => !list)}>
 				{isList ? <Edit /> : <LibraryBooks />}
 			</IconButton>
-			<IconButton onClick={() => handleAwesome(tagInputValue)}>
-				<AutoAwesome className='rainbow' />
-			</IconButton>
+			{useAI && (
+				<IconButton onClick={() => handleAwesome(tagInputValue)}>
+					<AutoAwesome className='rainbow' />
+				</IconButton>
+			)}
 		</div>
 	)
+
 	return (
 		<article className='mt-2 w-full'>
-			{inputVariant == 'button' && (
+			{inputVariant === 'button' && (
 				<PopOrDialog color='secondary' title={title ?? 'Добавить тег'}>
 					{tagInput}
 				</PopOrDialog>
 			)}
-			{inputVariant == 'visible' && tagInput}
+			{inputVariant === 'visible' && tagInput}
 			{selectable && activeTags.length > 0 && (
 				<Button
 					color={selectedIds.length ? 'primary' : 'error'}
@@ -160,7 +183,7 @@ export default function Tagger({
 								<ValueTuner
 									render={
 										<span
-											className={`relative text-sm px-5 transition  py-2 rounded-full flex justify-between  bg-inputbg ${
+											className={`relative text-sm px-5 transition py-2 rounded-full flex justify-between bg-inputbg ${
 												selectedIds.includes(tag.id) && '!bg-primary !text-white'
 											} items-center mt-1 cursor-pointer select-none ${tagClassName}`}
 											onClick={e => handleTagClick(e, tag.id)}
@@ -169,7 +192,7 @@ export default function Tagger({
 										</span>
 									}
 									onDelete={() => handleDeleteTags([tag.id])}
-									onAwesome={v => handleAwesome(v)}
+									onAwesome={useAI ? v => handleAwesome(v) : undefined}
 									showEditIcon={false}
 									onChange={v => handleChangeTag(tag.id, v)}
 									value={tag.value}
