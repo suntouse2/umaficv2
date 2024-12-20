@@ -9,7 +9,7 @@ export default function Logo({ size, animation }: LogoProps) {
 	return (
 		<motion.svg
 			animate={animation && { rotateY: 360 }}
-			transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2, ease: 'easeInOut' }}
+			transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 30, ease: 'easeInOut' }}
 			width={size ?? '40'}
 			height={size ?? '40'}
 			viewBox='0 0 449 568'

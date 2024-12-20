@@ -72,7 +72,7 @@ export default function DirectsList() {
 				<Button
 					size='small'
 					className='!mb-1 !p-0 !text-xs'
-					onClick={() => navigate('/')}
+					onClick={() => navigate('/campaigns/direct')}
 				>
 					<ArrowBack /> Назад
 				</Button>
