@@ -133,6 +133,9 @@ type TDirectCampaignSettingsCheckStatistics = {
 	recommended_daily_budget_limit: number
 	recommended_weekly_budget_limit: number
 }
+type TDirectCampaignSettingsCheckChats = {
+	channels_total: number
+}
 
 type TChatDirect = {
 	id: number

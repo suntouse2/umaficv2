@@ -45,6 +45,11 @@ class DirectCampaignService {
 			},
 		})
 	}
+	async getChats(
+		data: TDirectCampaignSettingsTargetGEO
+	): Promise<AxiosResponse<TDirectCampaignSettingsCheckChats>> {
+		return $api.post('/campaigns/direct/check/chats', data)
+	}
 }
 
 export default new DirectCampaignService()

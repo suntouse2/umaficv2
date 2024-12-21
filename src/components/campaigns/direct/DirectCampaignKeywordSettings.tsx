@@ -2,7 +2,6 @@ import { keywordTip, minusWordsTip } from '@components/helpers/directCampaignFor
 import Tagger from '@components/Tagger'
 import Bubble from '@components/ui/Bubble'
 import TipBox from '@components/ui/TipBox'
-import AddChat from '@components/user/AddChat'
 import { useShallow } from 'zustand/shallow'
 import { useDirectCampaignSettingsStore } from '../../../store/directCampaignSettingsStore'
 
@@ -39,9 +38,6 @@ export default function DirectCampaignKeywordSettings() {
 					activeTags={keywords.exclude}
 					onChange={v => setKeyword('exclude', v)}
 				/>
-			</Bubble>
-			<Bubble className='mt-4'>
-				<AddChat />
 			</Bubble>
 		</article>
 	)

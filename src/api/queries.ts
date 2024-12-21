@@ -124,6 +124,17 @@ export function useFetchDirectCampaignSettingsStats(
 		retry: false,
 	})
 }
+export function useFetchDirectCampaignSettingsChat(
+	geo: TDirectCampaignSettingsTargetGEO
+) {
+	return useQuery({
+		queryKey: ['check-settings-chats', geo],
+		queryFn: () => DirectCampaignService.getChats(geo),
+		staleTime: 60 * 1000 * 5,
+		select: data => data.data,
+		retry: false,
+	})
+}
 export function useFetchGeoLanguages() {
 	return useQuery({
 		queryKey: ['geo-languages'],

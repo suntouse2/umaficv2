@@ -1,28 +1,29 @@
 import ChannelsService from '@api/http/services/ChannelsService'
-import Tagger from '@components/Tagger'
-import { Button } from '@mui/material'
-import { useState } from 'react'
+import PopOrDialog from '@components/common/PoporDialog'
+import { Add, Edit, LibraryBooks } from '@mui/icons-material'
+import { IconButton } from '@mui/material'
+import { KeyboardEvent, useState } from 'react'
 import { toast } from 'react-toastify'
 
 export default function AddChat() {
-	const [tags, setTags] = useState<
-		{
-			id: string
-			value: string
-		}[]
-	>([])
+	const [isList, setIsList] = useState<boolean>(false)
+	const [value, setValue] = useState<string>('')
+	const Input = isList ? 'textarea' : 'input'
 	const [isLoading, setIsLoading] = useState<boolean>(false)
 
-	const parseTag = (input: string): string => {
+	const parseChat = (input: string): string => {
 		const match = input.match(/(?:https:\/\/t\.me\/|@|)([a-zA-Z0-9_]+)/)
 		return match ? match[1] : input
 	}
 
-	const handleSubmit = async () => {
+	const handleAddChats = async () => {
+		if (isLoading) return
+		const chats = isList ? value.split('\n') : [value]
+		const parsedChats = chats.map(chat => parseChat(chat))
 		setIsLoading(true)
 		await toast.promise(
 			ChannelsService.addChannels({
-				usernames: tags.map(v => v.value),
+				usernames: parsedChats,
 			}),
 			{
 				pending: 'Добавление каналов...',
@@ -30,8 +31,15 @@ export default function AddChat() {
 				error: 'Произошла ошибка при добавлении каналов',
 			}
 		)
+		setValue('')
 		setIsLoading(false)
-		setTags([])
+	}
+	const handleInputKeydown = (e: KeyboardEvent<HTMLElement>) => {
+		if (e.key === 'Enter' && !isList) {
+			e.stopPropagation()
+			e.preventDefault()
+			handleAddChats()
+		}
 	}
 
 	return (
@@ -40,27 +48,25 @@ export default function AddChat() {
 			<p className='mb-2 text-sm mt-4'>
 				Вы можете добавить свои чаты Telegram, дополнительно к чатам из нашей системы
 			</p>
-			<Tagger
-				className='border-border border !w-full'
-				selectable={false}
-				useAI={false}
-				placeholder='вставьте ссылку/тег'
-				onChange={setTags}
-				tagParser={v => parseTag(v)}
-				tagClassName='bg-primary text-white'
-				activeTags={tags}
-			/>
-			<div className='mt-4'>
-				<Button
-					onClick={handleSubmit}
-					disabled={Boolean(!tags.length) || isLoading}
-					variant='outlined'
-					className='!w-full !rounded-full'
-					color='secondary'
-				>
-					Добавить чаты
-				</Button>
-			</div>
+			<PopOrDialog title='Добавить чат'>
+				<div className='flex items-center'>
+					<Input
+						onKeyDown={handleInputKeydown}
+						className={`w-full p-2 bg-[inherit] outline-none text-sm ${
+							isList && 'min-h-40'
+						}`}
+						placeholder='Ссылка/тег или чата'
+						value={value}
+						onChange={v => setValue(v.currentTarget.value)}
+					/>
+					<IconButton onClick={handleAddChats}>
+						<Add />
+					</IconButton>
+					<IconButton onClick={() => setIsList(list => !list)}>
+						{isList ? <Edit /> : <LibraryBooks />}
+					</IconButton>
+				</div>
+			</PopOrDialog>
 		</article>
 	)
 }

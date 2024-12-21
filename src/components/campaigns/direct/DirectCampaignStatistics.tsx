@@ -37,7 +37,7 @@ export default function DirectCampaignStatistics({
 				<dl className='flex items-center justify-between'>
 					<dt className='text-sm'>Состоялось диалогов (второе касание)</dt>
 					<dd className='text-sm flex items-center'>
-						{statistics.directs}
+						{statistics.directs_interacted}
 						{renderPlus('Входящих в сутки', statistics.directs_interacted_by_day)}
 					</dd>
 				</dl>
