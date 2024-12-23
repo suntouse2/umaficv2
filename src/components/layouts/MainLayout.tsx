@@ -1,6 +1,7 @@
 import Aside from '@components/Aside'
 import Header from '@components/Header'
 import { Drawer, useMediaQuery, useTheme } from '@mui/material'
+import { AnimatePresence } from 'motion/react'
 import { PropsWithChildren, useState } from 'react'
 
 type MainLayoutProps = {
@@ -17,14 +18,16 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
 	return (
 		<main className='flex overflow-hidden flex-col w-dvw h-dvh relative'>
-			{isDesktopScreen && asideState && <Aside isDesktop />}
+			<AnimatePresence>
+				{isDesktopScreen && asideState && <Aside isDesktop />}
+			</AnimatePresence>
 			{!isDesktopScreen && (
 				<Drawer open={asideState} onClose={toggleAside}>
 					<Aside />
 				</Drawer>
 			)}
 			<Header className={asideSpace} onMenuClick={toggleAside} />
-			<div className={`${asideSpace} overflow-hidden h-full`}>{children}</div>
+			<div className={`${asideSpace}  overflow-hidden h-full`}>{children}</div>
 		</main>
 	)
 }
