@@ -17,14 +17,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
 	return (
 		<main className='flex overflow-hidden flex-col w-dvw h-dvh relative'>
-			{isDesktopScreen && asideState && <Aside />}
+			{isDesktopScreen && asideState && <Aside isDesktop />}
 			{!isDesktopScreen && (
-				<Drawer
-					keepMounted
-					transitionDuration={0}
-					open={asideState}
-					onClose={toggleAside}
-				>
+				<Drawer open={asideState} onClose={toggleAside}>
 					<Aside />
 				</Drawer>
 			)}

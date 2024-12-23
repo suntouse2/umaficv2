@@ -14,7 +14,7 @@ import NavItem from './ui/NavItem'
 import Id from './user/Id'
 import PaymentWindow from './user/PaymentWindow'
 
-export default function Aside() {
+export default function Aside({ isDesktop }: { isDesktop?: boolean }) {
 	const { exit } = useAuth()
 	const [paymentDialogState, setPaymentDialogState] = useState<boolean>(false)
 	return (
@@ -24,7 +24,13 @@ export default function Aside() {
 					<PaymentWindow />
 				</Dialog>
 			</Suspense>
-			<aside className='fixed w-48 h-full bg-white border-r-[1px] border-border'>
+			<aside
+				className={
+					isDesktop
+						? 'fixed w-48 h-full bg-white border-r-[1px] border-border'
+						: 'w-48 h-full bg-white border-r-[1px] border-border'
+				}
+			>
 				<nav>
 					<div className='flex items-center px-4 py-2 min-h-12 gap-2'>
 						<Logo size='20' />

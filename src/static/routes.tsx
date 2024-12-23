@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
+import MainLayout from '@components/layouts/MainLayout'
 import AuthWrapper from '@components/wrappers/AuthWrapper'
-import MainLayout from '@components/wrappers/layouts/MainLayout'
 import { CircularProgress } from '@mui/material'
 import PageAddChat from '@pages/pageAddChat'
 import PageChat from '@pages/pageChat'
