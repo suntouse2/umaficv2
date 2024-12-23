@@ -12,7 +12,7 @@ export default function DirectCampaignUserSettings() {
 
 	return (
 		<Bubble className='relative mt-4'>
-			<div className='grid grid-cols-1 sm:grid-cols-2 p-4 gap-5'>
+			<div className='grid grid-cols-1 md:grid-cols-2 p-4 gap-5'>
 				<div className='flex flex-col items-center  gap-5'>
 					<Avatar onChange={v => setProfile('photo', v)} value={profile.photo} />
 					<Input
@@ -35,23 +35,21 @@ export default function DirectCampaignUserSettings() {
 						placeholder='Обо мне'
 					/>
 				</div>
-				<div className='block sm:hidden'>
+				<div className='block md:hidden'>
 					<TipBox content={profileTip} />
 				</div>
-				<div className='hidden sm:block'>
-					<p className='text-sm'>
-						1. Нажмите на кнопку "Загрузить фото" и выберите изображение, которое вы
-						хотели бы использовать для профиля бота. <br />
-						<br /> 2. Введите имя и фамилию, которые будут отображаться на странице бота.
-						<br />
-						<br /> 3. Напишите краткую информацию в графу "О себе". Это поможет создать
-						впечатление, что страница принадлежит реальному человеку.
-						<br />
-						<br /> 4. Обратите внимание, что указание сферы интересов не обязательно, но
-						если вы хотите, чтобы ваш бот выглядел максимально натурально, можете добавить
-						информацию о его увлечениях или интересах.
-					</p>
-				</div>
+				<p className='hidden md:block text-sm'>
+					1. Нажмите на кнопку "Загрузить фото" и выберите изображение, которое вы хотели
+					бы использовать для профиля бота. <br />
+					<br /> 2. Введите имя и фамилию, которые будут отображаться на странице бота.
+					<br />
+					<br /> 3. Напишите краткую информацию в графу "О себе". Это поможет создать
+					впечатление, что страница принадлежит реальному человеку.
+					<br />
+					<br /> 4. Обратите внимание, что указание сферы интересов не обязательно, но
+					если вы хотите, чтобы ваш бот выглядел максимально натурально, можете добавить
+					информацию о его увлечениях или интересах.
+				</p>
 			</div>
 		</Bubble>
 	)

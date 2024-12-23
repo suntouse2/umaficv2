@@ -25,12 +25,12 @@ export default {
 			softgray4: '#494949',
 		},
 		screens: {
-			xs: 0,
-			sm: 540,
-			md: 668,
-			lg: 960,
-			xl: 1280,
-			'2xl': 1536,
+			xs: '0px',
+			sm: '540px',
+			md: '668px',
+			lg: '960px',
+			xl: '1280px',
+			'2xl': '1536px',
 		},
 		extend: {
 			fontSize: {
