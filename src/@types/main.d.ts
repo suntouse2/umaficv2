@@ -60,7 +60,6 @@ type TDirectCampaignSettings = {
 			assistant: TDirectCampaignSettingsAI
 			use_assistant: boolean
 		}
-		profile: TDirectCampaignSettingsProfile
 	}
 	budget_limit: string
 }

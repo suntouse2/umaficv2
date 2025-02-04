@@ -7,7 +7,6 @@ import {
 } from '@components/helpers/directCampaignFormTips'
 import Bubble from '@components/ui/Bubble'
 import TipBox from '@components/ui/TipBox'
-import containsLink from '@helpers/containsLink'
 import { ToggleButton, ToggleButtonGroup } from '@mui/material'
 import { useShallow } from 'zustand/shallow'
 import { useDirectCampaignSettingsStore } from '../../../store/directCampaignSettingsStore'
@@ -25,9 +24,6 @@ export default function DirectCampaignFunnelSettings() {
 	const handleFirstError = () => {
 		if (first_messages.length > 0 && first_messages.length <= 4) {
 			return 'Должно быть минимум 5 вариантов первого сообщения'
-		}
-		if (first_messages.some(msg => containsLink(msg.message.message))) {
-			return 'В первом сообщении не должно быть ссылок'
 		}
 		if (first_messages.some(msg => msg.message.message.length > 150)) {
 			return 'Первое сообщение не может быть длиннее 150 символов'

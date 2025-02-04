@@ -103,7 +103,7 @@ export default function DirectCampaignCheckSettings() {
 					</AnimatePresence>
 					<Tabs
 						variant='scrollable'
-						scrollButtons={false}
+						scrollButtons='auto'
 						allowScrollButtonsMobile
 						indicatorColor='secondary'
 						textColor='secondary'

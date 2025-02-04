@@ -10,12 +10,6 @@ type Store = {
 	settings: {
 		name: string
 		budget_limit: string
-		profile: {
-			first_name: string
-			last_name: string
-			about: string
-			photo: string | null
-		}
 		geo: {
 			language: string[]
 			country: string[]
@@ -57,12 +51,7 @@ const defaultState: Store = {
 	settings: {
 		name: '',
 		budget_limit: '24',
-		profile: {
-			first_name: '',
-			last_name: '',
-			about: '',
-			photo: null,
-		},
+
 		geo: {
 			language: [],
 			country: [],
@@ -97,10 +86,7 @@ type Actions = {
 	resetSettings: () => void
 	setName: (value: Store['settings']['name']) => void
 	setBudgetLimit: (value: Store['settings']['budget_limit']) => void
-	setProfile: <K extends keyof Store['settings']['profile']>(
-		key: K,
-		value: Store['settings']['profile'][K]
-	) => void
+
 	setGeo: <K extends keyof Store['settings']['geo']>(
 		key: K,
 		value: Store['settings']['geo'][K]
@@ -109,9 +95,7 @@ type Actions = {
 		key: K,
 		value: Store['settings']['keywords'][K]
 	) => void
-	setFunnelType: (
-		value: Store['settings']['auto_reply']['funnel']['funnel_type']
-	) => void
+	setFunnelType: (value: Store['settings']['auto_reply']['funnel']['funnel_type']) => void
 	setFunnelMessages: (
 		value: Store['settings']['auto_reply']['funnel']['messages']
 	) => void
@@ -119,9 +103,7 @@ type Actions = {
 		key: K,
 		value: Store['settings']['auto_reply']['funnel'][K]
 	) => void
-	setUseAssistant: (
-		value: Store['settings']['auto_reply']['use_assistant']
-	) => void
+	setUseAssistant: (value: Store['settings']['auto_reply']['use_assistant']) => void
 	setAssistant: <K extends keyof Store['settings']['auto_reply']['assistant']>(
 		key: K,
 		value: Store['settings']['auto_reply']['assistant'][K]
@@ -169,10 +151,6 @@ export const useDirectCampaignSettingsStore = create<Store & Actions>()(
 		setBudgetLimit: value =>
 			set(state => {
 				state.settings.budget_limit = value
-			}),
-		setProfile: (key, value) =>
-			set(state => {
-				state.settings.profile[key] = value
 			}),
 		setGeo: (key, value) =>
 			set(state => {

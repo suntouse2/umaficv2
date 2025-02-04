@@ -5,12 +5,7 @@ type Store = {
 	settings: {
 		name: string
 		budget_limit: string
-		profile: {
-			first_name: string
-			last_name: string
-			about: string
-			photo: string | null
-		}
+
 		geo: {
 			language: string[]
 			country: string[]
@@ -50,7 +45,7 @@ export function transformSettingsToStore(settings: TDirectCampaignSettings) {
 	const storeSettings: Store['settings'] = {
 		name: settings.name,
 		budget_limit: settings.budget_limit,
-		profile: settings.settings.profile,
+
 		geo: settings.settings.target.geo,
 		keywords: {
 			include: settings.settings.target.search.include.map(kw => ({
@@ -71,8 +66,7 @@ export function transformSettingsToStore(settings: TDirectCampaignSettings) {
 			assistant:
 				settings.settings.auto_reply.assistant !== null
 					? {
-							description:
-								settings.settings.auto_reply.assistant.description ?? '',
+							description: settings.settings.auto_reply.assistant.description ?? '',
 							role: settings.settings.auto_reply.assistant.role,
 							gender: settings.settings.auto_reply.assistant.gender,
 					  }
@@ -114,9 +108,7 @@ export function transformSettingsToStore(settings: TDirectCampaignSettings) {
 	return storeSettings
 }
 
-export function transformStoreToSettings(
-	state: Store
-): TDirectCampaignSettings {
+export function transformStoreToSettings(state: Store): TDirectCampaignSettings {
 	const funnelMessages = state.settings.auto_reply.funnel.messages
 	const orderMessages = funnelMessages.filter(
 		m => m.type === 'first' || m.type === 'any' || m.type === 'order'
@@ -124,11 +116,7 @@ export function transformStoreToSettings(
 	const orderMap = new Map<number, TMessageContent[]>()
 	orderMessages.forEach(msg => {
 		const orderNumber =
-			msg.type === 'first'
-				? 1
-				: msg.type === 'any'
-				? 99
-				: (msg.filter as number)
+			msg.type === 'first' ? 1 : msg.type === 'any' ? 99 : (msg.filter as number)
 		if (!orderMap.has(orderNumber)) {
 			orderMap.set(orderNumber, [])
 		}
@@ -152,12 +140,6 @@ export function transformStoreToSettings(
 		name: state.settings.name,
 		budget_limit: state.settings.budget_limit,
 		settings: {
-			profile: {
-				first_name: state.settings.profile.first_name,
-				last_name: state.settings.profile.last_name,
-				about: state.settings.profile.about,
-				photo: state.settings.profile.photo,
-			},
 			target: {
 				geo: {
 					language: state.settings.geo.language,

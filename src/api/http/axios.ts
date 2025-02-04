@@ -1,8 +1,5 @@
-import axios, {
-	AxiosError,
-	AxiosResponse,
-	InternalAxiosRequestConfig,
-} from 'axios'
+import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
+import { toast } from 'react-toastify'
 
 const BASE_URL = import.meta.env.VITE_API_URL
 
@@ -18,9 +15,7 @@ export const $api = axios.create({
 })
 
 $api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-	config.headers.Authorization = `Bearer ${localStorage.getItem(
-		'access_token'
-	)}`
+	config.headers.Authorization = `Bearer ${localStorage.getItem('access_token')}`
 	return config
 })
 
@@ -34,7 +29,7 @@ $api.interceptors.response.use(
 
 		switch (error.response?.status) {
 			case NO_BALANCE_STATUS:
-				console.log('no balance status')
+				toast.error('Недостаточно баланса')
 				break
 			case AUTH_ERROR_STATUS:
 				try {
@@ -53,11 +48,8 @@ $api.interceptors.response.use(
 			default:
 				if (error instanceof AxiosError) {
 					const requestPath = error.config?.url || 'Неизвестный путь'
-					const requestMethod =
-						error.config?.method?.toUpperCase() || 'Неизвестный метод'
-					const requestData = error.config?.data
-						? JSON.parse(error.config.data)
-						: null
+					const requestMethod = error.config?.method?.toUpperCase() || 'Неизвестный метод'
+					const requestData = error.config?.data ? JSON.parse(error.config.data) : null
 
 					console.error('Axios Error:', {
 						status: error.response?.status,
