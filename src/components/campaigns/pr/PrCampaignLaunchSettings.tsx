@@ -4,17 +4,15 @@ import Bubble from '@components/ui/Bubble'
 import formatBalance from '@helpers/formatBalance'
 import { useMemo } from 'react'
 import { useShallow } from 'zustand/shallow'
-import { useDirectCampaignSettingsStore } from '../../../store/directCampaignSettingsStore'
+import { usePrCampaignSettingsStore } from '../../../store/prCampaignSettingsStore'
 
-export default function DirectCampaignLaunchSettings() {
-	const name = useDirectCampaignSettingsStore(state => state.settings.name)
-	const budget_limit = useDirectCampaignSettingsStore(
-		state => state.settings.budget_limit
-	)
-	const setName = useDirectCampaignSettingsStore(state => state.setName)
-	const setBudgetLimit = useDirectCampaignSettingsStore(state => state.setBudgetLimit)
+export default function PrCampaignLaunchSettings() {
+	const name = usePrCampaignSettingsStore(state => state.settings.name)
+	const budget_limit = usePrCampaignSettingsStore(state => state.settings.budget_limit)
+	const setName = usePrCampaignSettingsStore(state => state.setName)
+	const setBudgetLimit = usePrCampaignSettingsStore(state => state.setBudgetLimit)
 
-	const [geo, keywords] = useDirectCampaignSettingsStore(
+	const [geo, keywords] = usePrCampaignSettingsStore(
 		useShallow(state => [state.settings.geo, state.settings.keywords])
 	)
 	const transposedTarget = useMemo(() => {

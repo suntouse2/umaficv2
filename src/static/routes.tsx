@@ -6,7 +6,9 @@ import PageAddChat from '@pages/pageAddChat'
 import PageChat from '@pages/pageChat'
 import PageDashboard from '@pages/pageDashboard'
 import PageDirectCampaigns from '@pages/pageDirectCampaigns'
+import PagePrCampaigns from '@pages/pagePrCampaigns'
 import PageUpsertDirectCampaign from '@pages/pageUpsertDirectCampaign'
+import PageUpsertPrCampaign from '@pages/pageUpsertPrCampaign'
 import { lazy, Suspense } from 'react'
 import { Outlet } from 'react-router-dom'
 
@@ -55,6 +57,11 @@ export const routes = [
 				element: <PageDirectCampaigns />,
 			},
 			{
+				name: 'pr campaign',
+				path: 'campaigns/pr',
+				element: <PagePrCampaigns />,
+			},
+			{
 				name: 'direct campaign create',
 				path: 'campaigns/direct/create',
 				element: <PageUpsertDirectCampaign />,
@@ -63,6 +70,16 @@ export const routes = [
 				name: 'direct campaign edit',
 				path: 'campaigns/direct/edit/:id',
 				element: <PageUpsertDirectCampaign />,
+			},
+			{
+				name: 'pr campaign create',
+				path: 'campaigns/pr/create',
+				element: <PageUpsertPrCampaign />,
+			},
+			{
+				name: 'pr campaign edit',
+				path: 'campaigns/pr/edit/:id',
+				element: <PageUpsertPrCampaign />,
 			},
 			{
 				name: 'antispam',

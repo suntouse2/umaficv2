@@ -28,9 +28,9 @@ export default function PageDashboard() {
 						</div>
 					</Bubble>
 				</div>
-				<Bubble onClick={() => navigate('/antispam')}>
+				<Bubble onClick={() => navigate('/campaigns/pr')}>
 					<div className='flex items-center justify-between mb-5'>
-						<h1 className='text-2xl'>Анти-спам бот</h1>
+						<h1 className='text-2xl'>Пиар в чатах</h1>
 					</div>
 				</Bubble>
 			</article>

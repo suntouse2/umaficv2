@@ -43,6 +43,7 @@ export default function FunnelyMessage({
 					<Delete />
 				</IconButton>
 			</div>
+
 			<p className='break-words max-w-full mb-4'>{message.message.message}</p>
 			{message.message.media && <MediaRenderer media={message.message.media} />}
 			{message.type == 'order' && Number.isInteger(message.filter) && (

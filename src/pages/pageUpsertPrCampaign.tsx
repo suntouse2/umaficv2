@@ -4,21 +4,21 @@ import { Button, CircularProgress } from '@mui/material'
 import { lazy, Suspense } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
-const DirectCampaignSettingsWrapper = lazy(
-	() => import('@components/wrappers/DirectCampaignSettingsWrapper')
+const PrCampaignSettingsWrapper = lazy(
+	() => import('@components/wrappers/PrCampaignSettingsWrapper')
 )
-const DirectCampaignSettingsForm = lazy(
-	() => import('@components/campaigns/direct/DirectCampaignSettingsForm')
+const PrCampaignSettingsForm = lazy(
+	() => import('@components/campaigns/pr/PrCampaignSettingsForm')
 )
 
-export default function PageUpsertDirectCampaign() {
+export default function PageUpsertPrCampaign() {
 	const { id } = useParams()
 	const campaignId = id ? parseInt(id) : null
 
 	return (
 		<Container>
-			<h1 className='text-2xl font-bold'>Поиск клиентов</h1>
-			<Link className='' to='/campaigns/direct'>
+			<h1 className='text-2xl font-bold'>Пиар в чатах</h1>
+			<Link className='' to='/campaigns/pr'>
 				<Button color='primary'>
 					<ArrowBack />
 					Назад
@@ -26,9 +26,9 @@ export default function PageUpsertDirectCampaign() {
 			</Link>
 			<div className='mx-auto w-full h-full max-w-[600px]'>
 				<Suspense fallback={<CircularProgress color='inherit' />}>
-					<DirectCampaignSettingsWrapper campaignId={campaignId}>
-						<DirectCampaignSettingsForm />
-					</DirectCampaignSettingsWrapper>
+					<PrCampaignSettingsWrapper campaignId={campaignId}>
+						<PrCampaignSettingsForm />
+					</PrCampaignSettingsWrapper>
 				</Suspense>
 			</div>
 		</Container>

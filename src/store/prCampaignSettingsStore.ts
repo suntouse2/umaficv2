@@ -1,16 +1,26 @@
 import {
 	transformSettingsToStore,
 	transformStoreToSettings,
-} from '@helpers/directCampaignSettingsTransformer'
+} from '@helpers/prCampaignSettingsTransformer'
 
 import { create } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
 
-type Store = {
+export type PrStore = {
 	campaignId: number | null
 	settings: {
 		name: string
 		budget_limit: string
+		channels: {
+			include: {
+				id: string
+				value: string
+			}[]
+			exclude: {
+				id: string
+				value: string
+			}[]
+		}
 		geo: {
 			language: string[]
 			country: string[]
@@ -29,7 +39,14 @@ type Store = {
 		}
 		auto_reply: {
 			funnel: {
-				funnel_type: 'order' | 'keyword'
+				funnel_type: 'order' | 'keyword' | 'union'
+				delays: {
+					order: number
+					delay: {
+						min: number
+						max: number
+					}
+				}[]
 				messages: {
 					id: string
 					type: 'order' | 'keyword' | 'any' | 'first'
@@ -47,12 +64,15 @@ type Store = {
 	}
 }
 
-const defaultState: Store = {
+const defaultState: PrStore = {
 	campaignId: null,
 	settings: {
 		name: '',
 		budget_limit: '24',
-
+		channels: {
+			include: [],
+			exclude: [],
+		},
 		geo: {
 			language: [],
 			country: [],
@@ -65,7 +85,8 @@ const defaultState: Store = {
 		},
 		auto_reply: {
 			funnel: {
-				funnel_type: 'keyword',
+				delays: [],
+				funnel_type: 'order',
 				messages: [],
 			},
 			use_assistant: false,
@@ -79,41 +100,46 @@ const defaultState: Store = {
 }
 
 type Actions = {
-	setSettings: (campaignId: number, settings: TDirectCampaignSettings) => void
+	setSettings: (campaignId: number, settings: TPRCampaignSettings) => void
 	getSettings: () => {
 		campaignId: number | null
-		settings: TDirectCampaignSettings
+		settings: TPRCampaignSettings
 	}
 	resetSettings: () => void
-	setName: (value: Store['settings']['name']) => void
-	setBudgetLimit: (value: Store['settings']['budget_limit']) => void
-
-	setGeo: <K extends keyof Store['settings']['geo']>(
+	setName: (value: PrStore['settings']['name']) => void
+	setBudgetLimit: (value: PrStore['settings']['budget_limit']) => void
+	setChannel: <K extends keyof PrStore['settings']['channels']>(
 		key: K,
-		value: Store['settings']['geo'][K]
+		value: PrStore['settings']['channels'][K]
 	) => void
-	setKeyword: <K extends keyof Store['settings']['keywords']>(
+	setGeo: <K extends keyof PrStore['settings']['geo']>(
 		key: K,
-		value: Store['settings']['keywords'][K]
+		value: PrStore['settings']['geo'][K]
 	) => void
-	setFunnelType: (value: Store['settings']['auto_reply']['funnel']['funnel_type']) => void
+	setKeyword: <K extends keyof PrStore['settings']['keywords']>(
+		key: K,
+		value: PrStore['settings']['keywords'][K]
+	) => void
+	setFunnelType: (
+		value: PrStore['settings']['auto_reply']['funnel']['funnel_type']
+	) => void
 	setFunnelMessages: (
-		value: Store['settings']['auto_reply']['funnel']['messages']
+		value: PrStore['settings']['auto_reply']['funnel']['messages']
 	) => void
-	setFunnel: <K extends keyof Store['settings']['auto_reply']['funnel']>(
+	setFunnel: <K extends keyof PrStore['settings']['auto_reply']['funnel']>(
 		key: K,
-		value: Store['settings']['auto_reply']['funnel'][K]
+		value: PrStore['settings']['auto_reply']['funnel'][K]
 	) => void
-	setUseAssistant: (value: Store['settings']['auto_reply']['use_assistant']) => void
-	setAssistant: <K extends keyof Store['settings']['auto_reply']['assistant']>(
+	setUseAssistant: (value: PrStore['settings']['auto_reply']['use_assistant']) => void
+	setAssistant: <K extends keyof PrStore['settings']['auto_reply']['assistant']>(
 		key: K,
-		value: Store['settings']['auto_reply']['assistant'][K]
+		value: PrStore['settings']['auto_reply']['assistant'][K]
 	) => void
-	getStore: () => Store
-	setStore: (state: Store) => void
+	getStore: () => PrStore
+	setStore: (state: PrStore) => void
 }
 
-export const useDirectCampaignSettingsStore = create<Store & Actions>()(
+export const usePrCampaignSettingsStore = create<PrStore & Actions>()(
 	immer((set, get) => ({
 		...defaultState,
 		setSettings: (campaignId, settings) => {
@@ -123,7 +149,7 @@ export const useDirectCampaignSettingsStore = create<Store & Actions>()(
 			})
 		},
 		getStore: () => {
-			const store: Store = {
+			const store: PrStore = {
 				campaignId: get().campaignId,
 				settings: get().settings,
 			}
@@ -156,6 +182,10 @@ export const useDirectCampaignSettingsStore = create<Store & Actions>()(
 		setGeo: (key, value) =>
 			set(state => {
 				state.settings.geo[key] = value
+			}),
+		setChannel: (key, value) =>
+			set(state => {
+				state.settings.channels[key] = value
 			}),
 		setKeyword: (key, value) =>
 			set(state => {

@@ -1,50 +1,22 @@
 import { nanoid } from 'nanoid'
+import { PrStore } from '../store/prCampaignSettingsStore'
 
-type Store = {
-	campaignId: number | null
-	settings: {
-		name: string
-		budget_limit: string
+type Store = PrStore
 
-		geo: {
-			language: string[]
-			country: string[]
-			region: string[]
-			city: string[]
-		}
-		keywords: {
-			include: {
-				id: string
-				value: string
-			}[]
-			exclude: {
-				id: string
-				value: string
-			}[]
-		}
-		auto_reply: {
-			funnel: {
-				funnel_type: 'order' | 'keyword'
-				messages: {
-					id: string
-					type: 'order' | 'keyword' | 'any' | 'first'
-					filter: { id: string; value: string }[] | number | null
-					message: TMessageContent
-				}[]
-			}
-			use_assistant: boolean
-			assistant: {
-				role: 'marketer' | 'user'
-				gender: 'female' | 'male'
-				description: string
-			}
-		}
-	}
-}
-export function transformSettingsToStore(settings: TDirectCampaignSettings) {
+export function transformSettingsToStore(settings: TPRCampaignSettings) {
 	const storeSettings: Store['settings'] = {
 		name: settings.name,
 		budget_limit: settings.budget_limit,
+		channels: {
+			include: settings.settings.target.channels.include.map(ch => ({
+				id: nanoid(),
+				value: ch,
+			})),
+			exclude: settings.settings.target.channels.exclude.map(ch => ({
+				id: nanoid(),
+				value: ch,
+			})),
+		},
 		geo: settings.settings.target.geo,
 		keywords: {
 			include: settings.settings.target.search.include.map(kw => ({
@@ -59,6 +31,15 @@ export function transformSettingsToStore(settings: TDirectCampaignSettings) {
 		auto_reply: {
 			funnel: {
 				funnel_type: settings.settings.auto_reply.funnel.funnel_type,
+				delays: settings.settings.auto_reply.funnel.order.map(i => ({
+					order: i.order,
+					delay: i.delay
+						? i.delay
+						: {
+								min: 0,
+								max: 0,
+						  },
+				})),
 				messages: [],
 			},
 			use_assistant: settings.settings.auto_reply.use_assistant,
@@ -77,19 +58,17 @@ export function transformSettingsToStore(settings: TDirectCampaignSettings) {
 		},
 	}
 
-	// Трансформация для order
 	settings.settings.auto_reply.funnel.order.forEach(o =>
 		o.messages.forEach(m => {
 			storeSettings.auto_reply.funnel.messages.push({
 				id: nanoid(),
 				filter: o.order,
-				type: o.order == 1 ? 'first' : o.order == 99 ? 'any' : 'order',
+				type: 'any',
 				message: m,
 			})
 		})
 	)
 
-	// Трансформация для keyword
 	settings.settings.auto_reply.funnel.keyword.forEach(o =>
 		o.messages.forEach(m => {
 			storeSettings.auto_reply.funnel.messages.push({
@@ -107,15 +86,11 @@ export function transformSettingsToStore(settings: TDirectCampaignSettings) {
 	return storeSettings
 }
 
-export function transformStoreToSettings(state: Store): TDirectCampaignSettings {
+export function transformStoreToSettings(state: Store): TPRCampaignSettings {
 	const funnelMessages = state.settings.auto_reply.funnel.messages
-	const orderMessages = funnelMessages.filter(
-		m => m.type === 'first' || m.type === 'any' || m.type === 'order'
-	)
 	const orderMap = new Map<number, TMessageContent[]>()
-	orderMessages.forEach(msg => {
-		const orderNumber =
-			msg.type === 'first' ? 1 : msg.type === 'any' ? 99 : (msg.filter as number)
+	funnelMessages.forEach(msg => {
+		const orderNumber = msg.filter as number
 		if (!orderMap.has(orderNumber)) {
 			orderMap.set(orderNumber, [])
 		}
@@ -135,11 +110,15 @@ export function transformStoreToSettings(state: Store): TDirectCampaignSettings 
 		keywordMap.get(key)!.push(msg.message)
 	})
 
-	const settings: TDirectCampaignSettings = {
+	const settings: TPRCampaignSettings = {
 		name: state.settings.name,
 		budget_limit: state.settings.budget_limit,
 		settings: {
 			target: {
+				channels: {
+					include: state.settings.channels.include.map(ch => ch.value),
+					exclude: state.settings.channels.exclude.map(ch => ch.value),
+				},
 				geo: {
 					language: state.settings.geo.language,
 					country: state.settings.geo.country,
@@ -155,6 +134,11 @@ export function transformStoreToSettings(state: Store): TDirectCampaignSettings 
 				funnel: {
 					funnel_type: state.settings.auto_reply.funnel.funnel_type,
 					order: Array.from(orderMap.entries()).map(([order, messages]) => ({
+						delay: state.settings.auto_reply.funnel.delays.find(i => i.order == order)
+							?.delay ?? {
+							min: 0,
+							max: 1,
+						},
 						order,
 						messages,
 					})),

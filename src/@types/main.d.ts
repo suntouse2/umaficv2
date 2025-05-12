@@ -407,3 +407,53 @@ type TChatMessagesStatusUpdate = {
 	min_id: number
 	max_id: number
 }
+
+interface TPRCampaign extends TCampaign {
+	is_moderated: boolean
+	budget_limit: number
+}
+type TPRCampaignSettingsTarget = {
+	geo: TDirectCampaignSettingsTargetGEO
+	search: TDirectCampaignSettingsTargetSearch
+	channels: {
+		include: string[]
+		exclude: string[]
+	}
+}
+type TPRCampaignSettingsFunnel = {
+	order: TPRCampaignSettingsFunnelOrder[]
+	keyword: TPRCampaignSettingsFunnelKeyword[]
+	funnel_type: 'order' | 'keyword' | 'union'
+}
+type TPRCampaignSettingsFunnelOrder = {
+	messages: TFunnelMessage[]
+	order: number
+	delay: {
+		min: number
+		max: number
+	} | null
+}
+
+type TPRCampaignSettingsFunnelKeyword = {
+	messages: TFunnelMessage[]
+	keywords: string[]
+}
+
+type TPRCampaignSettingsAI = {
+	role: 'marketer' | 'user'
+	gender: 'female' | 'male'
+	description: string | null
+} | null
+
+type TPRCampaignSettings = {
+	name: string
+	settings: {
+		target: TPRCampaignSettingsTarget
+		auto_reply: {
+			funnel: TPRCampaignSettingsFunnel
+			assistant: TPRCampaignSettingsAI
+			use_assistant: boolean
+		}
+	}
+	budget_limit: string
+}

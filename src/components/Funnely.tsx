@@ -17,25 +17,49 @@ type FunnelyProps = {
 	type: FunnelyMessage['type']
 	onChange: (value: FunnelyMessage[]) => void
 	error?: string
+	filter?: { id: string; value: string }[] | number | null
+	buttonTitle?: string
 }
 
-export default function Funnely({ messages, type, onChange, error }: FunnelyProps) {
+export default function Funnely({
+	filter,
+	messages,
+	type,
+	onChange,
+	error,
+	buttonTitle,
+}: FunnelyProps) {
 	const [editorDialog, setEditorDialog] = useState<boolean>(false)
 	const [editingMessage, setEditingMessage] = useState<FunnelyMessage | null>(null)
 
 	const handleOpenEditor = (message: FunnelyMessage | null) => {
 		setEditingMessage(message)
-
 		setEditorDialog(true)
 	}
 
 	const handleManageMessage = (payload: FunnelyMessage) => {
-		if (messages.some(msg => msg.id === payload.id)) handleChangeMessage(payload)
-		else handleAddMessages([payload])
+		if (messages.some(msg => msg.id === payload.id))
+			handleChangeMessage({
+				...payload,
+				filter: filter ?? payload.filter,
+			})
+		else
+			handleAddMessages([
+				{
+					...payload,
+					filter: filter ?? payload.filter,
+				},
+			])
 		setEditorDialog(false)
 	}
 	const handleAddMessages = (payload: FunnelyMessage[]) => {
-		onChange([...messages, ...payload])
+		onChange([
+			...messages,
+			...payload.map(msg => ({
+				...msg,
+				filter: filter ?? msg.filter,
+			})),
+		])
 	}
 	const handleChangeMessage = (
 		payload: { id: FunnelyMessage['id'] } & Partial<FunnelyMessage>
@@ -69,7 +93,7 @@ export default function Funnely({ messages, type, onChange, error }: FunnelyProp
 			<Dialog open={editorDialog} onClose={() => setEditorDialog(false)}>
 				<FunnelMessageEditor
 					onDone={handleManageMessage}
-					type={type}
+					type={filter === undefined || filter === null ? type : 'any'}
 					message={editingMessage}
 				/>
 			</Dialog>
@@ -80,12 +104,16 @@ export default function Funnely({ messages, type, onChange, error }: FunnelyProp
 				type='button'
 				onClick={() => handleOpenEditor(null)}
 			>
-				Создать
+				{buttonTitle ? buttonTitle : 'Создать'}
 			</Button>
 			<ul>
 				<AnimatePresence>
 					{messages
-						.filter(msg => msg.type == type)
+						.filter(msg =>
+							filter !== undefined && filter !== null
+								? msg.filter == filter
+								: msg.type == type
+						)
 						.map(msg => (
 							<FunnelMessage
 								className='mt-2'

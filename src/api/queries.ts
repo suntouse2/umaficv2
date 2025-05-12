@@ -7,6 +7,7 @@ import {
 	useQueryClient,
 } from '@tanstack/react-query'
 import DirectCampaignService from './http/services/campaigns/direct/DirectCampaignService'
+import PrCampaignService from './http/services/campaigns/pr/PrCampaignService'
 
 export function useFetchDirectCampaigns() {
 	return useInfiniteQuery({
@@ -168,5 +169,83 @@ export function useFetchGeoCities(regions?: string[]) {
 		queryFn: () => GeoService.getCities(regions),
 		select: data => new Map(Object.entries(data.data)),
 		staleTime: Infinity,
+	})
+}
+// Получение всех PR-кампаний (с пагинацией)
+export function useFetchPrCampaigns(
+	is_moderated?: boolean | null,
+	state?: 'pending' | 'preparing' | 'active' | 'inactive' | null,
+	orders: string[] | null = null
+) {
+	return useInfiniteQuery({
+		queryKey: ['fetch-pr-campaigns', is_moderated, state, orders],
+		queryFn: ({ pageParam }) =>
+			PrCampaignService.getPrCampaigns(pageParam, is_moderated, state, orders),
+		initialPageParam: 1,
+		getNextPageParam: (lastPage, _allPages, lastPageParam) => {
+			if (lastPage.data.length === 0) {
+				return undefined
+			}
+			return lastPageParam + 1
+		},
+		staleTime: Infinity,
+	})
+}
+
+// Получение конкретной PR-кампании
+export function useFetchPrCampaign(campaign_id: number) {
+	return useQuery({
+		queryKey: ['fetch-pr-campaign', campaign_id],
+		queryFn: () => PrCampaignService.getPrCampaign(campaign_id),
+		select: data => data.data,
+		staleTime: 60 * 1000 * 5,
+	})
+}
+
+// Создание новой PR-кампании
+export function useCreatePrCampaign() {
+	const queryClient = useQueryClient()
+	return useMutation({
+		mutationFn: ({
+			data,
+			return_result = true,
+		}: {
+			data: TPRCampaignSettings
+			return_result?: boolean
+		}) => PrCampaignService.createPrCampaign(data, return_result),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['fetch-pr-campaigns'] })
+		},
+	})
+}
+
+export function useEditPrCampaign() {
+	const queryClient = useQueryClient()
+	return useMutation({
+		mutationFn: ({
+			campaign_id,
+			data,
+		}: {
+			campaign_id: number
+			data: Partial<TPRCampaignSettings>
+		}) => PrCampaignService.editPrCampaign(campaign_id, data),
+		onSuccess: (_data, variables) => {
+			queryClient.invalidateQueries({ queryKey: ['fetch-pr-campaigns'] })
+			queryClient.invalidateQueries({
+				queryKey: ['fetch-pr-campaign', variables.campaign_id],
+			})
+		},
+	})
+}
+
+// Удаление PR-кампании
+export function useDeletePrCampaign() {
+	const queryClient = useQueryClient()
+	return useMutation({
+		mutationFn: ({ campaign_id }: { campaign_id: number }) =>
+			PrCampaignService.deletePrCampaign(campaign_id),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['fetch-pr-campaigns'] })
+		},
 	})
 }
