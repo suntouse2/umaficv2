@@ -188,6 +188,14 @@ export function useFetchPrCampaigns(
 			}
 			return lastPageParam + 1
 		},
+		refetchInterval: data => {
+			if (!data) return false
+			if (!data.state.data) return false
+			const hasPendingCampaigns = data.state.data.pages.some(page =>
+				page.data.some(campaign => ['preparing', 'pending'].includes(campaign.state))
+			)
+			return hasPendingCampaigns ? 2000 : 60 * 1000
+		},
 		staleTime: Infinity,
 	})
 }
@@ -245,6 +253,18 @@ export function useDeletePrCampaign() {
 		mutationFn: ({ campaign_id }: { campaign_id: number }) =>
 			PrCampaignService.deletePrCampaign(campaign_id),
 		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['fetch-pr-campaigns'] })
+		},
+	})
+}
+export function useTogglePrCampaign() {
+	const queryClient = useQueryClient()
+	return useMutation({
+		mutationFn: ({ id, action }: { id: number; action: 'start' | 'stop' }) =>
+			action == 'start'
+				? PrCampaignService.startCampaign(id)
+				: PrCampaignService.stopCampaign(id),
+		onSettled: () => {
 			queryClient.invalidateQueries({ queryKey: ['fetch-pr-campaigns'] })
 		},
 	})

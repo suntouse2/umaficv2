@@ -1,8 +1,8 @@
-import { useDeletePrCampaign } from '@api/queries'
+import { useDeletePrCampaign, useTogglePrCampaign } from '@api/queries'
 import Bubble from '@components/ui/Bubble'
 import formatBalance from '@helpers/formatBalance'
 import { DeleteRounded, SettingsOutlined } from '@mui/icons-material'
-import { IconButton } from '@mui/material'
+import { IconButton, Switch } from '@mui/material'
 import { motion } from 'motion/react'
 import { useNavigate } from 'react-router-dom'
 
@@ -12,7 +12,15 @@ type PrCampaignCardProps = {
 
 export default function PrCampaignCard({ campaign }: PrCampaignCardProps) {
 	const { mutate: deleteDirectCampaign } = useDeletePrCampaign()
+	const { mutate: toggleCampaign, isPending } = useTogglePrCampaign()
 	const navigate = useNavigate()
+
+	const handleToggleCampaign = () =>
+		!isPending &&
+		toggleCampaign({
+			id: campaign.id,
+			action: campaign.state == 'active' ? 'stop' : 'start',
+		})
 
 	const handleDeleteCampaign = () =>
 		confirm('Вы точно хотите удалить кампанию?') &&
@@ -54,7 +62,15 @@ export default function PrCampaignCard({ campaign }: PrCampaignCardProps) {
 								{campaign.state == 'active' && 'Запущен'}
 							</span>
 						</span>
-						{}
+						{
+							<Switch
+								disabled={campaign.state == 'pending' || campaign.state == 'preparing'}
+								size='small'
+								color='success'
+								checked={campaign.state == 'active'}
+								onChange={handleToggleCampaign}
+							/>
+						}
 					</div>
 				) : (
 					<div className='flex items-center justify-between'>

@@ -43,6 +43,13 @@ class PrCampaignService {
 	async deletePrCampaign(campaign_id: number): Promise<AxiosResponse<{ msg: string }>> {
 		return $api.delete(`/campaigns/pr/${campaign_id}`)
 	}
+
+	async startCampaign(id: number): Promise<AxiosResponse> {
+		return $api.post(`/campaigns/pr/${id}/start`)
+	}
+	async stopCampaign(id: number): Promise<AxiosResponse> {
+		return $api.post(`/campaigns/pr/${id}/stop`)
+	}
 }
 
 export default new PrCampaignService()

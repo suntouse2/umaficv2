@@ -39,8 +39,8 @@ export default function PrCampaignFunnelSettings() {
 	)
 
 	const [currentDelay, setCurrentDelay] = useState<CurrentDelay>({
-		min: 0,
-		max: 0,
+		min: 20,
+		max: 60,
 	})
 	const [currentFunnel, setCurrentFunnel] = useState<CurrentFunnel>({
 		filter: 0,
@@ -119,7 +119,7 @@ export default function PrCampaignFunnelSettings() {
 							<div className='flex  w-min items-center gap-2 px-4  py-2 rounded-xl shadow-sm border-softgray border-solid border-[1px]'>
 								<span className='text-sm'>От</span>
 								<Input
-									className='w-[40px] h-8'
+									className='!w-[40px] h-8'
 									onChange={v => {
 										setCurrentDelay(p => ({
 											...p,
@@ -127,6 +127,7 @@ export default function PrCampaignFunnelSettings() {
 										}))
 									}}
 									maxNumber={60}
+									minNumber={20}
 									maxLength={3}
 									onlyDigits={true}
 									value={currentDelay.min.toString()}
@@ -137,7 +138,7 @@ export default function PrCampaignFunnelSettings() {
 							<div className='flex  w-min items-center gap-2  py-2  px-4	rounded-xl shadow-sm border-softgray border-solid border-[1px]'>
 								<span className='text-sm'>До</span>
 								<Input
-									className='w-[40px] h-8'
+									className='!w-[40px] h-8'
 									onChange={v => {
 										setCurrentDelay(p => ({
 											...p,
